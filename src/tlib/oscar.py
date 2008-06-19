@@ -3077,7 +3077,7 @@ class OscarAuthenticator(OscarConnection):
         #    self.BOSClass=ICQConnection
 
     def oscar_(self,flap):
-        if not self.icq:
+        if config.usemd5auth :
             self.sendFLAP("\000\000\000\001", 0x01)
             self.sendFLAP(SNAC(0x17,0x06,0,
                                TLV(TLV_USERNAME,self.username)+
@@ -3112,17 +3112,17 @@ class OscarAuthenticator(OscarConnection):
             #              TLV(0x0f,"en")+
             #              TLV(0x0e,"us"),0x01)
             self.sendFLAP('\000\000\000\001'+
-                          TLV(0x01,self.username)+
-                          TLV(0x02,encpass)+
-                          TLV(0x03,'ICQBasic')+
-                          TLV(0x16,"\x01\x0a")+
+                          TLV(TLV_USERNAME,self.username)+
+                          TLV(TLV_PASSWORD,encpass)+
+                          TLV(TLV_CLIENTNAME,'ICQBasic')+
+                          TLV(TLV_CLIENTID,"\x01\x0a")+
                           TLV(TLV_CLIENTMAJOR,"\x00\x14")+
                           TLV(TLV_CLIENTMINOR,"\x00\x22")+
-                          TLV(0x19,"\x00\x00")+
+                          TLV(TLV_CLIENTLESSER,"\x00\x00")+
                           TLV(TLV_CLIENTSUB,"\x09\x11")+
-                          TLV(0x14,"\x00\x00\x04\x3d")+
-                          TLV(0x0f,"en")+
-                          TLV(0x0e,"us"),0x01)
+                          TLV(TLV_CLIENTDISTNUM,"\x00\x00\x04\x3d")+
+                          TLV(TLV_LANG,"en")+
+                          TLV(TLV_COUNTRY,"us"))
             self.state="Cookie"
 
     def oscar_Key(self,data):
@@ -3132,21 +3132,20 @@ class OscarAuthenticator(OscarConnection):
             return
         len=ord(snac[5][0]) * 256 + ord(snac[5][1])
         key=snac[5][2:2+len]
-        encpass=encryptPasswordMD5(self.password,key)
+        encpass=encryptPasswordMD5(self.password[:8],key)
         self.sendFLAP(SNAC(0x17,0x02,0,
                            TLV(TLV_USERNAME,self.username)+
                            TLV(TLV_PASSWORD,encpass)+
                            TLV(0x004C)+ # unknown
-                           TLV(TLV_CLIENTNAME,"AOL Instant Messenger (SM), version 5.1.3036/WIN32")+
-                           TLV(0x0016,"\x01\x09")+
-                           TLV(TLV_CLIENTMAJOR,"\000\005")+
-                           TLV(TLV_CLIENTMINOR,"\000\001")+
-                           TLV(0x0019,"\000\000")+
-                           TLV(TLV_CLIENTSUB,"\x0B\xDC")+
-                           TLV(0x0014,"\x00\x00\x00\xD2")+
+                           TLV(TLV_CLIENTNAME,"ICQ Client")+
+                           TLV(TLV_CLIENTID,"\x01\x0a")+
+                           TLV(TLV_CLIENTMAJOR,"\000\006")+
+                           TLV(TLV_CLIENTMINOR,"\000\000")+
+                           TLV(TLV_CLIENTLESSER,"\000\000")+
+                           TLV(TLV_CLIENTSUB,"\x17\x97")+
+                           TLV(TLV_CLIENTDISTNUM,"\x00\x00\x75\x35")+
                            TLV(TLV_LANG,"en")+
-                           TLV(TLV_COUNTRY,"us")+
-                           TLV(TLV_USESSI,"\001")))
+                           TLV(TLV_COUNTRY,"us")))
         return "Cookie"
 
     def oscar_Cookie(self,data):
@@ -3228,8 +3227,11 @@ TLV_USERNAME = 0x0001
 TLV_CLIENTNAME = 0x0003
 TLV_COUNTRY = 0x000E
 TLV_LANG = 0x000F
+TLV_CLIENTDISTNUM = 0x0014
+TLV_CLIENTID = 0x0016
 TLV_CLIENTMAJOR = 0x0017
 TLV_CLIENTMINOR = 0x0018
+TLV_CLIENTLESSER = 0x0019
 TLV_CLIENTSUB = 0x001A
 TLV_PASSWORD = 0x0025
 TLV_USESSI = 0x004A

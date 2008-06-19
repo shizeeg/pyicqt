@@ -2,6 +2,7 @@
 # Licensed for distribution under the GPL version 2, check COPYING for details
 
 from twisted.internet import protocol, reactor
+from twisted.python import log
 from tlib import oscar
 from tlib import socks5
 import config
@@ -516,14 +517,21 @@ class OA(oscar.OscarAuthenticator):
 			c = protocol.ClientCreator(reactor, self.BOSClass, self.username, self.cookie, self.oscarcon)
 			return c.connectTCP(server, port)
 
-#	def connectionLost(self, reason):
-#		message = "ICQ connection lost! Reason: %s" % reason
-#		debug.log("OA: connectionLost: %s" % message)
-#		try:
-#			self.oscarcon.alertUser(message)
-#		except:
-#			pass
-#
-#		oscar.OscarConnection.connectionLost(self, reason)
-#		if hasattr(self.oscarcon, "session") and self.oscarcon.session:
-#			self.oscarcon.session.removeMe()
+	def connectionLost(self, reason):
+		message = "ICQ connection lost! Reason: %s" % reason
+		try:
+			LogEvent(INFO, self.session.jabberID, message)
+		except:
+			pass
+
+		try:
+			self.oscarcon.alertUser(message)
+		except:
+			pass
+
+		oscar.OscarConnection.connectionLost(self, reason)
+
+		try:
+			self.oscarcon.session.removeMe()
+		except:
+			pass

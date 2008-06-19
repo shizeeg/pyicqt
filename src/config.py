@@ -31,6 +31,7 @@ lang = "en"
 encoding = "iso-8859-1"
 icqServer = "login.icq.com"
 icqPort = 5238
+usemd5auth = bool(False)
 sessionGreeting = ""
 registerMessage = ""
 crossChat = bool(False)
