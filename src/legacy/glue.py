@@ -526,11 +526,6 @@ class LegacyConnection:
 			except:
 				pass
 			
-			x_status_iconstr=self.getXStatus(usercol.userinfo)
-			log.msg("self.getXStatus(usercol.userinfo): %s" % x_status_iconstr)
-			if x_status_iconstr != None:
-				desc.addContent(utils.xmlify("\n\n-----\n x-status: "+x_status_iconstr))
-						
 			url = vcard.addElement("URL")
 			url.addContent(utils.xmlify(usercol.homepage))
 
