@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# This is just a temporary wrapper to get folk used to starting up PyICQt
+# in a different manner.
+#
+
+echo "This script is deprecated and will vanish in a future version."
+echo "PyICQt should be started with: python PyICQt.py"
+sleep 2
+python ./PyICQt.py

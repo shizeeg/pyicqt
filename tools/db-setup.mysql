@@ -1,0 +1,52 @@
+--
+-- This is the required schema for MySQL. Load this into the database
+-- using the mysql interactive terminal:
+--
+--     mysql> \. db-setup.mysql
+--
+-- Then make sure you create a user in MySQL and grant it full access
+-- to the pyicqt database.  You will need to enter this information
+-- into your PyICQt config file.
+--
+
+CREATE DATABASE pyicqt;
+USE pyicqt;
+
+--
+-- registration table
+--
+CREATE TABLE `register` (
+    `owner` TEXT NOT NULL,
+    `username` TINYTEXT,
+    `password` TINYTEXT,
+    `encryptedpassword` TINYTEXT
+);
+
+--
+-- settings table
+--
+CREATE TABLE `settings` (
+    `owner` TEXT NOT NULL,
+    `variable` TINYTEXT,
+    `value` TINYTEXT
+);
+
+--
+-- lists table
+--
+CREATE TABLE `lists` (
+    `owner` TEXT NOT NULL,
+    `type` TINYTEXT NOT NULL,
+    `jid` TINYTEXT
+);
+
+--
+-- list attributes table
+--
+CREATE TABLE `list_attributes` (
+    `owner` TEXT NOT NULL,
+    `type` TINYTEXT NOT NULL,
+    `jid` TINYTEXT,
+    `attribute` TINYTEXT,
+    `value` TINYTEXT
+);

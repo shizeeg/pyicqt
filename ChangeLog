@@ -1,0 +1,2217 @@
+See
+ http://fisheye2.cenqua.com/browse/pyicqt
+for SVN logs.
+
+--- Old ChangeLog ---
+
+2007-06-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Applied patches from Scott Dial and Chris Carlin for OSCAR changes,
+	delayed messages, and stability fixes.
+
+2007-03-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Applied patch from Michael Dyrna to fix password hash issues.
+
+2007-02-16  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/xdb/mysql.py:
+	Applied patch from Alexander Sulfrian to handle mysql auto-reconnect.
+
+2006-10-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/services/IqAvatarFactory.py:
+	Was never actually -sending- the iq avatar response.
+
+2006-10-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/langs/__init__.py:
+	* src/main.py:
+	Minor cosmetic tweaks.
+
+	* config_example.xml:
+	Added better example of saslUsername usage.
+
+	* src/legacy/glue.py:
+	Killed pointless traceback.
+
+2006-09-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	* src/legacy/glue.py:
+	Added handling of presence probes.
+
+	* src/adhoc.py:
+	Improved ad-hoc support.
+
+	* src/main.py:
+	* src/daemonize.py:
+	Fixed backgrounded mode by switching to twistd.
+
+	* src/xdb/mysql.py:
+	* config_example.xml:
+	Added ability to encrypt passwords.
+
+	* src/xdb/mysql.py:
+	Set charset to utf8.
+
+	* tools/migrate.py:
+	Fixed bug with lack of utils import.
+
+	* src/xdb/mysql.py:
+	Added check for easy migration between encrypted and not encrypted.
+
+	* src/legacy/glue.py:
+	Updated for version 0.8 release.
+
+2006-09-17  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	* src/contact.py:
+	* src/config.py:
+	* config_example.xml:
+	Disabled pubsub/pep stuff since it's no longer valid/useful.
+
+	* src/web/handler.py:
+	* src/web/xmppcred.py:
+	* src/adhoc.py:
+	* src/avatar.py:
+	* src/contact.py:
+	* src/disco.py:
+	* src/iq.py:
+	* src/jabw.py:
+	* src/pubsub.py:
+	* src/register.py:
+	* src/sasl.py:
+	* src/session.py:
+	* src/utils.py:
+	* src/xmlconfig.py:
+	* src/main.py:
+	* src/xdb/legacyaimtransport.py:
+	* src/xdb/legacyjittransport.py:
+	* src/xdb/xmlfiles.py:
+	* src/services/VersionTeller.py:
+	* src/services/VCardFactory.py:
+	* src/services/Statistics.py:
+	* src/services/SearchFactory.py:
+	* src/services/RosterRetrieval.py:
+	* src/services/LastActivity.py:
+	* src/services/IqAvatarFactory.py:
+	* src/services/GatewayTranslator.py:
+	* src/services/EntityTime.py:
+	* src/services/ConnectUsers.py:
+	* src/legacy/glue.py:
+	* src/legacy/buddies.py:
+	* src/legacy/services/ConfirmAccount.py:
+	* src/legacy/services/EmailLookup.py:
+	* tools/migrate.py:
+	Updated to use twistwrap instead of tlib.
+
+	* src/tlib/jabber:
+	* src/tlib/domish.py:
+	* src/tlib/xmlstream.py:
+	* src/tlib/twistwrap.py:
+	Removed due to lack of need anymore.
+
+	* src/main.py:
+	Updated to match PyMSNt's handling of reactors.
+
+	* src/main.py:
+	Added note about debug log.
+
+	* src/services/VCardFactory.py:
+	Fixed wrong number of args passed bug.
+
+2006-09-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	Adjusted sendRosterImport to match JEP-0172 more accurately.
+	Thanks to guest from blathersource for submitting patch.
+
+	* src/sasl.py:
+	* config_example.xml:
+	Added quick note about lack of functionality with > Twisted 2.2.0.
+
+	* src/tlib/twisted-1.3.0:
+	Removed what has been reconsidered to be a bad idea.
+
+	* src:
+	Added svn:externals link for twistfix directory (to twistfix-0.6).
+
+2006-06-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	Added priorities to nicknames and avatars.
+
+	* src/jabw.py:
+	* src/session.py:
+	* src/main.py:
+	Moved around capabilities request and renamed.
+
+2006-06-12  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/services/VCardFactory.py:
+	Added check for vcard avatar disable.
+
+	* src/contact.py:
+	Added check for pep avatar disable.
+
+	* src/jabw.py:
+	Minor cosmetic tweak.
+
+2006-06-08  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/contact.py:
+	Fixed lack of check for disableAvatars.
+
+	* tools/infodump.py:
+	Added tool to dump information about python install/setup.
+
+	* src/tlib/twisted-1.3.0:
+	Added entire twisted 1.3.0 dist (important parts).
+
+2006-06-06  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/globals.py:
+	* src/services/VCardFactory.py:
+	Added support for JEP-0164, vcard filtering.
+
+	* src/legacy/icqt.py:
+	Fixed problem with unicode handling.
+
+2006-05-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	Added setting of permdeny 'properly' upon login.
+
+2006-05-29  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/xdb/mysql.py:
+	Fixed potential security hole.  =(  (not escaping variable)
+
+	* tools/managessi.py:
+	Added permissions and visibility functionality.
+
+	* src/tlib/oscar.py:
+	Added better SSI support for PDInfo entry.
+
+	* src/xdb/mysql.py:
+	Added ping before each mysql command to reconnect if connection lost.
+
+2006-05-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	* src/jabw.py:
+	* src/adhoc.py:
+	* src/iq.py:
+	* src/disco.py:
+	* src/services/IqAvatarFactory.py:
+	Switched defaultUri to uri.
+
+	* src/avatar.py:
+	* src/contact.py:
+	Killed newlines in base64 encodings.
+
+2006-05-07  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config.py:
+	* src/legacy/icqt.py:
+	* config_example.xml:
+	Added ability to disable away im-messages.
+
+2006-05-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Added ability to have user-specific handlers.
+	Added ability to kill name in identity.
+
+	* src/pubsub.py:
+	Updated to handle disco responses for pubsub stuff.
+
+2006-04-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config.py:
+	* config_example.xml:
+	* src/session.py:
+	* src/services/IqAvatarFactory.py:
+	* src/jabw.py:
+	Added options to disable each avatar style separately.
+
+	* src/jabw.py:
+	Tweaked to handle removal of resources more normally.
+
+	* src/contact.py:
+	Added more nickname functionality.
+
+	* src/main.py:
+	Tweaked loop call stuff.
+
+	* src/pubsub.py:
+	* src/main.py:
+	* src/contact.py:
+	Began adding support for PEP avatars and nicknames (.. maybe?)
+
+2006-04-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/debug.py:
+	* src/main.py:
+	Moved debugging around a tad.
+
+	* src/main.py:
+	Added improved support for reactors.  User can now pick whatever
+	reactor they want, with some that are 'known' to work.
+	cf reactor added for OS X.  cf stills needs to be tested more though.
+
+	* src/debug.py:
+	* src/main.py:
+	* src/xdb/__init__.py:
+	Added support for skipping display of 'args'.
+
+	* src/debug.py:
+	Minor prettying.
+
+	* src/xmlconfig.py:
+	* src/register.py:
+	* src/utils.py:
+	* src/pubsub.py:
+	* src/main.py:
+	* src/iq.py:
+	* src/disco.py:
+	* src/avatar.py:
+	* src/adhoc.py:
+	* src/services/GatewayTranslator.py:
+	* src/services/IqAvatarFactory.py:
+	* src/services/VCardFactory.py:
+	* src/web/handler.py:
+	* src/xdb/legacyaimtransport.py:
+	* src/xdb/legacyjittransport.py:
+	* src/xdb/xmlfiles.py:
+	* src/legacy/icqt.py:
+	Cleaned up LogEvent call just a tad.
+
+2006-04-26  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/avatar.py:
+	Fixed iq:avatar parser.
+
+	* src/iq.py:
+	* src/session.py:
+	Fixed errback exception handling.
+
+	* src/svninfo.py:
+	* src/main.py:
+	* src/services/VersionTeller.py:
+	Added (and modified a slight bit) James's svn version stuff.
+
+2006-04-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	Updated to stop sending double avatar requests.
+
+2006-04-21  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/services/RosterRetrieval.py:
+	* src/langs/en.py:
+	Added roster retrieval functionality.
+
+2006-04-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/avatar.py:
+	Fixed stupid bug with avatar conversion.
+
+	* src/jabw.py:
+	* src/session.py:
+	Improved IQ-based avatar support.
+
+2006-04-18  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	Updated to use guess_encoding with vcard type data.
+
+	* src/xmlconfig.py:
+	Updated to shout more about config options.
+
+	* src/config.py:
+	* src/xmlconfig.py:
+	Added functionality to complain about deprecated variables.
+
+	* src/web/xmppcred.py:
+	Added functionality to make web auth handler NOT keep trying.
+
+2006-04-17  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added Uri Shaked's SMS code.
+
+	* src/config.py:
+	* config_example.xml:
+	* src/langs/en.py:
+	* src/register.py:
+	* src/jabw.py:
+	* src/legacy/glue.py:
+	Added support for JEP-0136 (message archiving) and ldap register auth.
+
+	* src/config.py:
+	* config_example.xml:
+	* src/main.py:
+	Migrated from useJ2Component to useRouteWrap and useComponentBinding.
+
+	* src/services/GatewayTranslator.py:
+	Fixed return of prompt to jid as specified in JEP-0100.
+
+2006-04-16  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Removed utf-16be from the guess_encoding stuff... causes problems.
+
+	* src/iq.py:
+	* src/session.py:
+	Added arg to errback.
+
+	* src/adhoc.py:
+	Couple of cleanups.
+
+2006-04-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added actual failure on lack of loading plugin.
+
+	* src/services/EntityTime.py:
+	Added jabber:iq:time handler.
+
+	* src/services/EntityTime.py:
+	* src/services/VersionTeller.py:
+	Cleanup.
+
+	* src/globals.py:
+	Added jabber:iq:last.
+	Added jabber:iq:time.
+
+	* src/services/VersionTeller.py:
+	Added twisted version to os string.
+	Shortened python version string.
+
+2006-04-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Commented out pubsub support so I can release r180.
+
+	* src/adhoc.py:
+	* src/services/ConnectUsers.py:
+	* src/services/GatewayTranslator.py:
+	* src/services/IqAvatar.py:
+	* src/services/SearchFactory.py:
+	* src/services/VCardFactory.py:
+	Updated to have proper location of sendIqError.
+
+	* src/jabw.py:
+	Updated to have proper location of sendIq.
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Put buddyList back as legacyList since other things depend on it.
+
+	* src/main.py:
+	Fixed bad call to onIq.
+
+	* src/legacy/legacylist.py:
+	* src/legacy/buddies.py:
+	Oops, forgot to add and move.
+
+	* src/services/VersionTeller.py:
+	Fixed to have proper call to disco.
+
+2006-04-09  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/pubsub.py:
+	Added handler for storage.
+
+2006-04-08  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/pubsub.py:
+	Updated to handle pubsub and pep.
+
+	* src/globals.py:
+	Added pubsub pieces (including pep), avatar, and nick.
+
+	* src/iq.py:
+	Renamed prefhandlers to prefixhandlers.
+
+	* src/jabw.py:
+	Added JEP-0172 nickname support.
+
+	* src/main.py:
+	Fixed bug with handling of debugLevel.
+
+	* src/legacy/icqt.py:
+	Updated to properly update ssicontact list when buddy does offline.
+
+2006-04-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fixed guess_encoding .. maybe?  Who knows....
+
+	* src/adhoc.py:
+	* src/main.py:
+	Separated ad-hoc commands support.
+
+	* src/pubsub.py:
+	Started pubsub support.
+
+	* src/main.py:
+	Misc restructuring.
+
+	* src/main.py:
+	Moved primary Iq handler out from under disco.
+
+	* src/main.py:
+	* src/disco.py:
+	* src/adhoc.py:
+	* src/misciq.py:
+	* src/services:
+	* src/services/connectusers.py:
+	* src/services/gwtranslator.py:
+	* src/services/iqavatar.py:
+	* src/services/ping.py:
+	* src/services/search.py:
+	* src/services/statistics.py:
+	* src/services/vcard.py:
+	* src/services/version.py:
+	* src/legacy/services:
+	* src/legacy/services/EmailLookup.py:
+	* src/legacy/services/ConfirmAccount.py:
+	* src/legacy/glue.py:
+	* src/legacy/__init__.py:
+	Restructured to 'plug-in services' architecture.
+
+	* src/main.py:
+	* src/legacy/__init__.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/session.py:
+	* src/web/handler.py:
+	Removed statistics handlers that I don't use.
+
+	* src/main.py:
+	* src/adhoc.py:
+	* src/jabw.py:
+	* src/disco.py:
+	* src/register.py:
+	* src/services/ConnectUsers.py:
+	* src/services/GatewayTranslator.py:
+	* src/services/IqAvatarFactory.py:
+	* src/services/SearchFactory.py:
+	* src/services/VCardFactory.py:
+	* src/services/VersionTeller.py:
+	Renamed discovery to disco and ServerDiscovery to ServiceDiscovery.
+
+	* src/main.py:
+	* src/services/ConnectUsers.py:
+	* src/services/Statistics.py:
+	* src/services/VCardFactory.py:
+	Renamed adHocCommands to adhoc.
+
+	* src/legacy/legacylist.py:
+	* src/legacy/buddies.py:
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	Renamed legacylist to buddies.
+
+	* src/icqt.py:
+	* src/glue.py:
+	Renamed icqcon to oscarcon. (for easier compares)
+
+	* src/main.py:
+	* config_example.xml:
+	Removed requirement of saslUsername for useJ2Component.
+
+	* src/iq.py:
+	* src/main.py:
+	* src/disco.py:
+	Separated iq handler routines out of disco.
+
+2006-04-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Code cleanup a tad.
+
+2006-04-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	Identified and fixed icq status flags not being a single value.
+
+2006-03-31  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added check to make sure pid file contects are an int.
+
+	* src/tlib/oscar.py:
+	Updated ICQ5 capabilities strings.
+
+	* src/legacy/icqt.py:
+	Removed ICQ5 capability identification.
+
+	* src/tlib/icqt.py:
+	* src/tlib/glue.py:
+	Fixed problem with not checking encoding of nickname in all locations.
+
+	* src/legacy/legacylist.py:
+	Fixed bug where I wasn't caring about nicknames always.
+
+	* config_example.xml:
+	* src/config.py:
+	* src/legacy/icqt.py:
+	Switched disableWebPresence to enableWebPresence. (changed default)
+
+	* tools/managessi.py:
+	Added display of nicknames.
+
+	* src/legacy/icqt.py:
+	Moved buddy nickname update to central location.
+
+	* src/jabw.py:
+	* src/session.py:
+	* src/avatar.py:
+	Added support for sending of IQ-based avatars.
+
+2006-03-23  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Fixed misplaced savetheseusers.
+
+2006-03-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added better handling of reactors.
+
+2006-03-18  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Added passing of encoding to BOSConnection.
+	Check encoding of nicknames.
+	Added better checking for updateNickname.
+
+	* src/tlib/oscar.py:
+	Added in encoding guess support for offline messages.
+
+2006-03-14  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Fixed handling of icq statuses and flags.
+
+	* src/legacy/icqt.py:
+	Fixed encoding issues with nicknames (thanks Norbert!)
+
+	* src/main.py:
+	Fixed bug with call to handleResourcePresence (thanks Motienko!)
+
+	* src/legacy/glue.py:
+	Fixed possible crash with inactive session.
+
+	* src/legacy/icqt.py:
+	Fixed bug in how gotNickname was called.
+
+2006-03-12  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Removed raise (that was there for testing)
+
+	* src/contact.py:
+	* src/globals.py:
+	* src/jabw.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/session.py:
+	* src/utils.py:
+	Starting really using globals.
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	Started passing direct variables instead of arrays.
+
+2006-03-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config.py:
+	* src/xmlconfig.py:
+	* src/main.py:
+	* src/debug.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Added true integer checking in config file.
+
+	* src/web/handler.py:
+	Added handling for port specification. (username@hostname%port)
+
+	* src/web/xmppcred.py:
+	* src/tlib/twistwrap.py:
+	* src/tlib/ifcompat.py:
+	* src/tlib/xmlstream.py:
+	Added functionality to make web interface compatible with twisted 1.*.
+
+	* src/tlib/oscar.py:
+	Adjusted snac handling to make sure calls look the same.
+
+	* src/debug.py:
+	Killed 'self' debug instance.
+
+	* src/legacy/glue.py:
+	Adjusted to check for offline vs online for messages.
+
+	* src/tlib/scheduler.py:
+	Minor cosmetic cleanup.
+
+	* src/tlib/oscar.py:
+	Added better repr printing of various objects.
+
+2006-03-09  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Updated version to post-0.7a.
+
+	* src/legacy/icqt.py:
+	Added recursive/improved group parse.
+
+2006-03-06  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	* PyICQt.py:
+	Added option to enable profiling.
+
+	* src/legacy/glue.py:
+	Updated version to 0.7a.
+
+2006-03-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/legacylist.py:
+	Fixed updateNickname to behave itself...
+
+	* src/legacy/legacylist.py:
+	Fixed stupid bug with cached icons.
+
+	* src/web/handler.py:
+	Fixed bug with web access check.
+
+	* src/legacy/legacylist.py:
+	Adjusted encoding handling of nicknames.
+
+	* src/main.py:
+	Fixed bug with debugLog vs debugFile.
+
+	* src/jabw.py:
+	Added catch for nickname.
+
+	* src/tlib/oscar.py:
+	Added ability to connect on other ports properly besides 5190.
+
+	* src/legacy/icqt.py:
+	Fixed for stupid problems with port and socks port handling.
+
+	* src/main.py:
+	Fixes for jabberd2 disconnects. (not complete)
+
+2006-03-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Fixed misplaced return.
+
+	* tools/migrate.py:
+	* tools/managessi.py:
+	Switched to /usr/bin/env python.
+
+	* src/tlib/oscar.py:
+	Added functionality to request "short info".
+
+	* src/legacy/icqt.py:
+	Added pieces to auto-retrieve nicknames.
+
+	* src/jabw.py:
+	Switched namespace for roster subsync.
+
+	* src/legacy/icqt.py:
+	Added better handling of nick.
+
+	* src/tlib/oscar.py:
+	Updated to actually include extended pieces of SSIBuddy.
+
+	* src/legacy/glue.py:
+	Fixed bug with retrieval of ip address and such.
+
+2006-03-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Removed print of variable that didn't exist.
+
+	* src/tlib/oscar.py:
+	Fixed lack of check for errorurl.
+
+2006-03-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/web/handler.py:
+	Fixed stupid call to attribute that didn't exist.
+
+	* tools/Makefile:
+	Made testinst more verbose.
+
+	* src/legacy/legacylist.py:
+	Fixed bad call to updateIconHashes.
+
+2006-02-28  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fixed warning (thanks to pkern from chatroom).
+
+	* src/legacy/legacylist.py:
+	Fixed debug output.
+
+	* src/legacy/glue.py:
+	Fixed lack of removal of "get their icon" indicator.
+
+	* src/legacy/icqt.py:
+	Cleaned up connectionLost code a tad.
+
+2006-02-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* tools/Makefile:
+	Added script to create test install.
+
+	* src/tlib/oscar.py:
+	Fixed stupid error.
+
+	* src/legacy/glue.py:
+	* src/legacy/legacylist.py:
+	* src/tlib/oscar.py:
+        Worked on improvements to direct buddy icons.
+
+2006-02-26  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/avatar.py:
+	Fixed odd call to abspath.
+
+	* src/tlib/oscar.py:
+	Added other SSI and user info types.
+
+2006-02-24  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Fixed double encoding issue with auto-away messages.
+
+2006-02-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	Updated capabilities stuff and tried out a few.
+
+2006-02-14  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/sasl.py:
+	Tweaks to try to get sasl working right.
+
+2006-02-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* tools/migrate.py:
+	Fixed to use new twistwrap stuff.
+
+	* src/sasl.py:
+	Fixed duplicate xmlns declaration.
+
+	* src/tlib/oscar.py:
+	Fixed encoding that doesn't exist everywhere.
+
+	* PyICQt.py:
+	Adjusted call to python.
+
+	* config_example.xml:
+	Switched to port 5190 since 5238 seems to bust buddy icons.
+
+	* src/web/handler.py:
+	Updated to ask real jabber server if you are who you say you are.
+
+	* src/sasl.py:
+	Minor mods to fix duplicate xmlns declaration.
+
+2006-02-12  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fixed typoed repr.
+
+	* src/debug.py:
+	Adjusted ordering of debug output.
+
+	* src/web/handler.py:
+	Fixed string concat bug.
+
+2006-02-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Applied fixes for dealing with reactors better.
+
+	* src/avatar.py:
+	* src/contact.py:
+	* src/disco.py:
+	* src/jabw.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/sasl.py:
+	* src/session.py:
+	* src/utils.py:
+	* src/xmlconfig.py:
+	Applied Florian's patch to use %r instead of %s.
+	Fixes crashes during printing of unprintable chars.
+
+	* src/session.py:
+	Fixed handling of avatar hashes received.
+
+	* tools/Makefile:
+	Added developer Makefile.
+
+	* src/config.py:
+	* src/debug.py:
+	* src/main.py:
+	Switched to new debugging code.
+
+	* src/avatar.py:
+	* src/contact.py:
+	* src/disco.py:
+	* src/jabw.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/session.py:
+	* src/utils.py:
+	* src/xmlconfig.py:
+	* src/xdb/__init__.py:
+	* src/xdb/legacyaimtransport.py:
+	* src/xdb/legacyjittransport.py:
+	* src/xdb/xmlfiles.py:
+	* src/web/handler.py:
+	* src/legacy/__init__.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/legacy/legacyiq.py:
+	* src/legacy/legacylist.py:
+	Switched to new debugging style.
+
+	* src/globals.py:
+	Added extra settings.
+
+	* src/lang.py:
+	* src/sasl.py:
+	Minor cleanup.
+
+	* src/web/handler.py:
+	Imported http from newer proper location.
+
+2006-02-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/xdb/xmlfiles.py:
+	Fixed reading of differently named variable.
+
+	* src/imgmanip.py:
+	Pulled image pieces out into this.
+
+	* src/legacy/glue.py:
+	* src/legacy/legacylist.py:
+	* src/utils.py:
+	Adjusted to account for move of image pieces.
+
+	* src/legacy/glue.py:
+	Updated version to 0.7.
+
+2006-02-09  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config.py:
+	* config_example.xml:
+	* src/legacy/icqt.py:
+	Added ability to disable email notifications.
+
+2006-02-08  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/xdb/xmlfiles.py:
+	Fixed stupid bug where I wasn't assigning pre to anything.
+
+	* src/legacy/legacylist.py:
+	Made it so I can see the numeric hash.
+
+2006-02-07  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	* src/avatar.py:
+	* src/debug.py:
+	* src/main.py:
+	* src/xdb/xmlfiles.py:
+	* src/xdb/legacyaimtransport.py:
+	Retired doPath.
+
+	* src/xdb/legacyjittransport.py:
+	Added driver for old JIT format.
+
+	* src/legacy/icqt.py:
+	* config_example.xml:
+	Added check for avatarsOnlyOnChat.
+
+	* config_example.xml:
+	* src/config.py:
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	* src/legacy/legacylist.py:
+	* src/utils.py:
+	* src/session.py:
+	* src/jabw.py:
+	* src/contact.py:
+	* src/web/handler.py:
+	* src/misciq.py:
+	Added ability to disable avatars entirely.
+
+	* INSTALL:
+	Updated to reflect newer instructions.
+
+	* src/config.py:
+	* src/legacy/icqt.py:
+	* config_example.xml:
+	Added ability to disable web presence indicator.
+
+	* src/langs/en.py:
+	Removed useless lang string.
+
+	* src/xmlconfig.py:
+	Fix for lack of crashing with bad config option.
+
+2006-02-06  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/twistwrap.py:
+	Patched to work with newer Twisted stuff (thanks Asterix!)
+
+	* src/legacy/legacylist.py:
+	Added support for binary based hashes.
+
+	* src/legacy/icqt.py:
+	Fixed incoming direct icon support.
+
+	* src/web/handler.py:
+	Added admin checks.
+
+2006-02-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Fixed up direct icon support.
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Readded setBack stuff since it works with ICQ.
+
+2006-02-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/twistwrap.py:
+	Added handler for dealing with multiple Twisted versions.(thanks james!)
+
+	* src/utils.py:
+	Removed functions that are now in twistwrap and updated for twistwrap.
+
+	* src/main.py:
+	* src/avatar.py:
+	* src/contact.py:
+	* src/disco.py:
+	* src/groupchat.py:
+	* src/jabw.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/sasl.py:
+	* src/session.py:
+	* src/xmlconfig.py:
+	* src/xdb/xmlfiles.py:
+	* src/xdb/legacyaimtransport.py:
+	* src/legacy/glue.py:
+	* src/legacy/legacyiq.py:
+	* src/legacy/legacylist.py:
+	Updated for twistwrap.
+
+	* src/exception.py:
+	* src/main.py:
+	Removed what turned out to be useless.
+
+	* src/main.py:
+	Moved sasl import to immediate location in which it is needed.
+
+	* src/groupchat.py:
+	* src/session.py:
+	* src/main.py:
+	* src/jabw.py:
+	* src/config.py:
+	* src/disco.py:
+	* config_example.xml:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/legacy/__init__.py:
+	* src/langs/en.py:
+	Removed groupchat support (ICQ does not support).. and invites.
+
+	* src/tlib/oscar.py:
+	Fixed problem with array handling for iconinfo.
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	Added direct buddy icon support, but can't find a client to test.
+
+	* src/config.py:
+	* src/jabw.py:
+	* config_example.xml:
+	Added disableXHTML stuff.
+
+2006-02-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Removed unnecessary imports.
+
+	* src/main.py:
+	Cleanup for web interface stuff.
+
+	* src/INSTALL:
+	Minor cleanup to indicate web interface is not usable under Twisted 1.*.
+
+	* src/config.py:
+	* config_example.xml:
+	Removed websecret which is no longer necessary.
+
+	* src/contact.py:
+	* src/utils.py:
+	* src/tlib/domish.py:
+	* src/tlib/oscar.py:
+	* src/legacy/oscart.py:
+	* src/legacy/glue.py:
+	* src/legacy/legacylist.py:
+	* src/jabw.py:
+	* src/main.py:
+	* src/debug.py:
+	* src/session.py:
+	Applied Robert Quattlebaum's many patches.  Includes:
+	iTunes URL support
+	encoding fixes
+	less presence spam when another resource comes online
+	better (ie, actually functional) xhtml support
+	misc other things
+
+	* src/legacy/glue.py:
+	* data/defaultAIMAvatar.png:
+	* data/defaultICQAvatar.png:
+	* data/defaultAvatar.png:
+	Added separate icons for icq and aim contacts.
+
+	* src/legacy/oscart.py:
+	* src/legacy/icqt.py:
+	Moved back to the previous name.
+
+	* src/utils.py:
+	Shut up xmlify debug info.
+
+	* src/legacy/glue.py:
+	Added xmlify's to icq returned vcard information.
+
+	* src/langs/ru.py:
+	Added sessionnotactive string.
+
+2006-02-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/__init__.py:
+	* src/misciq.py:
+	Fixed issue with calling wrong location of default avatar.
+
+	* src/web/xmppcred.py:
+	Added handlier for xmpp auth.
+
+	* src/web/handler.py:
+	Added call to jabber auth.
+	Cleaned up and improved web interface some.
+
+	* src/webadmin/__init__.py:
+	* src/webadmin/handler.py:
+	* src/webadmin:
+	Removed old tree.
+
+2006-02-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/legacylist.py:
+	Fixed poor choice of which iteration of contact to call.
+
+	* src/session.py:
+	Silly cosmetic patch.
+
+	* src/web/__init__.py:
+	* src/web/handler.py:
+	* data/www/images/pyicq.png:
+	* data/www/css/style.css:
+	* data/www/template.html:
+	* src/main.py:
+	Beginnings of reworked web interface.
+
+2006-01-28  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/__init__.py:
+	Removed unnecessary functions.
+
+	* src/legacy/defaultAvatar.png:
+	* src/legacy/defaultJabberAvatar.png:
+	Moved icons from here . . .
+
+	* data/defaultAvatar.png:
+	To here.  =)
+
+	* PyICQt.py:
+	Added frontend script to handle starting up PyICQ properly.
+
+	* PyICQt:
+	Deprecated, and refers to new startup script.
+
+	* src/legacy/legacylist.py:
+	* src/legacy/glue.py:
+	Updated to alternate location for icon.
+
+	* src/xmlconfig.py:
+	* src/langs/__init__.py:
+	Updated to handle newer paths.
+
+	* src/main.py:
+	Moved main part to being it's own function.
+	Added note about not starting from this anymore.
+
+	* src/legacy/icqt.py:
+	Deprecated during code cleanup.
+
+	* src/legacy/glue.py:
+	Added half of icqt.py functionality to here.
+
+	* src/legacy/oscart.py:
+	Added as a separated-out piece of icqt.py.
+
+2006-01-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fix for lack of icondata declaration.
+
+2006-01-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/misciq.py:
+	Added support for getting vcards for not-in-list users.
+
+	* src/config.py:
+	* config_example.xml:
+	* src/legacy/glue.py:
+	* src/legacy/legacylist.py:
+	* src/legacy/icqt.py:
+	Added ability to skip the default avatar.
+
+	* src/tlib/oscar.py:
+	Added retrieval of SMS number.
+
+	* src/legacy/icqt.py:
+	Added attempt to update nickname from buddy list.
+
+2006-01-17  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added handling of more channel 2 icbm things.
+
+	* src/legacy/icqt.py:
+	Adjusted call to buddy icon upload.
+
+2006-01-15  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added function to "simply notify about a buddy icon".
+
+	* src/legacy/icqt.py:
+	Added handling of icon notification attached to a message.
+
+2006-01-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added haveIcon and wantIcon to sendMessage, not complete yet.
+
+2006-01-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fixed problems with splitting web pager messages.
+
+	* src/utils.py:
+	Changed warning to an error when there's no imaging library (for now).
+
+2005-12-31  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added much channel 4 message handling.
+
+2005-12-21  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Added extra ICQ capabilities, will attempt to figure them out.
+
+2005-12-15  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* tools/db-setup.msql:
+	* tools/migrate.py:
+	* tools/managessi.py:
+	Added tools from AIM that I forgot.
+
+2005-12-12  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/domish.py:
+	Fixed location of utf-8 encode.
+
+	* src/tlib/oscar.py:
+	Check for existance of extended status encoding.
+
+	* src/legacy/icqt.py:
+	Added handling of extended status encoding.
+
+2005-12-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Killed %s print.
+
+	* src/main.py:
+	Rebinded sys.stdout so that it can handle unicode.
+
+	* src/legacy/icqt.py:
+	Switched to encode with utf-16be for unicode support.
+
+	* src/legacy/legacylist.py:
+	Added handling of capabilities.
+
+	* src/legacy/icqt.py:
+	Fixed handling of unicode check.
+
+2005-12-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Updated announced versions for ICQ5 support.
+
+	* config_example.xml:
+	Removed confjid reference since it doesn't appear to work.
+
+	* src/legacy/legacyiq.py:
+	* src/legacy/glue.py:
+	Added misc iq features.
+
+2005-12-08  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Fixed encoding issue.
+
+2005-12-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/defaultAvatar.png:
+	* src/legacy/defaultJabberAvatar.png:
+	Updated to maarten's submitted icon!  Thanks maarten!
+
+	* src/legacy/icqt.py:
+	Fixed issue wth retrieving vcard for user who isn't an ICQ user.
+
+2005-12-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Hrm, connectionlost doesn't work well with icq.
+	Lots of fixes.
+
+	* src/tlib/oscar.py:
+	Actually bother to listen for message ack.
+
+2005-12-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	More attempts to sever connection nicely.
+
+	* src/tlib/oscar.py:
+	Increased version we identify ourselves as.
+
+	* src/disco.py:
+	Severed long log entry.
+
+2005-11-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/legacylist.py:
+	Added handling of ICQ specific thingys, plus nicks.
+
+	* src/legacy/icqt.py:
+	Imported PyAIM changes.
+
+	* src/legacy/glue.py:
+	Fixed typo.
+
+	* src/config.py:
+	Added encoding which I had missed.
+
+	* src/legacy/icqt.py:
+	Check if session exists before removing.
+
+2005-11-29  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/misciq.py:
+	Fixed error packet to go back to user.
+
+	* src/xdb/legacyaimtransport.py:
+	Added aim-transport XDB plugin because you can use ICQ with it.
+
+	* src/tlib/oscar.py:
+	Added default exchange for createChat.
+
+	* src/groupchat.py:
+	Readded groupchat to see if it does indeed work with ICQ.
+
+	* src/disco.py:
+	* src/jabw.py:
+	* src/legacy/__init__.py:
+	* src/legacy/legacylist.py:
+	* src/session.py:
+	* src/utils.py:
+	Imported directly from PyAIM, with some minor mods.
+
+	* src/legacy/glue.py:
+	Imported from PyAIM with a lot of mods for ICQ.
+
+	* src/legacy/legacyiq.py:
+	Imported barebones legacyiq.
+
+	* config_example.xml:
+	Added PyAIM new config options.
+
+2005-11-28  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/avatar.py:
+	* src/config.py:
+	* src/contact.py:
+	* src/daemonize.py:
+	* src/debug,py:
+	* src/globals.py:
+	* src/lang.py:
+	* src/langs/__init__.py:
+	* src/langs/cs.py:
+	* src/langs/de.py:
+	* src/langs/en.py:
+	* src/langs/es.py:
+	* src/langs/fr.py:
+	* src/langs/nl.py:
+	* src/langs/pl.py:
+	* src/langs/ru.py:
+	* src/langs/sv.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/sasl.py:
+	* src/tlib/domish.py:
+	* src/tlib/jabber/jid.py:
+	* src/tlib/jabber/xmpp_stringprep.py:
+	* src/tlib/oscar.py:
+	* src/webadmin/handler.py:
+	* src/xdb/__init__.py:
+	* src/xdb/mysql.py:
+	* src/xdb/template.py:
+	* src/xdb/xmlfiles.py:
+	* src/xmlconfig.py:
+	Imported directly from PyAIM, with some minor mods.
+
+	* src/stats.py:
+	Removed since we don't use it anymore.
+
+2005-09-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Cut off password at 8 characters, which is ICQ's limit.
+
+2005-08-24  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Set defaults for ip address related variables.
+
+2005-08-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Decreased announced ICQ version.  Increase didn't work.
+
+2005-08-15  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Increased announced ICQ version.
+
+	* src/main.py:
+	* src/config.py:
+	* config_example.xml:
+	Added disableAutoInvite option to disable automatic invitations
+	to reconnect upon startup.
+
+2005-08-14  Robert Quattlebaum  <darco@deepdarc.com>
+
+	* src/main.py:
+	Added code to send a "probe" presence to everyone registered on the
+	transport, so that if they happen to be logged in when the transport
+	starts up they are automaticly logged into the transport as well.
+	Just be careful with restarting the transport frequently, this can
+	very quickly annoy users!
+
+	* src/xdb.py:
+	Added a function to grab the JID's of all the registered users.
+	Necessary to send the initial "probe" presence packets.
+
+2005-08-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Added try/except clause around ip address check.
+
+2005-07-31  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Applied Oleg Motienko's patch for busted XDB writing.
+	Added support for ip addresses and icq versions in vcard.
+
+	* src/tlib/oscar.py:
+	Applied Oleg Motienko's lan ip address capture patch.
+
+2005-07-26  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/register.py:
+	Fixed misplaced .lower().
+
+2005-07-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Fixed failure to import re.
+
+2005-07-21  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/tlib/domish.py:
+	* src/disco.py:
+	* src/legacy/icqt.py:
+	Applied Denis Shaposhnikov's patch set (modified slightly).
+
+	* src/tlib/scheduler.py:
+	* src/tlib/oscar.py:
+	Applied Chris Carlin's rate handling patches.
+
+	* src/register.py:
+	* src/jabw.py:
+	Applied Oleg Motienko's lowercase spool file patches.
+
+	* src/legacy/icqt.py:
+	Applied Oleg Motienko's vcard encoding patches.
+
+	* src/disco.py:
+	* src/jabw.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/session.py:
+	Applied patch from Magnus Henoch for handling of lost connections.
+	See ChangeLogs below with his name.
+
+	* src/legacy/icqt.py:
+	Unapplied Oleg Motienko's vcard encoding patches; conflict with
+	Denis Shaposhnikov's fixes.
+
+2005-06-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Applied patch from Magnus Henoch for proper error handling.
+
+2005-06-13  Magnus Henoch  <mange@freemail.hu>
+
+	* src/legacy/icqt.py:
+	Add B.connectionLost, alerting user about lost ICQ connection.
+
+2005-06-10  Magnus Henoch  <mange@freemail.hu>
+
+	* src/jabw.py:
+	Accept error arguments in sendPresence.
+
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	* src/session.py:
+	Accept error arguments in removeMe.  Send presence error
+	when user sent wrong password.
+
+2005-06-09  Magnus Henoch  <henoch@cd.chalmers.se>
+
+	* src/jabw.py:
+	* src/disco.py:
+	* src/register.py:
+	Define makeErrorElement in jabw.py and use it.
+
+2005-05-31  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Cleaned up retrieve message code a bit.
+
+	* src/tlib/oscar.py:
+	Cleaned up retrieve message code a bit.
+	Added error callbacks for all deferreds.
+
+2005-05-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/session.py:
+	* src/register.py:
+	Added more pieces to personalized encoding.
+	However, it doesn't work.  Need to rethink it.
+
+	* config_example.xml:
+	Changed encoding to be "default encoding".
+
+	* src/bool.py:
+	* src/xmlconfig.py:
+	* src/config.py:
+	Added bool class to allow restriction reduction to 2.2.
+
+	* src/main.py:
+	Reduced requirement.
+
+2005-04-26  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Fixed PyAIM bug 69 responding to result iq. 
+
+2005-04-25  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added check for minimum python version of 2.2.1.
+
+	* src/disco.py:
+	Added try/except clause to dodge empty vcard return.
+
+2005-04-24  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/register.py:
+	* src/legacy/glue.py:
+	Added support for encoding personal config option.
+
+2005-04-23  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/domish.py:
+	Removed parts that are no longer needed here.
+
+	* src/utils.py:
+	Added pieces from domish.py that were moved.
+	Added new RollingStock class.
+	Added pieces to check for version of Twisted.
+
+	* src/disco.py:
+	* src/jabw.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/xdb.py:
+	* src/xmlconfig.py:
+	Added tests to check for Twisted 2.
+
+	* src/xdb.py:
+	Changed to parseFile instead of parseText.
+
+	* src/debug.py:
+	Added rolling stock debugging and ability to reopen debug file.
+
+	* src/main.py:
+	Made hup also reopen debugging file.
+	Experimenting with utf-8 default encoding.
+	Experimenting with lifting my 2.3 python restriction.
+	Added tracebackDebug config option (and command line option).
+
+	* src/config.py:
+	Added tracebackDebug config option.
+
+	* src/xmlconfig.py:
+	Switched to using parseFile instead of parseText.
+
+2005-04-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Fixed typos in new encrypt spool stuff.
+
+2005-04-17  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/config.py:
+	* config_example.xml:
+	Added encrypt and decrypt pieces for spool.
+
+	* src/legacy/icqt.py:
+	Fixed problems with nickname@icq.host being the jid.
+
+	* src/legacy/glue.py:
+	Switched to base64, which is standard but not depricated.
+
+2005-04-15  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Applied Jonas and Magnus's patches to add ICQ nickname support.
+
+	* src/config.py:
+	* src/legacy/glue.py:
+	Added pieces for password-on-spool encryption.
+
+	* src/jabw.py:
+	* src/legacy/icqt.py:
+	Backed down nick attribute from previous patch and used name instead.
+
+2005-04-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/xmlconfig.py:
+	Fixed misplaced output per type of config option.
+
+	* config_example.xml:
+	* src/main.py:
+	Added check so people can choose to have no pid file.
+
+2005-04-09  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Don't shutdown upon receiving limit.  Not the best fix yet, but
+	better than a shutdown.
+
+	* src/legacy/icqt.py:
+	Fixed issue in difference between icq and aim messages.
+	'Fixed' issue with unicode away messages.  Hides 'illegal' chars.
+
+2005-04-06  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/oscar/tlib.py:
+	Fixed lack of handling for channel 4 (old style) messages.
+
+2005-04-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Fixed another xmlify bug regarding unicode vs non-unicode.
+
+2005-04-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Fixed bug with xmlify not checking for string.
+
+	* src/legacy/icqt.py:
+	Fixed problem with variable being used that wasn't ever set.
+
+2005-03-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/webadmin/.cvsignore:
+	* src/tlib/jabber/.cvsignore:
+	* src/tlib/.cvsignore:
+	* src/legacy/.cvsignore:
+	* src/.cvsignore:
+	Removed legacy CVS files.
+
+2005-03-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Added Martin von Loewis's xmlify function.
+
+	* src/main.py:
+	Fixed what is probably the cause of the infinite loop stream error.
+	Bug id 45.
+
+2005-03-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Added check to make sure we're being passed an int.
+
+2005-03-12  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/exception.py:
+	* src/main.py:
+	Added new exception handler.
+
+	* src/debug.py:
+	Changed logging format slightly.
+
+2005-03-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Upped version to 0.6 in preparation for release.
+
+	* src/lang.py:
+	Added french translation.
+
+	* src/main.py:
+	Added required python version check.
+
+	* src/tlib/oscar.py:
+	Added &quot; conversion to dehtml.
+
+	* src/legacy/icqt.py:
+	Added dehtml, which is necessary for receiving messages from AIM
+	users.
+
+	* src/utils.py:
+	Fixed stupid typo.
+
+	* src/main.py:
+	Forgot to import properly.
+
+2005-03-08  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Added regex check for illegal control chars.
+
+	* src/session.py:
+	Fixed lack of calling SessionResource with all args.
+
+	* src/legacy/glue.py:
+	Repaired resourceOffline typo.
+
+2005-03-07  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Altered utf8encode to use tests offered by Florian.
+
+2005-03-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Killed unnecessary error report.
+
+	* src/main.py:
+	* src/session.py:
+	* src/register.py:
+	* src/legacy/aimt.py:
+	* src/legacy/glue.py:
+	* src/xmlconfig.py:
+	* src/config.py:
+	* src/jabw.py:
+	Applied some of James's PyMSNt 0.9.1 patches.
+
+2005-03-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added observer for stream errors.
+
+2005-03-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/tlib/socks5.py:
+	* src/tlib/sockserror.py:
+	* src/legacy/icqt.py:
+	* config_example.xml:
+	* src/config.py:
+	* AUTHORS:
+	Applied Daniel Chandran's socks patches.
+
+2005-02-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* AUTHORS:
+	Added Chris.
+
+	* src/tlib/oscar.py:
+	Added Chris Carlin's threading patch.
+
+	* src/disco.py:
+	Applied Florian's error IQ patch.
+
+2005-02-23  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Added lang import.
+
+	* src/jabw.py:
+	Added check in error type handler.
+
+2005-02-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	* src/debug.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/disco.py:
+	* src/register.py:
+	* src/config.py:
+	* config_example.xml:
+	* src/xdb.py:
+	Updated with PyMSN changes between 0.8 and 0.9.
+
+	* src/utils.py:
+	Added doPath function.
+
+	* PyICQt:
+	* src/main.py:
+	Removed most of wrapper script and added internal pid handling.
+
+	* src/tests:
+	Removed since I don't use it.
+
+	* src/main.py:
+	Switched to auto-restart with proper process name.
+
+	* config_example.xml:
+	Adjusted to change the way sessionGreeting is handled.
+
+	* src/lang.py:
+	Removed all sessiongreeting references.
+
+	* src/lang.py:
+	* src/jabw.py:
+	* src/session.py:
+	* src/groupchat.py:
+	* src/main.py:
+	Removed groupchat handling.  (no groupchat for ICQ)
+
+	* src/tlib/oscar.py:
+	Cleaned up stdout debug messages.
+
+	* src/lang.py:
+	Punt to english of all else fails.
+
+2005-02-19  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/utils.py:
+	Added utf8encode.
+
+	* src/jabw.py:
+	Switched to new unicode translator function.
+
+2005-02-17  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	Fixed poor stats reference.
+
+	* src/legacy/icqt.py:
+	Added check for whether buddy list is actually non-existant.
+
+2005-02-16  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	Changed unicode handling some.
+
+	* src/disco.py:
+	* src/tlib/oscar.py:
+	Added test for readiness.
+
+	* src/stats.py:
+	* src/main.py:
+	* src/session.py:
+	* src/legacy/icqt.py:
+	* src/webadmin/handler.py:
+	Switched to new stats handler.
+
+	* src/webadmin/handler.py:
+	Passwords are now hidden.
+
+2005-02-15  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	Added unicode conversion.
+
+2005-02-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/debug.py:
+	* src/main.py:
+	* src/config.py:
+	Added extended debugging support.
+
+2005-02-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Imported part of Florian's version patch.
+
+2005-02-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* PyICQt:
+	Changed to /bin/sh.
+	Then changed to /usr/bin/env.
+
+	* src/config.py:
+	* src/legacy/icqt.py:
+	* config_example.xml:
+	Added icqServer and icqPort config setting.
+
+2005-02-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Added Jonas's SSI patches.
+
+2005-01-18  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config.py:
+	* config_example.xml:
+	Added encoding which vanished on me for some reason.
+
+	* src/tlib/oscar.py:
+	Check for seqnum existance.
+
+	* src/legacy/icqt.py:
+	Added more checks for "bos".
+	Fixed lack of readiness check.
+
+	* src/lang.py:
+	* src/session.py:
+	* src/register.py:
+	* src/utils.py:
+	* src/misciq.py:
+	* src/main.py:
+	* src/groupchat.py:
+	Changed case of lang strings.
+
+2005-01-14  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/webadmin/handler.py:
+	Added authentication support thanks to one of the folk in twisted.web.
+	Switched shut down button to form-driven and to not generate errors.
+
+2005-01-11  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Added support for status indicators. (web aware, that sort of thing)
+
+2005-01-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Added check for existance of nevow.
+
+	* src/lang.py:
+	Added spanish and swedish.
+
+2005-01-09  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	* src/xmlconfig.py:
+	* src/config.py:
+	* src/config_example.py:
+	Updated to new config style.
+
+	* config_example.xml:
+	Added example new configuration file.
+
+	* PyICQt:
+	Altered to pass on args.
+
+2005-01-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Removed unnecessary sys pieces.
+	Added back, might be necessary after all?
+
+	* src/legacy/icqt.py:
+	* src/config_example.py:
+	Added patches from Serge Trylis for proper encoding config.
+
+2005-01-02  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/config_example.py:
+	* src/main.py:
+	* src/session.py:
+	* src/legacy/icqt.py:
+	* src/webadmin:
+	Added web admin interface + statistics gathering.
+
+2004-12-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Fixed 'not valid' response to version requests.
+
+2004-12-29  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Added necessary pieces for typing notification to work.
+
+2004-12-28  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	Added "Online" check just to be sure.
+
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	* src/config_example.py:
+	Added setProfile command as well as capability to do cross-im chat.
+
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Added patches for proper ICQ user status from Jonas Adahl.
+
+2004-12-25  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Undid patch from earlier.
+
+	* src/lang.py:
+	Applied new dutch translation.
+
+	* src/legacy/icqt.py:
+	Applied patch to have transport subscribe back to users.
+
+	* src/register.py:
+	Applied patch from Magnus Henoch to fix ejabberd issues.
+
+2004-12-23  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	* src/utils.py:
+	* src/tlib/oscar.py:
+	* src/tlib/countrycodes.py:
+	* src/legacy/icqt.py:
+	Jonas Adahl's patches for better vcards support.
+
+	* src/tlib:
+	Many updates to clean up and add new requirements.
+
+	* src/disco.py:
+	* src/groupchat.py:
+	* src/jabw.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/main.py:
+	* src/misciq.py:
+	* src/register.py:
+	* src/xdb.py:
+	Updated to match recent MSN code more accurately.
+
+2004-12-20  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Applied endian patch from Jonas Adahl.
+
+2004-12-14  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/jabw.py:
+	Applied patch to messageIDs handling as suggested by macbar.
+
+2004-12-13  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	Fixed html translation issue with ".
+
+	* src/session.py:
+	* src/register.py:
+	* src/legacy/oscar/glue.py:
+	* src/legacy/toc/glue.py:
+	Removed references to unused nicknames.
+
+2004-12-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* PyAIMt:
+	* src/groupchat.py:
+	* src/jabw.py:
+	* src/utils.py:
+	* src/session.py:
+	* src/legacy/oscar/glue.py:
+	* src/legacy/toc/glue.py:
+	* src/xdb.py:
+	Ported PyMSNt changes to check for pid file, add typing notifications,
+	memory leak fixes, etc.  Based around PyMSN-t 0.8 upgrades.
+
+2004-12-01  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/tlib/oscar.py:
+	* src/legacy/icqt.py:
+	Adding handling for retrieving offline messages.
+
+2004-11-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/register.py:
+	Changed username to be lowercased in registration.
+
+	* src/legacy/icqt.py:
+	Changed encoding type to iso-8859-1 for testing.
+
+2004-11-28  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/session.py:
+	* src/legacy/icqt.py:
+	Added handling for /registered.
+
+2004-11-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	* src/legacy/glue.py:
+	* src/legacy/icqt.py:
+	* src/tlib/oscar.py:
+	Many modifications to handle vcard support.
+
+2004-11-22  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/lang.py:
+	Added Russian translation.
+
+2004-10-10  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/disco.py:
+	Spelling fix.
+
+	* src/main.py:
+	Moved path setting, I think I put it in a stupid location.
+
+2004-10-06  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Added better error displaying.
+
+2004-10-05  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/lang.py:
+	Added Dutch language, fixed up locale defs for other languages.
+
+	* src/legacy/icqt.py:
+	* src/legacy/glue.py:
+	Handle away status more properly on login and such.
+
+2004-10-04  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Added test for session readiness to setAway and sendMessage.
+
+2004-10-03  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/main.py:
+	Prepend . to module path to catch patched twisted properly.
+
+2004-09-30  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Reworked contact list handling.  Fixes multi-login issues.
+
+2004-09-29  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/icqt.py:
+	Set encoding and decoding defaults to replace, not error.
+	Strip whitespace.
+
+2004-09-27  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/legacy/glue.py:
+	Updated to version 0.2.
+
+	* src/lang.py:
+	Added Czech translation.
+
+2004-09-26  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* src/lang.py:
+	Added German and Polish translations.
+
+	* src/legacy/icqt.py:
+	Import all users from groups.
+	Notify user when connection isn't active.
+	Now we retrieve away messages properly.
+	Don't save if no changes.
+	Don't save immediately during initial import.
+	Fixed poor handling of received messages.
+
+2004-09-23  Daniel Henninger  <jadestorm@nc.rr.com>
+
+	* *:
+	Initial setup of code and distribution.
+	I'm not doing real changelog stuff until I get to a certain point.

@@ -1,0 +1,30 @@
+<html xmlns:nevow="http://nevow.com/ns/nevow/0.1">
+
+<head>
+<title>PyICQ-t Web Administration</title>
+<link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+<table border="0" width="100%" cellspacing="0" cellpadding="3">
+<tr class="title" valign="middle" height="50">
+<th><table border="0" width="100%" cellspacing="0" cellpadding="3">
+<tr valign="middle">
+<td align="center" width="100"><span class="name">PyICQ-t</span></td>
+<td align="center"><span class="title"><img border="0" src="/images/pyicq.png" height="25" align="absmiddle" /><span nevow:render="title" /></span></td>
+<td align="center" width="100"><span class="version"><span nevow:render="version" /></span></td>
+</tr>
+</table></th>
+</tr>
+<tr valign="top">
+<td class="menu" align="left"><table nevow:render="menu" /></td>
+</tr>
+<tr valign="top">
+<td align="left">
+<div class="content"><div nevow:render="content" /></div>
+</td>
+</tr>
+</table>
+</body>
+
+</html>

@@ -1,0 +1,163 @@
+0.8b:
+
+* Several encoding fixes
+
+* Twisted 2.5 compatibility
+
+* Avatar transparency handling
+
+* fixed sendErrorMessage doubleerror
+
+0.8a:
+
+* Fixes for delayed in packets getting through to AIM.
+
+* Fixes for AIM protocol changes regarding away messages and contacts.
+
+* Lots of stability improvements.
+
+0.8:
+
+* Support for newer Twisted versions.
+
+* Improved ad-hoc command support.
+
+* Improved daemonized mode support.
+
+* Improved roster import support.
+
+* Support for vcard filtering (JEP-0164).
+
+* Improved unicode handling.
+
+* Fixes for handling of ICQ permissions.
+
+* More thorough avatar support.
+
+* Added support for MySQL database encrypted passwords.
+
+* Lots of misc other improvements.
+
+0.7b:
+
+* Web interface works in Twisted 1.* again.
+
+0.7a:
+
+* ICQ nicknames are now retrieved and propaged via event updates.
+
+0.7:
+
+* Web interface now only functions under Twisted 2.*.
+
+* Support for "available" status messages.
+
+* Fixed to work with newer Twisted releases.
+
+* Partial support for iChat "iTunes URLs".
+
+* Web interface now includes information about your account.
+
+* Web interface now uses Jabber authentication instead of custom.
+
+* Added cross-platform capable startup script. (python PyICQt.py)
+
+* Restructured code a fair amount.
+
+* Added Jabberd2 component protocol support.
+
+* Script added to migrate between XDB formats/backends.
+
+* Script added to view/manage buddy list directly.
+
+* Spool encryption (for xmlfiles driver) is now driver-specific config option.
+
+* Default driver is now xmlfiles.
+
+* Backwards compatible (JIT) driver is legacyjittransport.
+
+* Backwards compatible (c-based aim transport) driver is legacyaimtransport.
+
+* MySQL XDB driver.
+
+* Support for multiple drivers for XDB.
+
+* Improved language layout.
+
+* Chat State Notifications (JEP-0085) support.
+
+* XHTML support.
+
+* Ad-Hoc commands added to handle ICQ specific tasks.
+
+* Email notification support added.
+
+* Added ability to daemonize from command line option.
+
+* Support for Avatars/Buddy Icons.
+
+* Support for Ad-Hoc commands.
+
+* Improved disco support.
+
+* Improvements for running under Python 2.2.
+
+* Improved notification of errors to user.
+
+* Support for choices of poll reactors.
+
+* Support for Twisted 2.0.
+
+* Improved debugging support.
+
+* Support for encrypted passwords on spool.
+
+* Fixed support for receiving messages from older ICQ clients.
+
+* Improved unicode support.
+
+0.6:
+
+* SSI buddy list handling that actually works right.
+
+* Socks5 support.
+
+* Web admin interface.
+
+* Support for configurable encoding.
+
+* Enhanced user status support thanks to Jonas Adahl.
+
+* Brand new configuration file format. (XML based)
+
+* Now handles command line args. (-h to see list)
+
+0.5:
+
+* Now works correctly with ejabberd thanks to Magnus Henoch.
+
+* No longer requires patched Twisted to be installed.
+
+* Enhanced vcard support thanks to Jonas Adahl.
+
+0.4:
+
+* Offline messages are retrieved now.
+
+0.3:
+
+* Now handles /registered from older transports.
+
+* vCard support.
+
+0.2:
+
+* Fixes to bugs with roster imports and incoming messages.
+
+* Away messages are handled more properly now.
+
+* DB saves don't happen a ridiculous number of times anymore.
+
+0.1:
+
+* First release, base ICQ chat support

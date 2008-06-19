@@ -1,0 +1,102 @@
+BODY {
+        background-color: #ddffdd;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-top: 0.0px;
+        margin-bottom: 0.0px;
+        margin-left: 0.0px;
+        margin-right: 0.0px;
+}
+
+P.intro {
+        margin-top: 10.0px;
+        margin-left: 10.0px;
+        margin-right: 10.0px;
+        margin-bottom: 10.0px;
+}
+
+SPAN.title {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 200%;
+        font-weight: bolder;
+        border-left: 2.0px solid #000000;
+        border-top: 2.0px solid #000000;
+        border-right: 2.0px solid #77ee77;
+        border-bottom: 2.0px solid #77ee77;
+        padding-top: 2.0px;
+        padding-bottom: 2.0px;
+        padding-left: 50.0px;
+        padding-right: 50.0px;
+}
+
+SPAN.name {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 100%;
+        font-weight: bold;
+}
+
+SPAN.version {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 100%;
+        font-weight: bold;
+}
+
+TR.title {
+        background-color: #5cbb57;
+}
+
+TD.menu {
+        background-color: #aaffaa;
+}
+
+TD.menuentrypressed {
+        background-color: #77ee77;
+        border-left: 2.0px solid #000000;
+        border-top: 2.0px solid #000000;
+        border-right: 2.0px solid #77ee77;
+        border-bottom: 2.0px solid #77ee77;
+}
+
+TD.menuentry {
+        background-color: #77ee77;
+        border-right: 2.0px solid #000000;
+        border-bottom: 2.0px solid #000000;
+        border-left: 2.0px solid #77ee77;
+        border-top: 2.0px solid #77ee77;
+}
+
+A, A:visited {
+        color: #000000;
+}
+
+A:hover {
+        color: #777777;
+}
+
+A.menuentry, A:visited.menuentry {
+        text-decoration: none;
+}
+
+A:hover.menuentry {
+        text-decoration: none;
+        color: #000000;
+}
+
+A.control {
+        color: #000000;
+        text-decoration: none;
+        background-color: #77ee77;
+        border-right: 2.0px solid #000000;
+        border-bottom: 2.0px solid #000000;
+        border-left: 2.0px solid #77ee77;
+        border-top: 2.0px solid #77ee77;
+}
+
+A:hover.control {
+        color: #000000;
+        text-decoration: none;
+        background-color: #77ee77;
+        border-left: 2.0px solid #000000;
+        border-top: 2.0px solid #000000;
+        border-right: 2.0px solid #77ee77;
+        border-bottom: 2.0px solid #77ee77;
+}

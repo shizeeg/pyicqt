@@ -1,0 +1,43 @@
+Daniel Henninger:
+All plugin pieces to interact with ICQ.
+
+James Bunton:
+Created all of the base Jabber code and made it wonderfully pluggable enough
+to adopt to other protocols.  =)
+
+Also, thanks to:
+Paul Clegg for helping me figure out how to make use of some of the oscar
+functionality, and for his initial discussions with the Twisted Matrix team.
+
+Jonas Adahl for pointing out an endian issue and providing a patch.  Also
+for enhancing ICQ user information retrieval (vcard) and adding support
+for more accurate user status.  Also for repairing the SSI handling mechanisms!
+
+Magnus Henoch for discovering and fixing the problem with interaction
+with ejabberd.
+
+Jonas and Magnus combined for adding support for ICQ nicknames.
+
+Serge Trylis for adding encoding configuration support.
+
+Chris Carlin for adding rate limiting support.
+
+Daniel Chandran for adding socks5 support.
+
+Martin von Loewis for supplying xmlify function.
+
+Maarten Fonville for his wonderful PyICQ login/icon, as well as
+James Bunton and the people of Psi, of whose work the icon was based on.
+
+TheTofu (Christopher Zorn) for his XMPP authenticator code from palaver.
+
+Scott Dial for stability improvements and OSCAR protocol patches.
+
+The Twisted Matrix development team who have put together this wonderful
+framework we are making use of.  =)  I'd like to especially thank
+Paul Swartz <z3p@twistedmatrix.com> for his work on the oscar.py piece and
+for working with me to get various pieces working correctly!
+
+Any everyone else who has submitted bug reports, feature requests, patches,
+or otherwise helped in the process of developing this or has simply
+enjoyed using it.  =)

@@ -1,0 +1,195 @@
+<pyicqt>
+	<!-- The JabberID of the transport. -->
+	<jid>icq.example.org</jid>
+
+	<!-- The component JID of the transport. Unless you're doing clustering, leave this alone -->
+	<!-- <compjid>icq1</compjid> -->
+
+	<!-- The location of the spool directory.. if relative, relative to -->
+	<!-- this directory.  Do not include the jid of the transport. -->
+	<spooldir>.</spooldir>
+
+	<!-- The location of the PID file.. if relative, relative to this dir. -->
+	<!-- Comment out if you do not want a pid file -->
+	<pid>PyICQt.pid</pid>
+
+	<!-- The IP address of the main Jabberd server -->
+	<mainServer>127.0.0.1</mainServer>
+
+	<!-- The JID of the main Jabber server -->
+	<mainServerJID>jabber.localhost</mainServerJID>
+
+	<!-- The website of the Jabber service -->
+	<website>http://jabber.localhost/</website>
+
+	<!-- The TCP port to connect to the Jabber server on -->
+	<!-- (this is the default for Jabberd2) -->
+	<port>5347</port>
+
+	<!-- The TCP port that the web admin interface will answer on -->
+	<!-- (uncomment to enable) -->
+	<!-- <webport>12345</webport> -->
+
+	<!-- The authentication token to use when connecting to the Jabber server -->
+	<secret>secret</secret>
+
+	<!-- The default language to use (for error/status messages) -->
+	<lang>en</lang>
+
+	<!-- Default message encoding to use -->
+	<encoding>iso-8859-1</encoding>
+
+	<!-- The hostname of the ICQ server you wish to connect to -->
+	<icqServer>login.icq.com</icqServer>
+
+	<!-- The port of the ICQ server you wish to connect to -->
+	<icqPort>5190</icqPort>
+
+	<!-- The name of Socks Proxy if connecting thru a proxy -->
+	<!-- <socksProxyServer>im-proxy2</socksProxyServer> -->
+
+	<!-- The Socks Proxy port to use when connecting thru a proxy -->
+	<!-- <socksProxyPort>1080</socksProxyPort> -->
+
+	<!-- Send greeting on login (enter text to be sent to users here) -->
+	<!-- <sessionGreeting>enter message here</sessionGreeting> -->
+
+	<!-- Send message on successful registration -->
+	<!-- <registerMessage>You have successfully registered with PyICQt</registerMessage> -->
+
+	<!-- Allow users of ICQ gateway to chat with AIM users -->
+	<!-- (uncomment to enable) -->
+	<!-- <crossChat/> -->
+
+	<!-- Disable registration with the transport -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableRegister/> -->
+
+	<!-- Enable automatic invitation to reconnect on restart -->
+	<!-- (uncomment to enable) -->
+	<!-- <enableAutoInvite/> -->
+
+	<!-- Disable xhtml support (messages with fonts and colors) -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableXHTML/> -->
+
+	<!-- Disable mail notifications -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableMailNotifications/> -->
+
+	<!-- Disable use of default avatar if none is specified -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableDefaultAvatar/> -->
+
+	<!-- Disable use of iq-based avatars (JEP-0008) -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableIQAvatars/> -->
+
+	<!-- Disable use of vcard-based avatars (JEP-0153) -->
+	<!-- (uncomment to disable) -->
+	<!-- <disableVCardAvatars/> -->
+
+	<!-- Disable use of PEP-based avatars (JEP-0084) -->
+	<!-- (uncomment to disable) -->
+	<!-- NOT IMPLEMENTED YET -->
+	<!-- <disablePEPAvatars/> -->
+
+	<!-- You can choose which users you wish to have as administrators. These users can perform some tasks with Ad-Hoc commands that others cannot -->
+	<admins>
+	<!--<jid>admin@host.com</jid>-->
+	</admins>
+
+	<!-- You can select which event loop PyAIMt will use. It's probably safe to leave this as the default -->
+
+	<!-- Use epoll for high-load Linux servers running kernel 2.6 or above -->
+	<!--<reactor>epoll</reactor>-->
+
+	<!-- Use kqueue for high-load FreeBSD servers -->
+	<!--<reactor>kqueue</reactor>-->
+
+	<!-- Use poll for high-load Unix servers -->
+	<!--<reactor>poll</reactor>-->
+
+	<!-- You can select which spool storage method you wish to use -->
+	<!-- Available methods are: -->
+	<!-- xmlfiles: single xml files in the spool directory in hashed dirs (default)-->
+	<!-- legacyaimtransport: compatible with c-based aim transport, less functionality -->
+	<!-- legacyjittransport: compatible with JIT transport, less functionality -->
+	<!-- mysql: registration information stored in a MySQL database -->
+	<!--<xdbDriver>xmlfiles</xdbDriver>-->
+
+	<!-- For MySQL -->
+	<!--<xdbDriver>mysql</xdbDriver>-->
+	<!--<xdbDriver_mysql>-->
+	<!--<username>pyicqt</username>-->
+	<!--<password>pyicqt</password>-->
+	<!--<database>pyicqt</database>-->
+	<!--<server>localhost</server>-->
+	<!--<format>encrypted</format>--> <!-- Enable encryption of passwords -->
+	<!--</xdbDriver_mysql>-->
+
+	<!-- For XMLFiles -->
+	<!--<xdbDriver>xmlfiles</xdbDriver>-->
+	<!--<xdbDriver_xmlfiles>-->
+	<!--<format>encrypted</format>--> <!-- Enable encryption of passwords -->
+	<!--</xdbDriver_xmlfiles>-->
+
+	<!-- Only grab avatars when a chat is initiated. -->
+	<!-- <avatarsOnlyOnChat/> -->
+
+	<!-- Disable all avatar functionality. Might be necessary if you -->
+	<!-- do not have PIL installed. -->
+	<!-- <disableAvatars/> -->
+
+	<!-- Enable web presence indicator.  This can increase ICQ spam. -->
+	<!-- <enableWebPresence/> -->
+
+	<!-- Disable automatic send (via im) of away message when away set. -->
+	<!-- Note that away messages are -in addition to- the away status -->
+	<!-- message. -->
+	<!-- <disableAwayMessage/> -->
+
+	<!-- Use Jabber.com's XCP component protocol extensions. -->
+	<!-- <useXCP/> -->
+
+	<!-- SASL username used to bind to Jabber server. -->
+	<!-- secret, above, is used for sasl password -->
+	<!-- NOTE: This does not work with Twisted > 2.2.0. -->
+	<!-- <saslUsername>username</saslUsername> -->
+
+	<!-- Use external component binding. -->
+	<!-- This dodges the need to manually configure all jids that talk to this transport. -->
+	<!-- Jabberd2 requires saslUsername and useRouteWrap for this to work. -->
+	<!-- Wildfire as of 2.6.0 requires just this. -->
+	<!-- <useComponentBinding/> -->
+
+	<!-- Wrap stanzas in <route> stanza. -->
+	<!-- Jabberd2 requires this for useComponentBinding. -->
+	<!-- <useRouteWrap/> -->
+
+	<!-- JID of message archive service -->
+	<!-- <messageArchiveJID>datasink.example.org</messageArchiveJID> -->
+
+	<!-- If registration authentication is used, enter the method -->
+	<!-- Auth configs often require additional options to be specified. -->
+	<!-- See associated config entries per authRegister example. -->
+	<!-- NOTE: limited to LDAP for now -->
+
+	<!-- THIS IS UNTESTED AS OF YET -->
+	<!-- <authRegister>LDAP</authRegister> -->
+	<!-- For LDAP auth, make sure to uncomment <authRegister_LDAP> -->
+	<!-- and </authRegister_LDAP> and fill out the options in between. -->
+	<!-- <authRegister_LDAP> -->
+	<!-- The fqdn or ip address of the LDAP server -->
+	<!-- <server>ldap.example.org</server> -->
+	<!-- The Root DN to be used to perform LDAP searches -->
+	<!-- <rootDN>CN=Administrator,CN=Users,DC=example,DC=org</rootDN> -->
+	<!-- The password for the Root DN -->
+	<!-- <password>SECRET</password> -->
+	<!-- The Base DN to search for users -->
+	<!-- <baseDN>DC=example,DC=org</baseDN> -->
+	<!-- The attribute to search for the user ID. -->
+	<!-- 'samAccountname' in Windows, 'uid' on most other systems -->
+	<!-- <uidAttr>samAccountname</uidAttr> -->
+	<!-- </authRegister_LDAP> -->
+</pyicqt>
