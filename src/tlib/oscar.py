@@ -318,6 +318,9 @@ class OSCARUser:
                     if CAPS.has_key(c): caps.append(CAPS[c])
                     else: caps.append(("unknown",c))
                     v=v[16:]
+		    
+		    if X_STATUS_CAPS.has_key(c):
+			    caps.append('x-status: '+X_STATUS_NAME[X_STATUS_CAPS[c]])
 
                 caps.sort()
                 self.caps=caps
@@ -376,8 +379,19 @@ class OSCARUser:
 			if extlen >= 8:
 				icq_mood_iconstr=v[4:(4+extlen)]
 				if icq_mood_iconstr.find('icqmood') != -1:
-					icq_mood_iconnum=icq_mood_iconstr.replace('icqmood','')
-					log.msg('ICQ 6 mood #:',icq_mood_iconnum)
+					icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
+					x_status_name='x-status: '+X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
+					x_status_keep = False
+					for cap in self.caps: # many non-offitiall clients send mood and x-status
+						if type(cap) is str:
+							if cap == x_status_name:
+								x_status_keep = True
+					if x_status_keep == False: # no x-status. ICQ 6
+						self.caps.append()
+						self.caps.sort()
+						log.msg('ICQ 6 mood #:',icq_mood_num)
+					else:
+						log.msg('x-status + ICQ 6 mood #:',icq_mood_num)
                     else:
                         log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
                     #v=v[ord(v[3])+4:]
@@ -3327,91 +3341,6 @@ CAP_ICQPUSHTOTALK = '\xe3\x62\xc1\xe9\x12\x1a\x4b\x94\xa6\x26\x7a\x74\xde\x24\x2
 # Empty capability ... ?
 CAP_EMPTY = '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
-# x-statuses from official ICQ 5.1 (24)
-# 0
-CAP_XSTATUS_ANGRY = '\x01\xd8\xd7\xee\xac\x3b\x49\x2a\xa5\x8d\xd3\xd8\x77\xe6\x6b\x92'
-# 1
-CAP_XSTATUS_TAKING_A_BATH = '\x5a\x58\x1e\xa1\xe5\x80\x43\x0c\xa0\x6f\x61\x22\x98\xb7\xe4\xc7'
-# 2
-CAP_XSTATUS_TIRED = '\x83\xc9\xb7\x8e\x77\xe7\x43\x78\xb2\xc5\xfb\x6c\xfc\xc3\x5b\xec'
-# 3
-CAP_XSTATUS_PARTY = '\xe6\x01\xe4\x1c\x33\x73\x4b\xd1\xbc\x06\x81\x1d\x6c\x32\x3d\x81'
-# 4
-CAP_XSTATUS_DRINKING_BEER = '\x8c\x50\xdb\xae\x81\xed\x47\x86\xac\xca\x16\xcc\x32\x13\xc7\xb7'
-# 5
-CAP_XSTATUS_THINKING = '\x3f\xb0\xbd\x36\xaf\x3b\x4a\x60\x9e\xef\xcf\x19\x0f\x6a\x5a\x7f'
-# 6
-CAP_XSTATUS_EATING = '\xf8\xe8\xd7\xb2\x82\xc4\x41\x42\x90\xf8\x10\xc6\xce\x0a\x89\xa6'
-# 7
-CAP_XSTATUS_WATCHING_TV = '\x80\x53\x7d\xe2\xa4\x67\x4a\x76\xb3\x54\x6d\xfd\x07\x5f\x5e\xc6'
-# 8
-CAP_XSTATUS_MEETING = '\xf1\x8a\xb5\x2e\xdc\x57\x49\x1d\x99\xdc\x64\x44\x50\x24\x57\xaf'
-# 9
-CAP_XSTATUS_COFFEE = '\x1b\x78\xae\x31\xfa\x0b\x4d\x38\x93\xd1\x99\x7e\xee\xaf\xb2\x18'
-# 10
-CAP_XSTATUS_LISTENING_TO_MUSIC = '\x61\xbe\xe0\xdd\x8b\xdd\x47\x5d\x8d\xee\x5f\x4b\xaa\xcf\x19\xa7'
-# 11
-CAP_XSTATUS_BUSINESS = '\x48\x8e\x14\x89\x8a\xca\x4a\x08\x82\xaa\x77\xce\x7a\x16\x52\x08'
-# 12
-CAP_XSTATUS_SHOOTING = '\x10\x7a\x9a\x18\x12\x32\x4d\xa4\xb6\xcd\x08\x79\xdb\x78\x0f\x09'
-# 13
-CAP_XSTATUS_HAVING_FUN = '\x6f\x49\x30\x98\x4f\x7c\x4a\xff\xa2\x76\x34\xa0\x3b\xce\xae\xa7'
-# 14
-CAP_XSTATUS_ON_THE_PHONE = '\x12\x92\xe5\x50\x1b\x64\x4f\x66\xb2\x06\xb2\x9a\xf3\x78\xe4\x8d'
-# 15
-CAP_XSTATUS_GAMING = '\xd4\xa6\x11\xd0\x8f\x01\x4e\xc0\x92\x23\xc5\xb6\xbe\xc6\xcc\xf0'
-# 16
-CAP_XSTATUS_STUDING = '\x60\x9d\x52\xf8\xa2\x9a\x49\xa6\xb2\xa0\x25\x24\xc5\xe9\xd2\x60'
-# 17
-CAP_XSTATUS_SHOPPING = '\x63\x62\x73\x37\xa0\x3f\x49\xff\x80\xe5\xf7\x09\xcd\xe0\xa4\xee'
-# 18
-CAP_XSTATUS_FEELING_SICK = '\x1f\x7a\x40\x71\xbf\x3b\x4e\x60\xbc\x32\x4c\x57\x87\xb0\x4c\xf1'
-# 19
-CAP_XSTATUS_SLEEPING = '\x78\x5e\x8c\x48\x40\xd3\x4c\x65\x88\x6f\x04\xcf\x3f\x3f\x43\xdf'
-# 20
-CAP_XSTATUS_SURFING = '\xa6\xed\x55\x7e\x6b\xf7\x44\xd4\xa5\xd4\xd2\xe7\xd9\x5c\xe8\x1f'
-# 21
-CAP_XSTATUS_BROWSING = '\x12\xd0\x7e\x3e\xf8\x85\x48\x9e\x8e\x97\xa7\x2a\x65\x51\xe5\x8d'
-# 22
-CAP_XSTATUS_WORKING = '\xba\x74\xdb\x3e\x9e\x24\x43\x4b\x87\xb6\x2f\x6b\x8d\xfe\xe5\x0f'
-# 23
-CAP_XSTATUS_TYPING = '\x63\x4f\x6b\xd8\xad\xd2\x4a\xa1\xaa\xb9\x11\x5b\xc2\x6d\x05\xa1'
-
-# x-statuses from China localization "Netvigator" (5)
-# 24 picnic (QIP, Miranda)
-#CAP_XSTATUS_CHINA1_EATING
-# 25 PDA (QIP) or cooking (Miranda)
-#CAP_XSTATUS_CHINA2_HAVING_FUN
-# 26 mobile (QIP) or smoking (Miranda)
-#CAP_XSTATUS_CHINA3_CHIT_CHATTING
-# 27 I'm high (QIP,Miranda)
-#CAP_XSTATUS_CHINA4_SLEEPING
-# 28 on WC (QIP,MIRANDA)
-#CAP_XSTATUS_CHINA5_IM_MOOVING
-
-# x-statuses from German localization "ProSieben" (3)
-# 29
-#CAP_XSTATUS_DE1_TO_BE_OR_NOT_TO_BE
-# 30 watching pro 7/anime (Miranda, QIP)
-#CAP_XSTATUS_DE2_WATCHING_ON_TV
-# 31
-#CAP_XSTATUS_DE3_LOVE
-
-# x-statuses from Russian localization "Rambler" (3)
-# 32
-#CAP_XSTATUS_RU1_RUSEARCH
-# 33
-#CAP_XSTATUS_RU2_RUJOURNAL
-# 34 Love 2?
-#CAP_XSTATUS_RU3_RULOVE
-
-# x-statuses from Bombus (2)
-# 35
-#CAP_XSTATUS_BOMBUS_SEX ='E601E41C33734BD1BC06811D6C323D82'
-# 36 other smoking
-#CAP_XSTATUS_BOMBUS_SMOKING ='3FB0BD36AF3B4A609EEFCF190F6A5A7E'
-
-
 
 # Mappings of capabilities back to identifier strings.
 CAPS = dict( [
@@ -3453,32 +3382,122 @@ CAPS = dict( [
     (CAP_ICQVOICE, 'icqvoicechat'),
     (CAP_ICQXTRAZ, 'icqxtraz'),
     (CAP_ICQPUSHTOTALK, 'icqpushtotalk'),
-    (CAP_EMPTY, 'empty'),
-    (CAP_XSTATUS_ANGRY, 'x-status: angry'),
-    (CAP_XSTATUS_TAKING_A_BATH, 'x-status: Taking a bath'),
-    (CAP_XSTATUS_TIRED,'x-status: Tired'),
-    (CAP_XSTATUS_PARTY,'x-status: Party'),
-    (CAP_XSTATUS_DRINKING_BEER,'x-status: Drinking beer'),
-    (CAP_XSTATUS_THINKING,'x-status: Thinking'),
-    (CAP_XSTATUS_EATING,'x-status: Eating'),
-    (CAP_XSTATUS_WATCHING_TV,'x-status: Watching TV'),
-    (CAP_XSTATUS_MEETING,'x-status: Meeting'),
-    (CAP_XSTATUS_COFFEE,'x-status: Coffee'),
-    (CAP_XSTATUS_LISTENING_TO_MUSIC,'x-status: Listening to music'),
-    (CAP_XSTATUS_BUSINESS,'x-status: Business'),
-    (CAP_XSTATUS_SHOOTING,'x-status: Shooting'),
-    (CAP_XSTATUS_HAVING_FUN,'x-status: Having fun'),
-    (CAP_XSTATUS_ON_THE_PHONE,'x-status: On the phone'),
-    (CAP_XSTATUS_GAMING,'x-status: Gaming'),
-    (CAP_XSTATUS_STUDING,'x-status: Studing'),
-    (CAP_XSTATUS_SHOPPING,'x-status: Shopping'),
-    (CAP_XSTATUS_FEELING_SICK,'x-status: Feeling sick'),
-    (CAP_XSTATUS_SLEEPING,'x-status: Sleeping'),
-    (CAP_XSTATUS_SURFING,'x-status: Surfing'),
-    (CAP_XSTATUS_BROWSING,'x-status: Browsing'),
-    (CAP_XSTATUS_WORKING,'x-status: Working'),
-    (CAP_XSTATUS_TYPING,'x-status: Typing')
+    (CAP_EMPTY, 'empty')
     ] )
+
+# 24 statuses - ICQ 5.1
+# 5 statuses - China localization "Netvigator"
+# 3 statuses - German localization "ProSieben"
+# 3 statuses - Russian localization "Rambler"
+# 2 statuses - Bombus
+X_STATUS_CAPS = dict( [
+	('\x01\xd8\xd7\xee\xac\x3b\x49\x2a\xa5\x8d\xd3\xd8\x77\xe6\x6b\x92',0),
+	('\x5a\x58\x1e\xa1\xe5\x80\x43\x0c\xa0\x6f\x61\x22\x98\xb7\xe4\xc7',1),
+	('\x83\xc9\xb7\x8e\x77\xe7\x43\x78\xb2\xc5\xfb\x6c\xfc\xc3\x5b\xec',2),
+	('\xe6\x01\xe4\x1c\x33\x73\x4b\xd1\xbc\x06\x81\x1d\x6c\x32\x3d\x81',3),
+	('\x8c\x50\xdb\xae\x81\xed\x47\x86\xac\xca\x16\xcc\x32\x13\xc7\xb7',4),
+	('\x3f\xb0\xbd\x36\xaf\x3b\x4a\x60\x9e\xef\xcf\x19\x0f\x6a\x5a\x7f',5),
+	('\xf8\xe8\xd7\xb2\x82\xc4\x41\x42\x90\xf8\x10\xc6\xce\x0a\x89\xa6',6),
+	('\x80\x53\x7d\xe2\xa4\x67\x4a\x76\xb3\x54\x6d\xfd\x07\x5f\x5e\xc6',7),
+	('\xf1\x8a\xb5\x2e\xdc\x57\x49\x1d\x99\xdc\x64\x44\x50\x24\x57\xaf',8),
+	('\x1b\x78\xae\x31\xfa\x0b\x4d\x38\x93\xd1\x99\x7e\xee\xaf\xb2\x18',9),
+	('\x61\xbe\xe0\xdd\x8b\xdd\x47\x5d\x8d\xee\x5f\x4b\xaa\xcf\x19\xa7',10),
+	('\x48\x8e\x14\x89\x8a\xca\x4a\x08\x82\xaa\x77\xce\x7a\x16\x52\x08',11),
+	('\x10\x7a\x9a\x18\x12\x32\x4d\xa4\xb6\xcd\x08\x79\xdb\x78\x0f\x09',12),
+	('\x6f\x49\x30\x98\x4f\x7c\x4a\xff\xa2\x76\x34\xa0\x3b\xce\xae\xa7',13),
+	('\x12\x92\xe5\x50\x1b\x64\x4f\x66\xb2\x06\xb2\x9a\xf3\x78\xe4\x8d',14),
+	('\xd4\xa6\x11\xd0\x8f\x01\x4e\xc0\x92\x23\xc5\xb6\xbe\xc6\xcc\xf0',15),
+	('\x60\x9d\x52\xf8\xa2\x9a\x49\xa6\xb2\xa0\x25\x24\xc5\xe9\xd2\x60',16),
+	('\x63\x62\x73\x37\xa0\x3f\x49\xff\x80\xe5\xf7\x09\xcd\xe0\xa4\xee',17),
+	('\x1f\x7a\x40\x71\xbf\x3b\x4e\x60\xbc\x32\x4c\x57\x87\xb0\x4c\xf1',18),
+	('\x78\x5e\x8c\x48\x40\xd3\x4c\x65\x88\x6f\x04\xcf\x3f\x3f\x43\xdf',19),
+	('\xa6\xed\x55\x7e\x6b\xf7\x44\xd4\xa5\xd4\xd2\xe7\xd9\x5c\xe8\x1f',20),
+	('\x12\xd0\x7e\x3e\xf8\x85\x48\x9e\x8e\x97\xa7\x2a\x65\x51\xe5\x8d',21),
+	('\xba\x74\xdb\x3e\x9e\x24\x43\x4b\x87\xb6\x2f\x6b\x8d\xfe\xe5\x0f',22),
+	('\x63\x4f\x6b\xd8\xad\xd2\x4a\xa1\xaa\xb9\x11\x5b\xc2\x6d\x05\xa1',23),
+	('\x2c\xe0\xe4\xe5\x7c\x64\x43\x70\x9c\x3a\x7a\x1c\xe8\x78\xa7\xdc',24),
+	('\x10\x11\x17\xc9\xa3\xb0\x40\xf9\x81\xac\x49\xe1\x59\xfb\xd5\xd4',25),
+	('\x16\x0c\x60\xbb\xdd\x44\x43\xf3\x91\x40\x05\x0f\x00\xe6\xc0\x09',26),
+	('\x64\x43\xc6\xaf\x22\x60\x45\x17\xb5\x8c\xd7\xdf\x8e\x29\x03\x52',27),
+	('\x16\xf5\xb7\x6f\xa9\xd2\x40\x35\x8c\xc5\xc0\x84\x70\x3c\x98\xfa',28),
+	('\x63\x14\x36\xff\x3f\x8a\x40\xd0\xa5\xcb\x7b\x66\xe0\x51\xb3\x64',29),
+	('\xb7\x08\x67\xf5\x38\x25\x43\x27\xa1\xff\xcf\x4c\xc1\x93\x97\x97',30),
+	('\xdd\xcf\x0e\xa9\x71\x95\x40\x48\xa9\xc6\x41\x32\x06\xd6\xf2\x80',31),
+	('\xd4\xe2\xb0\xba\x33\x4e\x4f\xa5\x98\xd0\x11\x7d\xbf\x4d\x3c\xc8',32),
+	('\xcd\x56\x43\xa2\xc9\x4c\x47\x24\xb5\x2c\xdc\x01\x24\xa1\xd0\xcd',33),
+	('\x00\x72\xd9\x08\x4a\xd1\x43\xdd\x91\x99\x6f\x02\x69\x66\x02\x6f',34),
+	('\x3f\xb0\xbd\x36\xaf\x3b\x4a\x60\x9e\xef\xcf\x19\x0f\x6a\x5a\x7e',35),
+	('\xe6\x01\xe4\x1c\x33\x73\x4b\xd1\xbc\x06\x81\x1d\x6c\x32\x3d\x82',36)
+	])
+	
+# 24 moods - ICQ 6
+X_STATUS_MOODS = dict([
+	(23,0),
+	(1,1),
+	(2,2),
+	(3,3),
+	(4,4),
+	(5,5),
+	(6,6),
+	(7,7),
+	(8,8),
+	(9,9),
+	(10,10),
+	(11,11),
+	(12,12),
+	(13,13),
+	(14,14),
+	(15,15),
+	(16,16),
+	(0,17),
+	(17,18),
+	(18,19),
+	(19,20),
+	(20,21),
+	(21,22),
+	(22,23)
+	])
+	
+# names for x-statuses and moods
+X_STATUS_NAME = [	
+	'Angry',
+	'Taking a bath',
+	'Tired',
+	'Party',
+	'Drinking beer',
+	'Thinking',
+	'Eating',
+	'Watching TV',
+	'Meeting',
+	'Coffee',
+	'Listening to music',
+	'Business',
+	'Shooting',
+	'Having fun',
+	'On the phone',
+	'Gaming',
+	'Studying',
+	'Shopping',
+	'Feeling sick',
+	'Sleeping',
+	'Surfing',
+	'Browsing',
+	'Working',
+	'Typing',
+	'Eating/Picnic',
+	'Having fun/PDA/Cooking',
+	'Chit chatting/Mobile/Smoking',
+	'Sleeping/I\'m high',
+	'I\'m mooving/On WC',
+	'To be or not to be',
+	'Watching pro7 on TV',
+	'Love',
+	'RuSearch',
+	'RuLove',
+	'RuJournal',
+	'Smoking',
+	'Sex' 
+	]
 
 ###
 # Status indicators
