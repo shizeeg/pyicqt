@@ -481,6 +481,19 @@ class LegacyConnection:
 
 		d.callback(vcard)
 
+	def getXStatus(self, userHandle):
+	# returns text of x-status icon or None
+	# sample: 'Working','Typing'
+		try:
+			for cap in self.legacyList.usercaps[userHandle]:
+				log.msg("cap: %s" % cap)
+				if type(cap) is str:
+				# atomar element, no tuple
+					if cap.find('x-status')!=-1:
+						return cap.replace('x-status:','').strip()
+		except:
+			pass
+		return None
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid
@@ -513,17 +526,10 @@ class LegacyConnection:
 			except:
 				pass
 			
-			try:
-				for cap in self.legacyList.usercaps[usercol.userinfo]:
-					log.msg("cap: %s"%cap)
-					if type(cap) is str:
-					# atomar element, no tuple
-						if cap.find('x-status')!=-1:
-							x_status_iconstr=cap.replace('x-status:','').strip()
-							log.msg("x-status for contact %s is %s" % (usercol.userinfo,x_status_iconstr))
-							desc.addContent(utils.xmlify("\n\n-----\n x-status: "+x_status_iconstr))
-			except:
-				pass
+			x_status_iconstr=self.getXStatus(usercol.userinfo)
+			log.msg("self.getXStatus(usercol.userinfo): %s" % x_status_iconstr)
+			if x_status_iconstr != None:
+				desc.addContent(utils.xmlify("\n\n-----\n x-status: "+x_status_iconstr))
 						
 			url = vcard.addElement("URL")
 			url.addContent(utils.xmlify(usercol.homepage))

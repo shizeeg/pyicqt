@@ -212,11 +212,9 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
-		for cap in self.oscarcon.legacyList.usercaps[user.name]:
-			if type(cap) is str:
-				if cap.find('x-status')!=-1:
-					x_status_iconstr=cap.replace('x-status:','').strip()
-					status+= '\nX-status: %s' % x_status_iconstr
+		x_status_iconstr=self.oscarcon.getXStatus(user.name)
+		if x_status_iconstr != None:
+			status+= '\nX-status: %s' % x_status_iconstr
 		
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
@@ -406,11 +404,9 @@ class B(oscar.BOSConnection):
 			else:
 				status=idle_time
 				
-		for cap in self.oscarcon.legacyList.usercaps[user.name]:
-			if type(cap) is str:
-				if cap.find('x-status')!=-1:
-					x_status_iconstr=cap.replace('x-status:','').strip()
-					status+= '\nX-status: %s' % x_status_iconstr
+		x_status_iconstr=self.oscarcon.getXStatus(user.name)
+		if x_status_iconstr != None:
+			status+= '\nX-status: %s' % x_status_iconstr
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
