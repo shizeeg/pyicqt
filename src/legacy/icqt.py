@@ -211,6 +211,13 @@ class B(oscar.BOSConnection):
 		LogEvent(WARN, self.session.jabberID, "Status message before crash %s" % status)
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
+		
+		for cap in self.oscarcon.legacyList.usercaps[user.name]:
+			if type(cap) is str:
+				if cap.find('x-status')!=-1:
+					x_status_iconstr=cap.replace('x-status:','').strip()
+					status+= '\nX-status: %s' % x_status_iconstr
+		
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
 		else:
@@ -398,6 +405,12 @@ class B(oscar.BOSConnection):
 				status="%s - %s"%(idle_time,status)
 			else:
 				status=idle_time
+				
+		for cap in self.oscarcon.legacyList.usercaps[user.name]:
+			if type(cap) is str:
+				if cap.find('x-status')!=-1:
+					x_status_iconstr=cap.replace('x-status:','').strip()
+					status+= '\nX-status: %s' % x_status_iconstr
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
