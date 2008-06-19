@@ -481,9 +481,10 @@ class LegacyConnection:
 
 		d.callback(vcard)
 
+
 	def gotvCard(self, usercol):
 		from glue import icq2jid
-
+		
 		LogEvent(INFO, self.session.jabberID)
 
 		if usercol != None and usercol.valid:
@@ -511,6 +512,19 @@ class LegacyConnection:
 				desc.addContent(utils.xmlify("\n\n-----\n"+c['lanipaddr']+'/'+c['ipaddr']+':'+"%s"%(c['lanipport'])+' v.'+"%s"%(c['icqprotocol'])))
 			except:
 				pass
+			
+			try:
+				for cap in self.legacyList.usercaps[usercol.userinfo]:
+					log.msg("cap: %s"%cap)
+					if type(cap) is str:
+					# atomar element, no tuple
+						if cap.find('x-status')!=-1:
+							x_status_iconstr=cap.replace('x-status:','').strip()
+							log.msg("x-status for contact %s is %s" % (usercol.userinfo,x_status_iconstr))
+							desc.addContent(utils.xmlify("\n\n-----\n x-status: "+x_status_iconstr))
+			except:
+				pass
+						
 			url = vcard.addElement("URL")
 			url.addContent(utils.xmlify(usercol.homepage))
 
