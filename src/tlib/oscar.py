@@ -371,6 +371,13 @@ class OSCARUser:
 		        self.statusencoding = "icq51pseudounicode"
                         log.msg("   status message encoding: %s"%(str(self.statusencoding)))
 			# XXX: there should be probably more information available for extraction here
+		    elif exttype == 0x0e:
+			# ICQ 6 custom status (mood)
+			if extlen >= 8:
+				icq_mood_iconstr=v[4:(4+extlen)]
+				if icq_mood_iconstr.find('icqmood') != -1:
+					icq_mood_iconnum=icq_mood_iconstr.replace('icqmood','')
+					log.msg('ICQ 6 mood #:',icq_mood_iconnum)
                     else:
                         log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
                     #v=v[ord(v[3])+4:]
