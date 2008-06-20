@@ -484,16 +484,18 @@ class LegacyConnection:
 	def getXStatus(self, userHandle):
 	# returns text of x-status icon
 	# sample: 'Working','Typing', ''
-		try:
-			for cap in self.legacyList.usercaps[userHandle]:
-				log.msg("cap: %s" % cap)
-				if type(cap) is str:
-				# atomar element, no tuple
-					if cap.find('x-status')!=-1:
-						return cap.replace('x-status:','').strip()
-		except:
-			pass
-		return ''
+		if self.legacyList.usercustomstatuses.has_key(userHandle):
+			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			log.msg('Contact: %s' % userHandle)
+			log.msg('CustomStatus: %s' % customStatus)
+			if customStatus.has_key('x-status'):
+				return customStatus['x-status']
+			elif customStatus.has_key('mood'):
+				return customStatus['mood']
+			else:
+				return ''
+		else:
+			return ''
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid

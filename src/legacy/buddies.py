@@ -21,6 +21,7 @@ class BuddyList:
 		self.session = session
 		self.ssicontacts = { }
 		self.usercaps = { }
+		self.usercustomstatuses = { }
 		self.xdbcontacts = self.getBuddyList()
 		for c in self.xdbcontacts:
 			from glue import icq2jid
@@ -71,6 +72,9 @@ class BuddyList:
 		LogEvent(INFO, self.session.jabberID)
 		userHandle = glue.jid2icq(jid)
 		self.session.legacycon.deauthContact(userHandle)
+
+	def setCustomStatus(self, contact, customStatus):
+		self.usercustomstatuses[contact.lower()] = customStatus
 
 	def setCapabilities(self, contact, caplist):
 		LogEvent(INFO, self.session.jabberID)

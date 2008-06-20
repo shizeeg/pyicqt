@@ -238,6 +238,7 @@ class OSCARUser:
         self.warning = warn
         self.flags = []
         self.caps = []
+	self.customStatus = dict([])
         self.icqStatus = []
         self.icqFlags = []
         self.icqIPaddy = None
@@ -320,7 +321,7 @@ class OSCARUser:
                     v=v[16:]
 		    
 		    if X_STATUS_CAPS.has_key(c):
-			    caps.append('x-status: '+X_STATUS_NAME[X_STATUS_CAPS[c]])
+			    self.customStatus['x-status'] = X_STATUS_NAME[X_STATUS_CAPS[c]]
 
                 caps.sort()
                 self.caps=caps
@@ -376,22 +377,13 @@ class OSCARUser:
 			# XXX: there should be probably more information available for extraction here
 		    elif exttype == 0x0e:
 			# ICQ 6 custom status (mood)
+			log.msg('ICQ 6 custom status (mood) with length %s' % extlen)
 			if extlen >= 8:
 				icq_mood_iconstr=v[4:(4+extlen)]
 				if icq_mood_iconstr.find('icqmood') != -1:
 					icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
-					x_status_name='x-status: '+X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
-					x_status_keep = False
-					for cap in self.caps: # many non-offitiall clients send mood and x-status
-						if type(cap) is str:
-							if cap == x_status_name:
-								x_status_keep = True
-					if x_status_keep == False: # no x-status. ICQ 6
-						self.caps.append()
-						self.caps.sort()
-						log.msg('ICQ 6 mood #:',icq_mood_num)
-					else:
-						log.msg('x-status + ICQ 6 mood #:',icq_mood_num)
+					self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
+					log.msg('ICQ 6 mood #:',icq_mood_num)
                     else:
                         log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
                     #v=v[ord(v[3])+4:]
