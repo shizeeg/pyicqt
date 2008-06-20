@@ -482,8 +482,8 @@ class LegacyConnection:
 		d.callback(vcard)
 
 	def getXStatus(self, userHandle):
-	# returns text of x-status icon or None
-	# sample: 'Working','Typing'
+	# returns text of x-status icon
+	# sample: 'Working','Typing', ''
 		try:
 			for cap in self.legacyList.usercaps[userHandle]:
 				log.msg("cap: %s" % cap)
@@ -493,7 +493,7 @@ class LegacyConnection:
 						return cap.replace('x-status:','').strip()
 		except:
 			pass
-		return None
+		return ''
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid
