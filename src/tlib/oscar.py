@@ -32,6 +32,7 @@ import threading
 import socks5, sockserror
 import countrycodes
 import config
+import datetime
 
 def logPacketData(data):
     # Comment out to display packet log data
@@ -1354,6 +1355,12 @@ class BOSConnection(SNACBased):
                 elif k == 0x17: # extra data.. wonder what this is?
                     flags.append('extradata')
                     flags.append(v)
+		elif k == 0x16: # message timestamp
+			s = struct.unpack('!I',v)
+			dt = datetime.datetime.fromtimestamp(s[0])
+			log.msg("Timestamp: %s, datetime %s" % (s,dt))
+			log.msg("Multiparts: %s" % multiparts)
+			log.msg("Flags: %s" % flags)
                 else:
                     log.msg('unknown TLV for incoming IM, %04x, %s' % (k,repr(v)))
 
