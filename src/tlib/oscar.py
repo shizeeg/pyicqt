@@ -1288,6 +1288,7 @@ class BOSConnection(SNACBased):
         tlvs = readTLVs(data)
         log.msg("tlvs = %s" % (tlvs))
         if channel == 1: # message
+	    delay = None # time of message receiving
             flags = []
             multiparts = []
             for k, v in tlvs.items():
@@ -1357,7 +1358,8 @@ class BOSConnection(SNACBased):
                     flags.append(v)
 		elif k == 0x16: # message timestamp
 			s = struct.unpack('!I',v)
-			dt = datetime.datetime.fromtimestamp(s[0])
+			dt = datetime.datetime.utcfromtimestamp(s[0])
+			delay=dt.isoformat().replace('Z','')+'Z' # datetime in format 2008-06-20T20:14:21Z
 			log.msg("Timestamp: %s, datetime %s" % (s,dt))
 			log.msg("Multiparts: %s" % multiparts)
 			log.msg("Flags: %s" % flags)
@@ -1368,7 +1370,11 @@ class BOSConnection(SNACBased):
                     #  t: 29
                     #  v: '\x00\x00\x00\x05\x02\x01\xd2\x04r\x00\x01\x01\x10/\x8c\x8b\x8a\x1e\x94*\xbc\x80}\x8d\xc4;\x1dEM'
                     # XXX what is this?
-            self.receiveMessage(user, multiparts, flags)
+		    
+	    for flag in flags:	
+			if flag != 'offline': # Send timestamp to user only if was received offline
+				delay = None
+            self.receiveMessage(user, multiparts, flags, delay)
         elif channel == 2: # rendezvous
             status = struct.unpack('!H',tlvs[5][:2])[0]
             cookie2 = tlvs[5][2:10]
