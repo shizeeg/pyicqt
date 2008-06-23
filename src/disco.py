@@ -28,6 +28,7 @@ class ServiceDiscovery:
 		
 		self.addFeature(globals.DISCO, None, config.jid)
 		self.addFeature(globals.DISCO, None, "USER")
+		self.addFeature(globals.XDELAY, None, config.jid)
 		self.pytrans.iq.addHandler(globals.DISCO, self.incomingIq, prefix=1)
 
 	def addIdentity(self, category, ctype, name, jid):
