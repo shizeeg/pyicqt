@@ -266,6 +266,13 @@ class B(oscar.BOSConnection):
 		mtype = "chat"
 		if "auto" in flags:
 			mtype = "headline"
+ 
+ 		offlinemessage = False
+	    	for flag in flags:	
+			if flag == 'offline':
+				offlinemessage = True
+		if offlinemessage == False:
+			delay = None # Send timestamp to user if offline message
 
 		self.session.sendMessage(to=self.session.jabberID, fro=sourcejid, body=text, mtype=mtype, delay=delay, xhtml=xhtml)
 		self.session.pytrans.serviceplugins['Statistics'].stats['IncomingMessages'] += 1

@@ -1328,6 +1328,8 @@ class BOSConnection(SNACBased):
                                 message.append('none')
                             else:
                                 message.append('unknown')
+				
+				log.msg("Encoding: %s" % charSubSet)
 
                             if messageLength > 0: multiparts.append(tuple(message))
                         else:
@@ -1370,10 +1372,7 @@ class BOSConnection(SNACBased):
                     #  t: 29
                     #  v: '\x00\x00\x00\x05\x02\x01\xd2\x04r\x00\x01\x01\x10/\x8c\x8b\x8a\x1e\x94*\xbc\x80}\x8d\xc4;\x1dEM'
                     # XXX what is this?
-		    
-	    for flag in flags:	
-			if flag != 'offline': # Send timestamp to user only if was received offline
-				delay = None
+
             self.receiveMessage(user, multiparts, flags, delay)
         elif channel == 2: # rendezvous
             status = struct.unpack('!H',tlvs[5][:2])[0]
