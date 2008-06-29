@@ -877,6 +877,7 @@ class BOSConnection(SNACBased):
 
     capabilities = None
     statusindicators = 0x0000
+    icqStatus = 0x0000
 
     def __init__(self,username,cookie):
         SNACBased.__init__(self,cookie)
@@ -1334,7 +1335,7 @@ class BOSConnection(SNACBased):
                             if messageLength > 0:
 					multiparts.append(tuple(message))	
 					log.msg('Type of user.name %s %s' % (type(user.name), user.name))
-				    	self.sendXstatusMessageRequest(user.name)
+				    	self.sendXstatusMessageRequest(user.name,'modern')
                         else:
                             # Uh... what is this???
                             log.msg("unknown message fragment %d %d: %s" % (fragtype, fragver, str(v)))
@@ -2020,6 +2021,7 @@ class BOSConnection(SNACBased):
             icqStatus = 0x20
         else:
             icqStatus = 0x00
+	self.icqStatus = icqStatus
         self.sendSNACnr(0x01, 0x1e, TLV(0x06, struct.pack(">HH", self.statusindicators, icqStatus)))
 
     def setIdleTime(self, idleTime):
@@ -2103,50 +2105,118 @@ class BOSConnection(SNACBased):
 	    safexml = safexml.replace('<','&lt;')
 	    safexml = safexml.replace('>','&gt;')
 	    return safexml
+    
+    def getUnSafeXML(self, safexml):
+	    unsafexml = safexml.replace('&amp;','&')
+	    unsafexml = unsafexml.replace('&lt;','<')
+	    unsafexml = unsafexml.replace('&gt;','>')
+	    return unsafexml
  
-    def sendXstatusMessageRequest(self, user):
-	  # TODO: check support in user  
+    def sendXstatusMessageRequest(self, user, mode = 'legacy'):
 	  log.msg("sendXstatusMessageRequest begin")
-	  cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
-	  header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 	  
-	  extended_data = struct.pack('!H',0x1b00) # length 27
-	  extended_data = extended_data + struct.pack('!H',0x0800) # protocol v.8
-	  extended_data = extended_data + CAP_EMPTY # Plugin Version
-	  extended_data = extended_data + struct.pack('!H',0x0000) # unknown
-	  extended_data = extended_data + struct.pack("!I", 0x03000000) # client caps?
-	  extended_data = extended_data + struct.pack('!B', 0x00) # unknown
-	  extended_data = extended_data + struct.pack('!H', 1) # downCounter1
-	  extended_data = extended_data + struct.pack('!H',0x0e00) # length 14
-	  extended_data = extended_data + struct.pack('!H', 1) # downCounter2
-	  extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
-	  extended_data = extended_data + struct.pack('!B', 0x1a) # msg type
-	  extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
-	  extended_data = extended_data + struct.pack('!H',0x0000) # status code
-	  extended_data = extended_data + struct.pack('!H',0x0000) # priority
-	  extended_data = extended_data + struct.pack('!H',0x0100) # ?
-	  extended_data = extended_data + struct.pack('!B',0x00) # ?
-	  extended_data = extended_data + '\x4f\x00\x3b\x60\xb3\xef\xd8\x2a\x6c\x45\xa4\xe0\x9c\x5a\x5e\x67\xe8\x65\x08\x00\x2a\x00\x00\x00' # ?
-	  extended_data = extended_data + 'Script Plug-in: Remote Notification Arrive'
-	  extended_data = extended_data + '\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x16\x01\x00\x00\x12\x01\x00\x00' # ?
-	  xstatus_request='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name # Xtraz query for XStatus Message request
-	  qstr = '<Q><PluginID>srvMng</PluginID></Q>'
-	  query = '<N><QUERY>' + self.getSafeXML(qstr) + '</QUERY><NOTIFY>' + self.getSafeXML(xstatus_request) + '</NOTIFY></N>' 
-	  extended_data = extended_data + query
-	  
-	  rvTLV1 = TLV(0x000a, '\x00\x01') # I don't know what is it
-	  rvTLV2 = TLV(0x000f) # empty TLV
-	  rvTLV3 = TLV(0x2711, extended_data)
-	  
-	  rvdataTLV = struct.pack('!H',0x0000) # request
-	  rvdataTLV = rvdataTLV + cookie
-	  rvdataTLV = rvdataTLV + '\x09\x46\x13\x49\x4c\x7f\x11\xd1\x82\x22\x44\x45\x53\x54\x00\x00' # ICQ Server Relaying
-	  rvdataTLV = rvdataTLV + rvTLV1 + rvTLV2 + rvTLV3
-	  
-	  rvdataTLV = TLV(0x0005, rvdataTLV)
-	  data = header + rvdataTLV
-	  log.msg("sendXstatusMessageRequest end")
-	  self.sendSNACnr(0x04, 0x06, data) # outgoing message
+	  if self.oscarcon.legacyList.usercaps.has_key(user):
+		  log.msg("Caps for user %s: %s" % (user, self.oscarcon.legacyList.usercaps[user]))
+		  if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]:
+			log.msg("User %s has cap xtraz" % user)
+			
+			if mode == 'legacy':
+				cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+				header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
+				
+				extended_data = struct.pack('!H',0x1b00) # length 27
+				extended_data = extended_data + struct.pack('!H',0x0800) # protocol v.8
+				extended_data = extended_data + CAP_EMPTY # Plugin Version
+				extended_data = extended_data + struct.pack('!H',0x0000) # unknown
+				extended_data = extended_data + struct.pack("!I", 0x03000000) # client caps?
+				extended_data = extended_data + struct.pack('!B', 0x00) # unknown
+				extended_data = extended_data + struct.pack('!H', 1) # downCounter1
+				extended_data = extended_data + struct.pack('!H',0x0e00) # length 14
+				extended_data = extended_data + struct.pack('!H', 1) # downCounter2
+				extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
+				extended_data = extended_data + struct.pack('!B', 0x1a) # msg type
+				extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
+				extended_data = extended_data + struct.pack('!H',0x0000) # status code
+				extended_data = extended_data + struct.pack('!H',0x0000) # priority
+				extended_data = extended_data + struct.pack('!H',0x0100) # empty
+				extended_data = extended_data + struct.pack('!B',0x00) # message
+				extended_data = extended_data + '\x4f\x00\x3b\x60\xb3\xef\xd8\x2a\x6c\x45\xa4\xe0\x9c\x5a\x5e\x67\xe8\x65\x08\x00\x2a\x00\x00\x00' # ?
+				extended_data = extended_data + 'Script Plug-in: Remote Notification Arrive'
+				extended_data = extended_data + '\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x16\x01\x00\x00\x12\x01\x00\x00' # ?
+				xstatus_request='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name # Xtraz query for XStatus Message request
+				qstr = '<Q><PluginID>srvMng</PluginID></Q>'
+				query = '<N><QUERY>' + self.getSafeXML(qstr) + '</QUERY><NOTIFY>' + self.getSafeXML(xstatus_request) + '</NOTIFY></N>' 
+				extended_data = extended_data + query
+				
+				rvTLV1 = TLV(0x000a, '\x00\x01') # I don't know what is it
+				rvTLV2 = TLV(0x000f) # empty TLV
+				rvTLV3 = TLV(0x2711, extended_data)
+				
+				rvdataTLV = struct.pack('!H',0x0000) # request
+				rvdataTLV = rvdataTLV + cookie
+				rvdataTLV = rvdataTLV + '\x09\x46\x13\x49\x4c\x7f\x11\xd1\x82\x22\x44\x45\x53\x54\x00\x00' # ICQ Server Relaying
+				rvdataTLV = rvdataTLV + rvTLV1 + rvTLV2 + rvTLV3
+				
+				rvdataTLV = TLV(0x0005, rvdataTLV)
+				data = header + rvdataTLV
+				log.msg("sendXstatusMessageRequest end")
+				self.sendSNACnr(0x04, 0x06, data) # send request
+				
+			elif mode == 'modern':
+				# AIM messaging header
+				cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+				header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
+				# xtraz request
+				notifyBody='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name
+				queryBody = '<Q><PluginID>srvMng</PluginID></Q>'
+				query = '<N><QUERY>' + self.getSafeXML(queryBody) + '</QUERY><NOTIFY>' + self.getSafeXML(notifyBody) + '</NOTIFY></N>'
+				# extended data body
+				extended_data = struct.pack('<H',0x1b) # unknown
+				extended_data = extended_data + struct.pack('!B',0x08) # protocol version
+				extended_data = extended_data + CAP_EMPTY # Plugin Version
+				extended_data = extended_data + struct.pack("!L", 0x3) # client features
+				extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
+				msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+				extended_data = extended_data + msgcookie # message cookie
+				extended_data = extended_data + struct.pack('<H',0x0e) # unknown
+				extended_data = extended_data + msgcookie # message cookie again
+				extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
+				extended_data = extended_data + struct.pack('!B', 0x1a) # msg type: Plugin message described by text string
+				extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
+				extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+				extended_data = extended_data + struct.pack('!H',0x0100) # priority
+				extended_data = extended_data + struct.pack('!HB',0x0100,0x00) # empty message
+				extended_data = extended_data + self.packPluginTypeId()
+				extended_data = extended_data + struct.pack('<LL', len(query)+4, len(query))
+				extended_data = extended_data + query
+				# make TLV with extended data
+				extdataTLV = TLV(0x2711, extended_data)
+				# Render Vous Data body
+				rvdataTLV = struct.pack('!H',0x0000) # request
+				rvdataTLV = rvdataTLV + cookie
+				rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
+				# additional TLVs
+				addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
+				addTLV2 = TLV(0x0f) # empty TLV
+				# concat TLVs
+				rvdataTLV = rvdataTLV + addTLV1 + addTLV2 + extdataTLV
+				# make Render Vous Data TLV
+				rvdataTLV = TLV(0x0005, rvdataTLV)
+				# server Ack requested
+				TLVask = TLV(3)
+				# result data
+				data = header + rvdataTLV + TLVask
+				log.msg("sendXstatusMessageRequest end")
+				self.sendSNACnr(0x04, 0x06, data) # send request
+
+    def packPluginTypeId(self):
+	    dt =  struct.pack('<H',0x4f) # length
+	    dt += struct.pack('!LLLL', 0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865) # Message type id: xtraz script
+	    dt += struct.pack('<H',0x0008) # message subtype: Script Notify
+	    dt += struct.pack('<L',0x002a) # request type string
+	    dt += 'Script Plug-in: Remote Notification Arrive'
+	    dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
+	    return dt
 
     def sendSMS(self, phone, message, senderName = "Auto"):
         """
