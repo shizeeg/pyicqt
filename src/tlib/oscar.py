@@ -1335,7 +1335,7 @@ class BOSConnection(SNACBased):
                             if messageLength > 0:
 					multiparts.append(tuple(message))	
 					log.msg('Type of user.name %s %s' % (type(user.name), user.name))
-				    	self.sendXstatusMessageRequest(user.name,'modern')
+				#    	self.sendXstatusMessageRequest(user.name,'modern')
                         else:
                             # Uh... what is this???
                             log.msg("unknown message fragment %d %d: %s" % (fragtype, fragver, str(v)))
