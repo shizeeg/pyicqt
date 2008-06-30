@@ -214,13 +214,19 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
+		self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
+		
 		x_status_name = self.oscarcon.getXStatus(user.name)
 		if x_status_name != '':
 			if status != '':
 				status += '\n'
 			status += 'X-status: %s' % x_status_name
-			
-		self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
+		x_status_title = self.oscarcon.getXStatusTitle(user.name)
+		if x_status_title != '':
+			status += 'X-status title: %s' % x_status_title
+		x_status_desc = self.oscarcon.getXStatusDesc(user.name)
+		if x_status_title != '':
+			status += 'X-status desc: %s' % x_status_desc
 		
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
@@ -422,6 +428,13 @@ class B(oscar.BOSConnection):
 			if status != '':
 				status += '\n'
 			status += 'X-status: %s' % x_status_name
+		x_status_title = self.oscarcon.getXStatusTitle(user.name)
+		if x_status_title != '':
+			status += 'X-status title: %s' % x_status_title
+		x_status_desc = self.oscarcon.getXStatusDesc(user.name)
+		if x_status_title != '':
+			status += 'X-status desc: %s' % x_status_desc
+		
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)

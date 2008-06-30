@@ -496,6 +496,28 @@ class LegacyConnection:
 				return ''
 		else:
 			return ''
+		
+	def getXStatusTitle(self, userHandle):
+	# returns title of x-status message
+		if self.legacyList.usercustomstatuses.has_key(userHandle):
+			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			if customStatus.has_key('x-status title'):
+				return customStatus['x-status title']
+			else:
+				return ''
+		else:
+			return ''
+		
+	def getXStatusDesc(self, userHandle):
+	# returns description of x-status message
+		if self.legacyList.usercustomstatuses.has_key(userHandle):
+			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			if customStatus.has_key('x-status desc'):
+				return customStatus['x-status desc']
+			else:
+				return ''
+		else:
+			return ''
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid

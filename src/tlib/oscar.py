@@ -837,6 +837,57 @@ class SNACBased(OscarConnection):
 	"""
 	log.msg("Xstatus message response")
 	log.msg(snac)
+	
+	buddy = ''
+	title = ''
+	desc = ''
+	
+	snacdata = snac[5]
+	buddylen = struct.unpack('!B',snacdata[10:11])[0]
+	buddy_end = 11+buddylen
+	buddy = snacdata[11:buddy_end] # buddy uin
+	
+	extdata = snacdata[buddy_end+2:]
+	# skip 'first header' 
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
+	# skip 'second header' 	
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+	
+	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+	emptymsglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
+	msgcontent_pos = msg_features_pos + 8 + emptymsglen
+	msgcontent = extdata[msgcontent_pos:]
+	
+	PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
+	
+	MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
+	if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
+		log.msg('Message type id: xtraz script')
+		MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
+		if MsgSubType == 0x0008:
+			log.msg('Message subtype: Script Notify')
+			MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
+			if MsgAction == 0x002a:
+				log.msg('Request type string')
+				NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
+				Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
+				# TODO: parse as XML
+				UnSafe_Notification = self.getUnSafeXML(Notification)
+				
+				title_begin_pos = UnSafe_Notification.find('<title>')
+				title_end_pos = UnSafe_Notification.find('</title>')
+				if title_begin_pos !=-1 and title_end_pos !=-1:
+					title = UnSafe_Notification[title_begin_pos+len('<title>'):title_end_pos]
+					
+				desc_begin_pos = UnSafe_Notification.find('<desc>')
+				desc_end_pos = UnSafe_Notification.find('</desc>')
+				if desc_begin_pos !=-1 and desc_end_pos !=-1:
+					desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
+	
+	if self.oscarcon.legacyList.usercustomstatuses.has_key(buddy):
+		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
+		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
+		log.msg('CustomStatus: %s' % self.oscarcon.legacyList.usercustomstatuses[buddy])
 
     def clientReady(self):
         """
@@ -2124,7 +2175,7 @@ class BOSConnection(SNACBased):
 		  log.msg("Caps for user %s: %s" % (user, self.oscarcon.legacyList.usercaps[user]))
 		  if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]:
 			log.msg("User %s has cap xtraz" % user)
-			if self.oscarcon.legacyList.usercustomstatuses[user].has_key('x-status'):
+			if self.oscarcon.legacyList.usercustomstatuses.has_key(user) and self.oscarcon.legacyList.usercustomstatuses[user].has_key('x-status'):
 				log.msg("User %s has x-status" % user)
 				
 				if mode == 'legacy':
