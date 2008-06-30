@@ -831,6 +831,13 @@ class SNACBased(OscarConnection):
         """
         self.sendSNACnr(0x01,0x06,"") #pass
 
+    def oscar_04_0B(self, snac):
+	"""
+	Xstatus message response
+	"""
+	log.msg("Xstatus message response")
+	log.msg(snac)
+
     def clientReady(self):
         """
         called when the client is ready to be online
