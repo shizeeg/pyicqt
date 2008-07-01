@@ -893,7 +893,7 @@ class SNACBased(OscarConnection):
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
 		log.msg('CustomStatus: %s' % self.oscarcon.legacyList.usercustomstatuses[buddy])
 		u = OSCARUser(buddy, None, None)
-		self.updateBuddy(u)
+		self.updateBuddy(u, True)
 		log.msg('Buddy updated')
 		
 

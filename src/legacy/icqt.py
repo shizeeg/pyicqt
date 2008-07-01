@@ -121,7 +121,7 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
 
-	def updateBuddy(self, user):
+	def updateBuddy(self, user, internalcall = False):
 		from glue import icq2jid
 		LogEvent(INFO, self.session.jabberID)
 		buddyjid = icq2jid(user.name)
@@ -214,6 +214,13 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
+		if internalcall:
+			# if updateBuddy was called on X-message receiving and not full info present
+			status = self.oscarcon.getLastStatusText(user.name)
+		else:
+			# updateBuddy was called with normal way
+			self.oscarcon.setLastStatusText(user.name, status)
+		
 		self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
 		
 		x_status_name = self.oscarcon.getXStatus(user.name)
@@ -223,10 +230,13 @@ class B(oscar.BOSConnection):
 			status += 'X-status: %s' % x_status_name
 		x_status_title = self.oscarcon.getXStatusTitle(user.name)
 		if x_status_title != '':
-			status += 'X-status title: %s' % x_status_title
+			if x_status_name != x_status_title: # user changed standart title
+				status += ' (%s)' % x_status_title
 		x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-		if x_status_title != '':
-			status += 'X-status desc: %s' % x_status_desc
+		if x_status_desc != '':
+			if status != '':
+				status += '\n'
+			status += 'X-message: %s' % x_status_desc
 		
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
@@ -430,10 +440,13 @@ class B(oscar.BOSConnection):
 			status += 'X-status: %s' % x_status_name
 		x_status_title = self.oscarcon.getXStatusTitle(user.name)
 		if x_status_title != '':
-			status += 'X-status title: %s' % x_status_title
+			if x_status_name != x_status_title: # user changed standart title
+				status += ' (%s)' % x_status_title
 		x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-		if x_status_title != '':
-			status += 'X-status desc: %s' % x_status_desc
+		if x_status_desc != '':
+			if status != '':
+				status += '\n'
+			status += 'X-message: %s' % x_status_desc
 		
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
