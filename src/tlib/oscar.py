@@ -2265,7 +2265,7 @@ class BOSConnection(SNACBased):
 					# result data
 					data = header + rvdataTLV + TLVask
 					log.msg("sendXstatusMessageRequest end")
-					self.sendSNACnr(0x04, 0x06, data) # send request
+					self.sendSNAC(0x04, 0x06, data).addCallback(self._sendXstatusMessageRequest) # send request
 
     def packPluginTypeId(self):
 	    dt =  struct.pack('<H',0x4f) # length
@@ -2275,6 +2275,9 @@ class BOSConnection(SNACBased):
 	    dt += 'Script Plug-in: Remote Notification Arrive'
 	    dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
 	    return dt
+    
+    def _sendXstatusMessageRequest(self, snac):
+	     log.msg("_sendXstatusMessageRequest %r" % snac)
 
     def sendSMS(self, phone, message, senderName = "Auto"):
         """

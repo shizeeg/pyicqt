@@ -486,8 +486,8 @@ class LegacyConnection:
 	# sample: 'Working','Typing', ''
 		if self.legacyList.usercustomstatuses.has_key(userHandle):
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			log.msg('Contact: %s' % userHandle)
-			log.msg('CustomStatus: %s' % customStatus)
+			log.msg('[getXStatus]Contact: %s' % userHandle)
+			log.msg('[getXStatus]CustomStatus: %s' % customStatus)
 			if customStatus.has_key('x-status'):
 				return customStatus['x-status']
 			elif customStatus.has_key('mood'):
@@ -501,6 +501,8 @@ class LegacyConnection:
 	# returns title of x-status message
 		if self.legacyList.usercustomstatuses.has_key(userHandle):
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			log.msg('[getXStatusTitle]Contact: %s' % userHandle)
+			log.msg('[getXStatusTitle]CustomStatus: %s' % customStatus)
 			if customStatus.has_key('x-status title'):
 				return customStatus['x-status title']
 			else:
@@ -512,6 +514,8 @@ class LegacyConnection:
 	# returns description of x-status message
 		if self.legacyList.usercustomstatuses.has_key(userHandle):
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			log.msg('[getXStatusDesc]Contact: %s' % userHandle)
+			log.msg('[getXStatusDesc]CustomStatus: %s' % customStatus)
 			if customStatus.has_key('x-status desc'):
 				return customStatus['x-status desc']
 			else:
