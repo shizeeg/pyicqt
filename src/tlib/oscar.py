@@ -255,146 +255,150 @@ class OSCARUser:
         self.iconcksum = None
         self.iconlen = None
         self.iconstamp = None
-        for k,v in tlvs.items():
-            if k == 0x0001: # user flags
-                v=struct.unpack('!H',v)[0]
-                for o, f in [(0x0001,'unconfirmed'),
-                             (0x0002,'admin'),
-                             (0x0004,'staff'),
-                             (0x0008,'commercial'),
-                             (0x0010,'free'),
-                             (0x0020,'away'),
-                             (0x0040,'icq'),
-                             (0x0080,'wireless'),
-                             (0x0100,'unknown'),
-                             (0x0200,'unknown'),
-                             (0x0400,'active'),
-                             (0x0800,'unknown'),
-                             (0x1000,'abinternal')]:
-                    if v&o: self.flags.append(f)
-            elif k == 0x0002: # account creation time
-                self.createdOn = struct.unpack('!L',v)[0]
-            elif k == 0x0003: # on-since
-                self.onSince = struct.unpack('!L',v)[0]
-            elif k == 0x0004: # idle time
-                self.idleTime = struct.unpack('!H',v)[0]
-            elif k == 0x0005: # member since
-                self.memberSince = struct.unpack('!L',v)[0]
-            elif k == 0x0006: # icq online status and flags
-                # Flags first
-                mv=struct.unpack('!H',v[0:2])[0]
-                for o, f in [(0x0001,'webaware'),
-                             (0x0002,'showip'),
-                             (0x0008,'birthday'),
-                             (0x0020,'webfront'),
-                             (0x0100,'dcdisabled'),
-                             (0x1000,'dcauth'),
-                             (0x2000,'dccont')]:
-                    if mv&o: self.icqFlags.append(f)
 
-                # Status flags next
-                mv=struct.unpack('!H',v[2:4])[0]
-                for o, f in [(0x0000,'online'),
-                             (0x0001,'away'),
-                             (0x0002,'dnd'),
-                             (0x0004,'xa'),
-                             (0x0010,'busy'),
-                             (0x0020,'chat'),
-                             (0x0100,'invisible')]:
-                    if mv&o: self.icqStatus.append(f)
-            elif k == 0x0008: # client type?
-                pass
-            elif k == 0x000a: # icq user ip address
-                self.icqIPaddy = socket.inet_ntoa(v)
-            elif k == 0x000c: # icq random stuff
-                # from http://iserverd1.khstu.ru/oscar/info_block.html
-                self.icqRandom = struct.unpack('!4sLBHLLLLLLH',v)
-                self.icqLANIPaddy = socket.inet_ntoa(self.icqRandom[0])
-                self.icqLANIPport = self.icqRandom[1]
-                self.icqProtocolVersion = self.icqRandom[3]
-            elif k == 0x000d: # capabilities
-                caps=[]
-                while v:
-                    c=v[:16]
-
-                    if CAPS.has_key(c): caps.append(CAPS[c])
-                    else: caps.append(("unknown",c))
-                    v=v[16:]
-		    
-		    if X_STATUS_CAPS.has_key(c):
-			    self.customStatus['x-status'] = X_STATUS_NAME[X_STATUS_CAPS[c]]
-
-                caps.sort()
-                self.caps=caps
-            elif k == 0x000e: # AOL capability information
-                pass
-            elif k == 0x000f: # session length (aim)
-                self.sessionLength = struct.unpack('!L',v)[0]
-            elif k == 0x0010: # session length (aol)
-                self.sessionLength = struct.unpack('!L',v)[0]
-            elif k == 0x0019: # OSCAR short capabilities
-                pass
-            elif k == 0x001a: # AOL short capabilities
-                pass
-            elif k == 0x001b: # encryption certification MD5 checksum
-                pass
-            elif k == 0x001d: # AIM Extended Status
-                log.msg("AIM Extended Status: user %s\nv: %s"%(self.name,repr(v)))
-                while len(v)>4 and ord(v[0]) == 0 and ord(v[3]) != 0:
-                    exttype,extflags,extlen = struct.unpack('!HBB',v[0:4])
-                    if exttype == 0x00: # Gaim skips this, so will we
-                        pass
-                    elif exttype == 0x01: # Actual interesting buddy icon
-                        if extlen > 0 and (extflags == 0x00 or extflags == 0x01):
-                            self.iconmd5sum = v[4:4+extlen]
-                            self.icontype = extflags
-                            log.msg("   extracted icon hash: extflags = %s, iconhash = %s" % (str(hex(extflags)), binascii.hexlify(self.iconmd5sum)))
-                    elif exttype == 0x02: # Extended Status Message
-                        if extlen >= 4: # Why?  Gaim does this
-                            availlen = (struct.unpack('!H', v[4:6]))[0]
-                            self.status = v[6:6+availlen]
-                            pos = 6+availlen
-                            if pos < extlen+4:
-                                hasencoding = (struct.unpack('!H',v[pos:pos+2]))[0]
-                                pos = pos+2
-                                if hasencoding == 0x0001:
-                                    enclen = (struct.unpack('!HH',v[pos:pos+4]))[1]
-                                    self.statusencoding = v[pos+4:pos+4+enclen]
-                            log.msg("   extracted status message: %s"%(self.status))
-                            if self.statusencoding:
-                                log.msg("   status message encoding: %s"%(str(self.statusencoding)))
-                    elif exttype == 0x09: # iTunes URL
-                        statlen = (struct.unpack('!H', v[4:6]))[0]
-                        #statlen=int((struct.unpack('!H', v[2:4]))[0])-4
-                        if statlen>2 and v[6+statlen-1:6+statlen] != "\x00":
-                            self.url=v[6:6+statlen]
-                        else:
-                            self.url=None
-                        log.msg("   extracted itunes URL: %s"%(repr(self.url)))
-                    elif exttype == 0x0d or exttype ==  0x08:
-		        #XXX attempt to resolve problem with new ICQ clients: this needs to be verified by reverse engineering of the protocol
-		        self.statusencoding = "icq51pseudounicode"
-                        log.msg("   status message encoding: %s"%(str(self.statusencoding)))
-			# XXX: there should be probably more information available for extraction here
-		    elif exttype == 0x0e:
-			# ICQ 6 custom status (mood)
-			log.msg('ICQ 6 custom status (mood) with length %s' % extlen)
-			if extlen >= 8:
-				icq_mood_iconstr=v[4:(4+extlen)]
-				if icq_mood_iconstr.find('icqmood') != -1:
-					icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
-					self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
-					log.msg('ICQ 6 mood #:',icq_mood_num)
-                    else:
-                        log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
-                    #v=v[ord(v[3])+4:]
-                    v=v[extlen+4:]
-            elif k == 0x001e: # unknown
-                pass
-            elif k == 0x001f: # unknown
-                pass
-            else:
-                log.msg("unknown tlv for user %s\nt: %s\nv: %s"%(self.name,str(hex(k)),repr(v)))
+	if tlvs == None:
+		pass
+	else:
+		for k,v in tlvs.items():
+			if k == 0x0001: # user flags
+				v=struct.unpack('!H',v)[0]
+				for o, f in [(0x0001,'unconfirmed'),
+						(0x0002,'admin'),
+						(0x0004,'staff'),
+						(0x0008,'commercial'),
+						(0x0010,'free'),
+						(0x0020,'away'),
+						(0x0040,'icq'),
+						(0x0080,'wireless'),
+						(0x0100,'unknown'),
+						(0x0200,'unknown'),
+						(0x0400,'active'),
+						(0x0800,'unknown'),
+						(0x1000,'abinternal')]:
+					if v&o: self.flags.append(f)
+			elif k == 0x0002: # account creation time
+				self.createdOn = struct.unpack('!L',v)[0]
+			elif k == 0x0003: # on-since
+				self.onSince = struct.unpack('!L',v)[0]
+			elif k == 0x0004: # idle time
+				self.idleTime = struct.unpack('!H',v)[0]
+			elif k == 0x0005: # member since
+				self.memberSince = struct.unpack('!L',v)[0]
+			elif k == 0x0006: # icq online status and flags
+				# Flags first
+				mv=struct.unpack('!H',v[0:2])[0]
+				for o, f in [(0x0001,'webaware'),
+						(0x0002,'showip'),
+						(0x0008,'birthday'),
+						(0x0020,'webfront'),
+						(0x0100,'dcdisabled'),
+						(0x1000,'dcauth'),
+						(0x2000,'dccont')]:
+					if mv&o: self.icqFlags.append(f)
+		
+				# Status flags next
+				mv=struct.unpack('!H',v[2:4])[0]
+				for o, f in [(0x0000,'online'),
+						(0x0001,'away'),
+						(0x0002,'dnd'),
+						(0x0004,'xa'),
+						(0x0010,'busy'),
+						(0x0020,'chat'),
+						(0x0100,'invisible')]:
+					if mv&o: self.icqStatus.append(f)
+			elif k == 0x0008: # client type?
+				pass
+			elif k == 0x000a: # icq user ip address
+				self.icqIPaddy = socket.inet_ntoa(v)
+			elif k == 0x000c: # icq random stuff
+				# from http://iserverd1.khstu.ru/oscar/info_block.html
+				self.icqRandom = struct.unpack('!4sLBHLLLLLLH',v)
+				self.icqLANIPaddy = socket.inet_ntoa(self.icqRandom[0])
+				self.icqLANIPport = self.icqRandom[1]
+				self.icqProtocolVersion = self.icqRandom[3]
+			elif k == 0x000d: # capabilities
+				caps=[]
+				while v:
+					c=v[:16]
+			
+					if CAPS.has_key(c): caps.append(CAPS[c])
+					else: caps.append(("unknown",c))
+					v=v[16:]
+					
+					if X_STATUS_CAPS.has_key(c):
+						self.customStatus['x-status'] = X_STATUS_NAME[X_STATUS_CAPS[c]]
+		
+				caps.sort()
+				self.caps=caps
+			elif k == 0x000e: # AOL capability information
+				pass
+			elif k == 0x000f: # session length (aim)
+				self.sessionLength = struct.unpack('!L',v)[0]
+			elif k == 0x0010: # session length (aol)
+				self.sessionLength = struct.unpack('!L',v)[0]
+			elif k == 0x0019: # OSCAR short capabilities
+				pass
+			elif k == 0x001a: # AOL short capabilities
+				pass
+			elif k == 0x001b: # encryption certification MD5 checksum
+				pass
+			elif k == 0x001d: # AIM Extended Status
+				log.msg("AIM Extended Status: user %s\nv: %s"%(self.name,repr(v)))
+				while len(v)>4 and ord(v[0]) == 0 and ord(v[3]) != 0:
+					exttype,extflags,extlen = struct.unpack('!HBB',v[0:4])
+					if exttype == 0x00: # Gaim skips this, so will we
+						pass
+					elif exttype == 0x01: # Actual interesting buddy icon
+						if extlen > 0 and (extflags == 0x00 or extflags == 0x01):
+							self.iconmd5sum = v[4:4+extlen]
+							self.icontype = extflags
+							log.msg("   extracted icon hash: extflags = %s, iconhash = %s" % (str(hex(extflags)), binascii.hexlify(self.iconmd5sum)))
+					elif exttype == 0x02: # Extended Status Message
+						if extlen >= 4: # Why?  Gaim does this
+							availlen = (struct.unpack('!H', v[4:6]))[0]
+							self.status = v[6:6+availlen]
+							pos = 6+availlen
+							if pos < extlen+4:
+								hasencoding = (struct.unpack('!H',v[pos:pos+2]))[0]
+								pos = pos+2
+								if hasencoding == 0x0001:
+									enclen = (struct.unpack('!HH',v[pos:pos+4]))[1]
+									self.statusencoding = v[pos+4:pos+4+enclen]
+							log.msg("   extracted status message: %s"%(self.status))
+							if self.statusencoding:
+								log.msg("   status message encoding: %s"%(str(self.statusencoding)))
+					elif exttype == 0x09: # iTunes URL
+						statlen = (struct.unpack('!H', v[4:6]))[0]
+						#statlen=int((struct.unpack('!H', v[2:4]))[0])-4
+						if statlen>2 and v[6+statlen-1:6+statlen] != "\x00":
+							self.url=v[6:6+statlen]
+						else:
+							self.url=None
+						log.msg("   extracted itunes URL: %s"%(repr(self.url)))
+					elif exttype == 0x0d or exttype ==  0x08:
+						#XXX attempt to resolve problem with new ICQ clients: this needs to be verified by reverse engineering of the protocol
+						self.statusencoding = "icq51pseudounicode"
+						log.msg("   status message encoding: %s"%(str(self.statusencoding)))
+						# XXX: there should be probably more information available for extraction here
+					elif exttype == 0x0e:
+						# ICQ 6 custom status (mood)
+						log.msg('ICQ 6 custom status (mood) with length %s' % extlen)
+						if extlen >= 8:
+							icq_mood_iconstr=v[4:(4+extlen)]
+							if icq_mood_iconstr.find('icqmood') != -1:
+								icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
+								self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
+								log.msg('ICQ 6 mood #:',icq_mood_num)
+					else:
+						log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
+					#v=v[ord(v[3])+4:]
+					v=v[extlen+4:]
+			elif k == 0x001e: # unknown
+				pass
+			elif k == 0x001f: # unknown
+				pass
+			else:
+				log.msg("unknown tlv for user %s\nt: %s\nv: %s"%(self.name,str(hex(k)),repr(v)))
 
     def __str__(self):
         s = '<OSCARUser %s' % self.name
@@ -888,6 +892,10 @@ class SNACBased(OscarConnection):
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
 		log.msg('CustomStatus: %s' % self.oscarcon.legacyList.usercustomstatuses[buddy])
+		u = OSCARUser(buddy, None, None)
+		self.updateBuddy(u)
+		log.msg('Buddy updated')
+		
 
     def clientReady(self):
         """
