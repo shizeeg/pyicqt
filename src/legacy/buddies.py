@@ -22,6 +22,8 @@ class BuddyList:
 		self.ssicontacts = { }
 		self.usercaps = { }
 		self.usercustomstatuses = { }
+		self.user_saves = {}
+		self.saved_snacs = dict ([])
 		self.xdbcontacts = self.getBuddyList()
 		for c in self.xdbcontacts:
 			from glue import icq2jid
@@ -74,7 +76,13 @@ class BuddyList:
 		self.session.legacycon.deauthContact(userHandle)
 
 	def setCustomStatus(self, contact, customStatus):
-		self.usercustomstatuses[contact.lower()] = customStatus
+		lo_contact = contact.lower()
+		if self.usercustomstatuses.has_key(lo_contact): # if customStatus for user exista
+			for key in customStatus:
+				if self.usercustomstatuses[lo_contact].has_key(key): # update value if key present (and not touch other keys)
+					self.usercustomstatuses[lo_contact][key] = customStatus[key]
+		else: # if customStatus for user not exista 
+			self.usercustomstatuses[lo_contact] = customStatus # copy full customStatus
 
 	def setCapabilities(self, contact, caplist):
 		LogEvent(INFO, self.session.jabberID)

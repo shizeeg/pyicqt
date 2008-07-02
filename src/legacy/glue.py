@@ -522,24 +522,21 @@ class LegacyConnection:
 				return ''
 		else:
 			return ''
-		
-	def getLastStatusText(self, userHandle):
-	# returns last status text
-		if self.legacyList.usercustomstatuses.has_key(userHandle):
-			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			log.msg('[getLastStatusText]Contact: %s' % userHandle)
-			log.msg('[getLastStatusText]CustomStatus: %s' % customStatus)
-			if customStatus.has_key('status text'):
-				return customStatus['status text']
-			else:
-				return ''
+	
+	def setSavedSnac(self, userHandle, snac):
+		log.msg('setSavedSnac called for %s with data: %s' % (userHandle, snac))
+		self.legacyList.saved_snacs[userHandle] = snac
+	
+	def getSavedSnac(self, userHandle):
+		log.msg('getSavedSnac called for %s' % userHandle)
+		if self.legacyList.saved_snacs.has_key(userHandle):
+			snac = self.legacyList.saved_snacs[userHandle]
+			log.msg('getSavedSnac called for %s with data: %s' % (userHandle, snac))
+			return snac
 		else:
 			return ''
-	
-	def setLastStatusText(self, userHandle, text):
-	# set last status text
-		if self.legacyList.usercustomstatuses.has_key(userHandle):
-			self.legacyList.usercustomstatuses[userHandle]['status text'] = text
+			
+		
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid

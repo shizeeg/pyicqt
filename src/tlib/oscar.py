@@ -891,10 +891,11 @@ class SNACBased(OscarConnection):
 	if self.oscarcon.legacyList.usercustomstatuses.has_key(buddy):
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
-		log.msg('CustomStatus: %s' % self.oscarcon.legacyList.usercustomstatuses[buddy])
-		u = OSCARUser(buddy, None, None)
-		self.updateBuddy(u, True)
-		log.msg('Buddy updated')
+		log.msg('CustomStatus for %s: %s' % (buddy, self.oscarcon.legacyList.usercustomstatuses[buddy]))
+	saved_snac = self.oscarcon.getSavedSnac(buddy)
+	if saved_snac != '':
+		self.updateBuddy(self.parseUser(saved_snac), True)
+		log.msg('Buddy %s updated from saved snac' % buddy)
 		
 
     def clientReady(self):
@@ -1305,7 +1306,10 @@ class BOSConnection(SNACBased):
         """
         buddy update
         """
-        self.updateBuddy(self.parseUser(snac[5]))
+	l=ord(snac[5][0]) # uin length
+        name=snac[5][1:1+l] # uin
+        self.updateBuddy(self.parseUser(snac[5])) # update buddy
+	self.oscarcon.setSavedSnac(name, snac[5]) # save snac (will used on Xstatus message response)
 
     def oscar_03_0C(self, snac):
         """

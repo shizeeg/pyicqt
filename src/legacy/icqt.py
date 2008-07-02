@@ -121,9 +121,10 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
 
-	def updateBuddy(self, user, internalcall = False):
+	def updateBuddy(self, user, selfcall = False):
 		from glue import icq2jid
 		LogEvent(INFO, self.session.jabberID)
+		
 		buddyjid = icq2jid(user.name)
                 c = self.session.contactList.findContact(buddyjid)
                 if not c: return
@@ -214,15 +215,6 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
-		if internalcall:
-			# if updateBuddy was called on X-message receiving and not full info present
-			status = self.oscarcon.getLastStatusText(user.name)
-		else:
-			# updateBuddy was called with normal way
-			self.oscarcon.setLastStatusText(user.name, status)
-		
-		self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
-		
 		x_status_name = self.oscarcon.getXStatus(user.name)
 		if x_status_name != '':
 			if status != '':
@@ -237,7 +229,10 @@ class B(oscar.BOSConnection):
 			if status != '':
 				status += '\n'
 			status += 'X-message: %s' % x_status_desc
-		
+			
+		if selfcall == False:
+			self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
+			
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
 		else:
