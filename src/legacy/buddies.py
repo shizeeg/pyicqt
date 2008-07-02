@@ -22,7 +22,6 @@ class BuddyList:
 		self.ssicontacts = { }
 		self.usercaps = { }
 		self.usercustomstatuses = { }
-		self.user_saves = {}
 		self.saved_snacs = dict ([])
 		self.xdbcontacts = self.getBuddyList()
 		for c in self.xdbcontacts:
