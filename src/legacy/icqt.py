@@ -148,7 +148,7 @@ class B(oscar.BOSConnection):
 			show = 'xa'
 			anormal = 'Out to lunch'
 		elif user.icqStatus.count('phone'):
-			show = 'busy'
+			show = 'dnd'
 			anormal = 'On the phone'
 		elif user.icqStatus.count('home'):
 			show = 'online'
@@ -400,7 +400,7 @@ class B(oscar.BOSConnection):
 			show = 'xa'
 			anormal = 'Out to lunch'
 		elif user.icqStatus.count('phone'):
-			show = 'busy'
+			show = 'dnd'
 			anormal = 'On the phone'
 		elif user.icqStatus.count('home'):
 			show = 'online'
