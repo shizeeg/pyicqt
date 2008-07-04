@@ -138,12 +138,10 @@ class B(oscar.BOSConnection):
 			show = 'dnd'
 		elif user.icqStatus.count('chat'):
 			show = 'chat'
-		elif user.icqStatus.count('dnd'):
-			show = 'dnd'
 		elif user.icqStatus.count('away'):
 			show = 'away'
 		else:
-			show = None
+			show = 'online'
 		status = user.status
 		encoding = user.statusencoding
 		url = user.url
@@ -362,12 +360,10 @@ class B(oscar.BOSConnection):
 			show = 'dnd'
 		elif user.icqStatus.count('chat'):
 			show = 'chat'
-		elif user.icqStatus.count('dnd'):
-			show = 'dnd'
 		elif user.icqStatus.count('away'):
 			show = 'away'
 		else:
-			show = 'away'
+			show = 'online'
 
 		status = msg[1]
 		url = user.url
