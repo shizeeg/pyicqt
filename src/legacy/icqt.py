@@ -130,6 +130,9 @@ class B(oscar.BOSConnection):
                 if not c: return
 
 		ptype = None
+		anormal = None
+		log.msg('Status for %s is %s' % (user.name, user.icqStatus))
+		# normal statuses
 		if user.icqStatus.count('dnd'):
 			show = 'dnd'
 		elif user.icqStatus.count('xa'):
@@ -140,6 +143,25 @@ class B(oscar.BOSConnection):
 			show = 'chat'
 		elif user.icqStatus.count('away'):
 			show = 'away'
+		# additional "normal" statuses
+		elif user.icqStatus.count('lunch'):
+			show = 'xa'
+			anormal = 'Out to lunch'
+		elif user.icqStatus.count('phone'):
+			show = 'busy'
+			anormal = 'On the phone'
+		elif user.icqStatus.count('home'):
+			show = 'online'
+			anormal = 'At home'
+		elif user.icqStatus.count('work'):
+			show = 'online'
+			anormal = 'At work'
+		elif user.icqStatus.count('evil'):
+			show = 'online'
+			anormal = 'Evil'
+		elif user.icqStatus.count('depression'):
+			show = 'online'
+			anormal = 'Depression'
 		else:
 			show = 'online'
 		status = user.status
@@ -213,6 +235,12 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
+		if status == None:
+			status = ''
+		if anormal != None:
+			if status != '':
+				status += '\n'
+			status += 'Status: %s' % anormal
 		x_status_name = self.oscarcon.getXStatus(user.name)
 		if x_status_name != '':
 			if status != '':
@@ -227,6 +255,8 @@ class B(oscar.BOSConnection):
 			if status != '':
 				status += '\n'
 			status += 'X-message: %s' % x_status_desc
+		if status == '':
+			status = None
 			
 		if selfcall == False:
 			self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
@@ -352,6 +382,9 @@ class B(oscar.BOSConnection):
 		if not c: return
 
 		ptype = None
+		anormal = None
+		log.msg('Status for %s is %s' % (user.name, user.icqStatus))
+		# normal statuses
 		if user.icqStatus.count('dnd'):
 			show = 'dnd'
 		elif user.icqStatus.count('xa'):
@@ -362,6 +395,25 @@ class B(oscar.BOSConnection):
 			show = 'chat'
 		elif user.icqStatus.count('away'):
 			show = 'away'
+		# additional "normal" statuses
+		elif user.icqStatus.count('lunch'):
+			show = 'xa'
+			anormal = 'Out to lunch'
+		elif user.icqStatus.count('phone'):
+			show = 'busy'
+			anormal = 'On the phone'
+		elif user.icqStatus.count('home'):
+			show = 'online'
+			anormal = 'At home'
+		elif user.icqStatus.count('work'):
+			show = 'online'
+			anormal = 'At work'
+		elif user.icqStatus.count('evil'):
+			show = 'online'
+			anormal = 'Evil'
+		elif user.icqStatus.count('depression'):
+			show = 'online'
+			anormal = 'Depression'
 		else:
 			show = 'online'
 
@@ -423,7 +475,13 @@ class B(oscar.BOSConnection):
 				status="%s - %s"%(idle_time,status)
 			else:
 				status=idle_time
-				
+		
+		if status == None:
+			status = ''
+		if anormal != None:
+			if status != '':
+				status += '\n'
+			status += 'Status: %s' % anormal
 		x_status_name = self.oscarcon.getXStatus(user.name)
 		if x_status_name != '':
 			if status != '':
@@ -438,6 +496,8 @@ class B(oscar.BOSConnection):
 			if status != '':
 				status += '\n'
 			status += 'X-message: %s' % x_status_desc
+		if status == '':
+			status = None
 		
 
 		c.updatePresence(show=show, status=status, ptype=ptype)

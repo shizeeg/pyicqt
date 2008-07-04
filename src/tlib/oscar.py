@@ -298,14 +298,29 @@ class OSCARUser:
 		
 				# Status flags next
 				mv=struct.unpack('!H',v[2:4])[0]
-				for o, f in [(0x0000,'online'),
-						(0x0001,'away'),
-						(0x0002,'dnd'),
-						(0x0004,'xa'),
-						(0x0010,'busy'),
-						(0x0020,'chat'),
-						(0x0100,'invisible')]:
-					if mv&o: self.icqStatus.append(f)
+				status_dict = [(0x0000,'online'),
+					(0x0001,'away'),
+					(0x0002,'dnd'),
+					(0x0004,'xa'),
+					(0x0010,'busy'),
+					(0x0020,'chat'),
+					(0x0100,'invisible'),
+					# Miranda
+					(0x0005,'lunch'),
+					(0x0011,'phone'),
+					# QutIM
+					(0x3000,'evil'),
+					(0x4000,'depression'),
+					(0x5000,'home'),
+					(0x6000,'work'),
+					(0x2001,'lunch')]
+				for o, f in status_dict:
+					if o == mv: # if exact match
+						self.icqStatus.append(f)
+				if len(self.icqStatus) == 0: # strange status. Need try interpret it
+					for o, f in status_dict:
+						if mv&o:
+							self.icqStatus.append(f)
 			elif k == 0x0008: # client type?
 				pass
 			elif k == 0x000a: # icq user ip address
