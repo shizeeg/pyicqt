@@ -2305,6 +2305,31 @@ class BOSConnection(SNACBased):
     
     def _sendXstatusMessageRequest(self, snac):
 	     log.msg("_sendXstatusMessageRequest %r" % snac)
+	     
+    def	setSelfXstatus(self, xstatus_name):
+	if xstatus_name and xstatus_name != 'None':
+		    if xstatus_name in X_STATUS_NAME:
+			index_in_list = X_STATUS_NAME.index(xstatus_name)
+			for key in X_STATUS_CAPS:
+				if X_STATUS_CAPS[key] == index_in_list:
+					for old_key in X_STATUS_CAPS:
+						if old_key in self.capabilities:
+							self.capabilities.remove(old_key)
+	    				self.capabilities.append(key)
+					log.msg('setSelfXstatus %s' % repr(key))
+					self.setUserInfo()
+					#self.requestSelfInfo().addCallback(self.gotSelfInfo)
+					
+    def setUserInfo(self):
+        """
+        send self info
+        """
+	caps = ''
+	for cap in self.capabilities:
+		caps += cap
+	TLVcaps = TLV(0x05, caps)
+	data = TLVcaps
+        self.sendSNAC(0x02, 0x04, data)
 
     def sendSMS(self, phone, message, senderName = "Auto"):
         """
