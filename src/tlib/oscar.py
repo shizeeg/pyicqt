@@ -2318,7 +2318,7 @@ class BOSConnection(SNACBased):
 	    				self.capabilities.append(key)
 					log.msg('setSelfXstatus %s' % repr(key))
 					self.setUserInfo()
-					#self.requestSelfInfo().addCallback(self.gotSelfInfo)
+					self.setExtendedStatusRequest()
 					
     def setUserInfo(self):
         """
@@ -2330,6 +2330,28 @@ class BOSConnection(SNACBased):
 	TLVcaps = TLV(0x05, caps)
 	data = TLVcaps
         self.sendSNAC(0x02, 0x04, data)
+
+			 
+    def setExtendedStatusRequest(self):
+	"""
+        send self info in ICQ6 format
+        """
+	xstatus_key = ''
+	moodTLV = ''
+	for key in X_STATUS_CAPS:
+		if key in self.capabilities:
+			xstatus_key = key
+	if xstatus_key !='':
+		xstatus_num = X_STATUS_CAPS[xstatus_key]
+		mood_num = X_STATUS_MOODS[xstatus_num]
+		mood_str = 'icqmood' + str(mood_num)
+		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+		moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
+		# TODO: add available message
+	status = struct.pack('!L',self.icqStatus)
+	onlinestatusTLV = TLV(0x0006, status)
+	data = onlinestatusTLV + moodTLV
+	self.sendSNAC(0x01, 0x1e, data)
 
     def sendSMS(self, phone, message, senderName = "Auto"):
         """
