@@ -2310,19 +2310,40 @@ class BOSConnection(SNACBased):
     def _sendXstatusMessageRequest(self, snac):
 	     log.msg("_sendXstatusMessageRequest %r" % snac)
 	     
-    def	setSelfXstatus(self, xstatus_name):
+    def	setSelfXstatusName(self, xstatus_name):
 	if xstatus_name and xstatus_name != 'None':
 		    if xstatus_name in X_STATUS_NAME:
 			index_in_list = X_STATUS_NAME.index(xstatus_name)
 			for key in X_STATUS_CAPS:
 				if X_STATUS_CAPS[key] == index_in_list:
-					for old_key in X_STATUS_CAPS:
-						if old_key in self.capabilities:
-							self.capabilities.remove(old_key)
+					self.removeSelfXstatusNoUpdate()
 	    				self.capabilities.append(key)
 					log.msg('setSelfXstatus %s' % repr(key))
 					self.setUserInfo()
 					self.setExtendedStatusRequest()
+    def getSelfXstatus(self):
+	for key in X_STATUS_CAPS:
+		if key in self.capabilities:
+			return key
+	return ''
+		
+    def getSelfXstatusName(self):
+	key = self.getSelfXstatus()
+	if key != '':
+		return X_STATUS_NAME[X_STATUS_CAPS[key]]
+	return ''
+    
+    def removeSelfXstatusNoUpdate(self):
+	for key in X_STATUS_CAPS:
+		if key in self.capabilities:
+			self.capabilities.remove(key)
+
+    
+    def removeSelfXstatus(self):
+	self.removeSelfXstatusNoUpdate()
+	self.setUserInfo()
+	self.setExtendedStatusRequest()
+			
 					
     def setUserInfo(self):
         """

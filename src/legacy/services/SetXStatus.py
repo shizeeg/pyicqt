@@ -77,9 +77,9 @@ class SetXStatus:
 		elif do_action == 'cancel':
 			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
 		else:
-			self.sendXStatusNameSelectionForm(el, sessionid) # send first form
+			self.sendXStatusNameSelectionForm(toj, el, sessionid) # send first form
 			
-	def sendXStatusNameSelectionForm(self, el, sessionid=None):
+	def sendXStatusNameSelectionForm(self, to_jid, el, sessionid=None):
 		to = el.getAttribute('from')
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
@@ -127,10 +127,12 @@ depends from ICQ client') # TODO: translate
 		value = option.addElement('value')
 		value.addContent('None')
 		
-		option = field.addElement('option')
-		option.attributes['label'] = 'Keep current x-status ()' # TODO: add
-		value = option.addElement('value')
-		value.addContent('KeepCurrent')
+		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
+		if current_xstatus_name != '':
+			option = field.addElement('option')
+			option.attributes['label'] = 'Keep current x-status (%s)' % current_xstatus_name
+			value = option.addElement('value')
+			value.addContent('KeepCurrent')
 		
 		for xstatus_title in oscar.X_STATUS_NAME:
 			option = field.addElement('option')
@@ -235,6 +237,13 @@ depends from ICQ client') # TODO: translate
 		self.pytrans.send(iq)
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
-		self.pytrans.sessions[to_jid.userhost()].legacycon.bos.setSelfXstatus(xstatus_name)
+		if xstatus_name == 'None':
+			# no x-status
+			self.pytrans.sessions[to_jid.userhost()].legacycon.bos.removeSelfXstatus()
+		elif xstatus_name == 'KeepCurrent':
+			# not do nothing
+			pass
+		else:
+			self.pytrans.sessions[to_jid.userhost()].legacycon.bos.setSelfXstatusName(xstatus_name)
 		log.msg('setXStatus(self, xstatus_name, xstatus_title=None, xstatus_desc=None) %s %s %s' % (xstatus_name, xstatus_title, xstatus_desc))
 		
