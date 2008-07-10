@@ -1298,6 +1298,10 @@ class BOSConnection(SNACBased):
                 statlen=int((struct.unpack('!H', v[2:4]))[0])
                 status=v[4:4+statlen]
                 log.msg("   extracted status message: %s"%(status))
+	    elif exttype == 0x0e: # ICQ6 mood only or mood + available message?
+		mood_str_len=int((struct.unpack('!H', v[2:4]))[0])
+		mood_str=v[4:4+mood_str_len]
+		log.msg("   extracted mood: %s"%(mood_str))
             else:
                 log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
             v=v[ord(v[3])+4:]
