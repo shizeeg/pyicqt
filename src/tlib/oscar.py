@@ -1550,6 +1550,7 @@ class BOSConnection(SNACBased):
 						request_pos_end = UnSafe_Notification.find('</req>')
 						if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
 							log.msg('Request for Xstatus details from %s' % user.name)
+							self.sendXstatusMessageResponse(user.name, cookie2)
             else:
                 log.msg('unsupported rendezvous: %s' % requestClass)
                 log.msg(repr(moreTLVs))
@@ -2336,6 +2337,65 @@ class BOSConnection(SNACBased):
 					data = header + rvdataTLV + TLVask
 					log.msg("sendXstatusMessageRequest end")
 					self.sendSNAC(0x04, 0x06, data).addCallback(self._sendXstatusMessageRequest) # send request
+					
+    def sendXstatusMessageResponse(self, user, cookie):
+	# AIM messaging header
+	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
+	header = header + struct.pack('!H',0x3) # reason: channel-specific
+
+	if 'x-status name' in self.selfCustomStatus:
+		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
+		index_in_list = index_in_list + 1
+		if index_in_list > 1 and index_in_list < 32:
+			xstatus_index = index_in_list
+		else:
+			xstatus_index = 0	
+	if 'x-status title' in self.selfCustomStatus:
+		xstatus_title = self.selfCustomStatus['x-status title']
+	else:
+		xstatus_title = ''
+	if 'x-status desc' in self.selfCustomStatus:
+		xstatus_desc = self.selfCustomStatus['x-status desc']	
+	else:
+		xstatus_desc = ''
+
+	# message content
+	content = '\
+<ret event=\'OnRemoteNotification\'>\
+<srv><id>cAwaySrv</id>\
+<val srv_id=\'cAwaySrv\'><Root>\
+<CASXtraSetAwayMessage></CASXtraSetAwayMessage>\
+<uin>' + str(self.username) + '</uin>\
+<index>' + str(xstatus_index) + '</index>\
+<title>' + str(xstatus_title) + '</title>\
+<desc>' + str(xstatus_desc) + '</desc></Root></val></srv></ret>'
+
+	query = '<NR><RES>' + self.getSafeXML(content) + '</NR></RES>'
+
+	# extended data body
+	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
+	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
+	extended_data = extended_data + CAP_EMPTY # Plugin Version
+	extended_data = extended_data + struct.pack("!L", 0x3) # client features
+	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	extended_data = extended_data + msgcookie # message cookie
+	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
+	extended_data = extended_data + msgcookie # message cookie again
+	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
+	extended_data = extended_data + struct.pack('!B', 0x1a) # msg type: Plugin message described by text string
+	extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
+	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('!H',0x0100) # priority
+	extended_data = extended_data + struct.pack('!HB',0x0100,0x00) # empty message
+	extended_data = extended_data + self.packPluginTypeId()
+	extended_data = extended_data + struct.pack('<LL', len(query)+4, len(query))
+	
+	log.msg('Query: %s' % query)
+	extended_data = extended_data + query
+	data = header + extended_data
+
+	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
 
     def packPluginTypeId(self):
 	    dt =  struct.pack('<H',0x4f) # length
