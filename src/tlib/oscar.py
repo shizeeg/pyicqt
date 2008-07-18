@@ -2367,11 +2367,13 @@ class BOSConnection(SNACBased):
 		if key in self.capabilities:
 			xstatus_key = key
 	if xstatus_key !='':
-		xstatus_num = X_STATUS_CAPS[xstatus_key]
-		mood_num = X_STATUS_MOODS[xstatus_num]
-		mood_str = 'icqmood' + str(mood_num)
-		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-		moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
+		if xstatus_key in X_STATUS_CAPS:
+			xstatus_num = X_STATUS_CAPS[xstatus_key]
+			if xstatus_num in X_STATUS_MOODS:
+				mood_num = X_STATUS_MOODS[xstatus_num]
+				mood_str = 'icqmood' + str(mood_num)
+				mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+				moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
 		# TODO: add available message
 	status = struct.pack('!L',self.icqStatus)
 	onlinestatusTLV = TLV(0x0006, status)
