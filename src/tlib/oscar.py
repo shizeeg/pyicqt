@@ -1511,7 +1511,45 @@ class BOSConnection(SNACBased):
             elif requestClass == CAP_SEND_LIST:
                 pass
             elif requestClass == CAP_SERV_REL:
-                pass
+		log.msg('more TLVs: %s' % moreTLVs)
+                if 0x2711 in moreTLVs:
+			# Extended data
+			extdata = moreTLVs[0x2711]
+			# skip 'first header' 
+			headerlen1 = struct.unpack('<H',extdata[0:2])[0]
+			# skip 'second header' 	
+			headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+			# message type, flags, status and priority. It don't matter usually
+			msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+			msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
+			msgflags = struct.unpack('!B',extdata[msg_features_pos+1:msg_features_pos+2])[0]
+			msgstatus = struct.unpack('!H',extdata[msg_features_pos+2:msg_features_pos+4])[0]
+			msgpriority = struct.unpack('!H',extdata[msg_features_pos+4:msg_features_pos+6])[0]
+			
+			emptymsglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
+				
+			msgcontent_pos = msg_features_pos + 8 + emptymsglen
+			msgcontent = extdata[msgcontent_pos:]
+			
+			PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
+			# check for xtraz request
+			MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
+			if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
+				MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
+				if MsgSubType == 0x0008:
+					MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
+					if MsgAction == 0x002a:
+						MsgActionText = msgcontent[24:PluginTypeIdLen + 2 - 15]
+						# 15 bytes after - unknown
+						NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
+						Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
+						# TODO: parse as XML
+						UnSafe_Notification = self.getUnSafeXML(Notification)
+						
+						request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
+						request_pos_end = UnSafe_Notification.find('</req>')
+						if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
+							log.msg('Request for Xstatus details from %s' % user.name)
             else:
                 log.msg('unsupported rendezvous: %s' % requestClass)
                 log.msg(repr(moreTLVs))
