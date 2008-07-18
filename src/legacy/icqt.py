@@ -31,7 +31,7 @@ class B(oscar.BOSConnection):
 		self.authorizationRequests = [] # buddies that need authorization
 		self.oscarcon.bos = self
 		self.session = oscarcon.session  # convenience
-		self.capabilities = [oscar.CAP_ICON, oscar.CAP_UTF, oscar.CAP_ICQXTRAZ]
+		self.capabilities = [oscar.CAP_ICON, oscar.CAP_UTF, oscar.CAP_ICQXTRAZ, oscar.CAP_SERV_REL]
 		if config.enableWebPresence:
 			self.statusindicators = oscar.STATUS_WEBAWARE
 		self.unreadmessages = 0
