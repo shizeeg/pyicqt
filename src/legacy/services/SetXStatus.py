@@ -237,13 +237,17 @@ depends from ICQ client') # TODO: translate
 		self.pytrans.send(iq)
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
+		bos = self.pytrans.sessions[to_jid.userhost()].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
-			self.pytrans.sessions[to_jid.userhost()].legacycon.bos.removeSelfXstatus()
+			bos.selfCustomStatus['x-status name'] = ''
 		elif xstatus_name == 'KeepCurrent':
 			# not do nothing
 			pass
 		else:
-			self.pytrans.sessions[to_jid.userhost()].legacycon.bos.setSelfXstatusName(xstatus_name)
-		log.msg('setXStatus(self, xstatus_name, xstatus_title=None, xstatus_desc=None) %s %s %s' % (xstatus_name, xstatus_title, xstatus_desc))
-		
+			bos.selfCustomStatus['x-status name'] = xstatus_name
+			if xstatus_title:
+				bos.selfCustomStatus['x-status title'] = xstatus_title
+			if xstatus_desc:
+				bos.selfCustomStatus['x-status desc'] = xstatus_desc
+		bos.updateSelfXstatus()	

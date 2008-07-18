@@ -959,6 +959,7 @@ class BOSConnection(SNACBased):
 
     capabilities = None
     statusindicators = 0x0000
+    selfCustomStatus = dict([])
     icqStatus = 0x0000
 
     def __init__(self,username,cookie):
@@ -2321,17 +2322,12 @@ class BOSConnection(SNACBased):
 					log.msg('setSelfXstatus %s' % repr(key))
 					self.setUserInfo()
 					self.setExtendedStatusRequest()
-    def getSelfXstatus(self):
-	for key in X_STATUS_CAPS:
-		if key in self.capabilities:
-			return key
-	return ''
-		
+	
     def getSelfXstatusName(self):
-	key = self.getSelfXstatus()
-	if key != '':
-		return X_STATUS_NAME[X_STATUS_CAPS[key]]
-	return ''
+	if 'x-status name' in self.selfCustomStatus:
+		return self.selfCustomStatus['x-status name']
+	else:
+		return ''
     
     def removeSelfXstatusNoUpdate(self):
 	for key in X_STATUS_CAPS:
@@ -2343,6 +2339,14 @@ class BOSConnection(SNACBased):
 	self.removeSelfXstatusNoUpdate()
 	self.setUserInfo()
 	self.setExtendedStatusRequest()
+	
+    def updateSelfXstatus(self):
+	if 'x-status name' in self.selfCustomStatus:
+		if self.selfCustomStatus['x-status name'] == '':
+			self.removeSelfXstatus()
+		else:
+			self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
+	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
 			
 					
     def setUserInfo(self):
