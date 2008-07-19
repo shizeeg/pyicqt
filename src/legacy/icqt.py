@@ -259,7 +259,7 @@ class B(oscar.BOSConnection):
 			status = None
 			
 		if selfcall == False:
-			self.sendXstatusMessageRequest(user.name,'modern') # request Xstatus message
+			self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
