@@ -2400,6 +2400,13 @@ class BOSConnection(SNACBased):
 		else:
 			self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
 	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
+	
+    def getXstatusNumberByName(self, xstatus_name):
+	# TODO: may be put in selfCustomStatus?
+	if xstatus_name in X_STATUS_NAME:
+		return X_STATUS_NAME.index(xstatus_name)
+	else:
+		return -1
 			
 					
     def setUserInfo(self):

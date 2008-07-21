@@ -16,6 +16,7 @@ SPOOL_UMASK = 0077
 XDBNS_PREFIX = "jabber:iq:"
 XDBNS_REGISTER = XDBNS_PREFIX+"register"
 XDBNS_PREFERENCES = XDBNS_PREFIX+"settings"
+XDBNS_XSTATUSES = XDBNS_PREFIX+"xstatuses"
 
 class XDB:
 	"""
@@ -217,6 +218,40 @@ class XDB:
 		newpref.addContent(value)
 
 		self.set(jabberID, XDBNS_PREFERENCES, prefs)
+		
+	def getXstatusText(self, jabberID, number):
+		""" Get a latest title and desc for x-status """
+		result = self.request(jabberID, XDBNS_XSTATUSES)
+		if result == None:
+			return ('','')
+
+		for child in result.elements():
+			try:
+				if child.name == 'item' and child.getAttribute('number') == str(number):
+					return (str(child.getAttribute('title')), child.__str__())
+			except AttributeError:
+				continue
+
+		return ('','')	
+		
+	def setXstatusText(self, jabberID, number, title, desc):
+		""" Set a latest title and desc for x-status """
+		xstatuses = self.request(jabberID, XDBNS_XSTATUSES)
+		if xstatuses == None:
+			xstatuses = Element((None, "query"))
+			xstatuses.attributes["xmlns"] = XDBNS_XSTATUSES
+			
+		# Remove the existing element
+		for child in xstatuses.elements():
+			if child.name == 'item' and child.getAttribute('number') == str(number):
+				xstatuses.children.remove(child)
+				
+		xstatus = xstatuses.addElement('item')
+		xstatus.attributes['number'] = str(number)
+		xstatus.attributes['title'] = str(title)
+		xstatus.addContent(str(desc))
+
+		self.set(jabberID, XDBNS_XSTATUSES, xstatuses)
 
 	def getListEntry(self, type, jabberID, legacyID):
 		""" Retrieves a legacy ID entry from a list in

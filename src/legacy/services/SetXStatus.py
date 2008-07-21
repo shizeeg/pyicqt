@@ -182,18 +182,26 @@ depends from ICQ client') # TODO: translate
 		title = x.addElement('title')
 		title.addContent('Set x-status title and description') # TODO: translate	
 			
+		toj = internJID(to)
+		jid = toj.userhost()
+		xstatus_number = self.pytrans.sessions[jid].legacycon.bos.getXstatusNumberByName(xstatus_name)
+		title, desc = self.pytrans.xdb.getXstatusText(jid, xstatus_number)
+		if title == '':
+			title = xstatus_name	
+			
 		xstatus_title = x.addElement('field')
 		xstatus_title.attributes['type'] = 'text-single'
 		xstatus_title.attributes['var'] = 'xstatus_title'
 		xstatus_title.attributes['label'] = 'x-status title'
-		
 		value = xstatus_title.addElement('value')
-		value.addContent(xstatus_name)
+		value.addContent(title)
 		
 		xstatus_desc = x.addElement('field')
 		xstatus_desc.attributes['type'] = 'text-multi'
 		xstatus_desc.attributes['var'] = 'xstatus_desc'
 		xstatus_desc.attributes['label'] = 'x-status description'
+		value = xstatus_desc.addElement('value')
+		value.addContent(desc)
 		
 		xstatus_icon = x.addElement('field')
 		xstatus_icon.attributes['type'] = 'hidden'
@@ -237,7 +245,8 @@ depends from ICQ client') # TODO: translate
 		self.pytrans.send(iq)
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
-		bos = self.pytrans.sessions[to_jid.userhost()].legacycon.bos
+		jid = to_jid.userhost()
+		bos = self.pytrans.sessions[jid].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
 			bos.selfCustomStatus['x-status name'] = ''
@@ -250,4 +259,9 @@ depends from ICQ client') # TODO: translate
 				bos.selfCustomStatus['x-status title'] = xstatus_title
 			if xstatus_desc:
 				bos.selfCustomStatus['x-status desc'] = xstatus_desc
-		bos.updateSelfXstatus()	
+		bos.updateSelfXstatus()
+		
+		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
+		if xstatus_title and xstatus_desc and xstatus_number > -1:
+			if self.pytrans.sessions.has_key(jid):
+				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
