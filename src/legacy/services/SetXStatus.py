@@ -132,7 +132,7 @@ depends from ICQ client') # TODO: translate
 			option = field.addElement('option')
 			option.attributes['label'] = 'Keep current x-status (%s)' % current_xstatus_name
 			value = option.addElement('value')
-			value.addContent('KeepCurrent')
+			value.addContent(current_xstatus_name)
 		
 		for xstatus_title in oscar.X_STATUS_NAME:
 			option = field.addElement('option')
