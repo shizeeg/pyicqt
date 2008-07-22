@@ -39,7 +39,8 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	command_ChangeEmail = u"Change registered e-mail address"
 	command_ChangeEmail_Instructions = u"Enter your new e-mail address below.\nA confirmation message will be sent to your current address and,\nunless you cancel, your new address will take effect in 72 hours."
 	command_ChangeEmail_Email = u"E-Mail address"
-	command_SetXStatus = u"Set x-status"
+	command_SetXStatus = u"Set x-status" #TODO: make translation for other languages
+	command_Settings = u"Settings" #TODO: make translation for other languages
 	command_FormatScreenName = u"Change format of screen name"
 	command_FormatScreenName_Instructions = u"Enter format of screen name below.\nPlease be aware that only capitalization and spacing may be changed."
 	command_FormatScreenName_FMTScreenName = u"Formatted ScreenName"
