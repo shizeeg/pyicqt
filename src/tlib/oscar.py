@@ -1531,26 +1531,27 @@ class BOSConnection(SNACBased):
 			msgcontent_pos = msg_features_pos + 8 + emptymsglen
 			msgcontent = extdata[msgcontent_pos:]
 			
-			PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
-			# check for xtraz request
-			MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
-			if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
-				MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
-				if MsgSubType == 0x0008:
-					MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
-					if MsgAction == 0x002a:
-						MsgActionText = msgcontent[24:PluginTypeIdLen + 2 - 15]
-						# 15 bytes after - unknown
-						NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
-						Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
-						# TODO: parse as XML
-						UnSafe_Notification = self.getUnSafeXML(Notification)
-						
-						request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
-						request_pos_end = UnSafe_Notification.find('</req>')
-						if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
-							log.msg('Request for Xstatus details from %s' % user.name)
-							self.sendXstatusMessageResponse(user.name, cookie2)
+			if len(msgcontent) > 0:
+				PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
+				# check for xtraz request
+				MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
+				if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
+					MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
+					if MsgSubType == 0x0008:
+						MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
+						if MsgAction == 0x002a:
+							MsgActionText = msgcontent[24:PluginTypeIdLen + 2 - 15]
+							# 15 bytes after - unknown
+							NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
+							Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
+							# TODO: parse as XML
+							UnSafe_Notification = self.getUnSafeXML(Notification)
+							
+							request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
+							request_pos_end = UnSafe_Notification.find('</req>')
+							if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
+								log.msg('Request for Xstatus details from %s' % user.name)
+								self.sendXstatusMessageResponse(user.name, cookie2)
             else:
                 log.msg('unsupported rendezvous: %s' % requestClass)
                 log.msg(repr(moreTLVs))
