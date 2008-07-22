@@ -219,6 +219,41 @@ class XDB:
 
 		self.set(jabberID, XDBNS_PREFERENCES, prefs)
 		
+	def getCSetting(self, jabberID, variable):
+		""" Gets a custom user setting from the XDB. """
+		# TODO: may be merge with getSetting? It more safe way for storing in XML as I think
+		result = self.request(jabberID, XDBNS_CSETTINGS)
+		if result == None:
+			return None
+
+		for child in result.elements():
+			try:
+				if child.name == 'item' and child.getAttribute('name') == str(variable):
+					return child.__str__()
+			except AttributeError:
+				continue
+
+		return None
+		
+	def setCSetting(self, jabberID, variable, value):
+		""" Sets a custom user setting in the XDB. """
+		# TODO: may be merge with setSetting? It more safe way for storing in XML as I think
+		prefs = self.request(jabberID, XDBNS_CSETTINGS)
+		if prefs == None:
+			prefs = Element((None, "query"))
+			prefs.attributes["xmlns"] = XDBNS_CSETTINGS
+
+		# Remove the existing element
+		for child in prefs.elements():
+			if child.name == 'item' and child.getAttribute('name') == str(variable):
+				prefs.children.remove(child)
+
+		newpref = prefs.addElement('item')
+		newpref.attributes['variable'] = str(value)
+		newpref.addContent(value)
+
+		self.set(jabberID, XDBNS_CSETTINGS, prefs)
+		
 	def getXstatusText(self, jabberID, number):
 		""" Get a latest title and desc for x-status """
 		result = self.request(jabberID, XDBNS_XSTATUSES)
