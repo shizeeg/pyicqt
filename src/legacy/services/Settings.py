@@ -155,4 +155,7 @@ class Settings:
 		log.msg('Settings for %s: %s' % (jid, settings))
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		bos.selfSettings = settings
-		
+		if self.pytrans.sessions.has_key(jid):
+			for key in settings:
+				self.pytrans.xdb.setCSetting(jid, key, settings[key])
+	

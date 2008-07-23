@@ -229,7 +229,7 @@ class XDB:
 
 		for child in result.elements():
 			try:
-				if child.name == 'item' and child.getAttribute('name') == str(variable):
+				if child.name == 'item' and child.getAttribute('variable') == str(variable):
 					return child.__str__()
 			except AttributeError:
 				continue
@@ -246,11 +246,11 @@ class XDB:
 
 		# Remove the existing element
 		for child in prefs.elements():
-			if child.name == 'item' and child.getAttribute('name') == str(variable):
+			if child.name == 'item' and child.getAttribute('variable') == str(variable):
 				prefs.children.remove(child)
 
 		newpref = prefs.addElement('item')
-		newpref.attributes['variable'] = str(value)
+		newpref.attributes['variable'] = str(variable)
 		newpref.addContent(value)
 
 		self.set(jabberID, XDBNS_CSETTINGS, prefs)
