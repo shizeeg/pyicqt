@@ -960,6 +960,7 @@ class BOSConnection(SNACBased):
     capabilities = None
     statusindicators = 0x0000
     selfCustomStatus = dict([])
+    selfSettings = dict([])
     icqStatus = 0x0000
 
     def __init__(self,username,cookie):
@@ -2409,6 +2410,11 @@ class BOSConnection(SNACBased):
 	else:
 		return -1
 			
+    def settingsOptionEnabled(self, option):
+	if option in self.selfSettings:
+		if str(self.selfSettings[option]) == '1':
+			return True
+	return False
 					
     def setUserInfo(self):
         """

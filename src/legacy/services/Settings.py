@@ -139,4 +139,6 @@ class Settings:
 		
 	def ApplySettings(self, settings):
 		log.msg('Settings: %s' % settings)
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		bos.selfSettings = settings
 		
