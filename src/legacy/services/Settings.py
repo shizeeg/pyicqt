@@ -52,7 +52,7 @@ class Settings:
 		elif not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):  # if user not connected to ICQ network
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
 		elif stage == '1' or do_action == 'done':
-			self.ApplySettings(settings_dict) # apply settings
+			self.ApplySettings(toj, settings_dict) # apply settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif do_action == 'cancel':
 			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
@@ -63,6 +63,19 @@ class Settings:
 		to = el.getAttribute("from")
 		ID = el.getAttribute("id")
 		ulang = utils.getLang(el)
+		
+		toj = internJID(to)
+		jid = toj.userhost()
+		
+		xstatus_receiving_enabled = '1'
+		xstatus_sending_enabled = '1'
+		if self.pytrans.sessions.has_key(jid):
+			xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
+			if not xstatus_receiving_enabled: # value not saved yet
+				xstatus_receiving_enabled = '1' # enable by default
+			xstatus_sending_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_sending_enabled')
+			if not xstatus_sending_enabled: # value not saved yet
+				xstatus_sending_enabled = '1' # enable by default
 
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -93,14 +106,14 @@ class Settings:
 		field.attributes['type'] = 'boolean'
 		field.attributes['label'] = 'Support for x-status receiving'
 		value = field.addElement('value')
-		value.addContent('1')
+		value.addContent(xstatus_receiving_enabled)
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'xstatus_sending_enabled'
 		field.attributes['type'] = 'boolean'
 		field.attributes['label'] = 'Support for x-status sending'
 		value = field.addElement('value')
-		value.addContent('1')
+		value.addContent(xstatus_sending_enabled)
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -137,8 +150,9 @@ class Settings:
 		
 		self.pytrans.send(iq)
 		
-	def ApplySettings(self, settings):
-		log.msg('Settings: %s' % settings)
+	def ApplySettings(self, to_jid, settings):
+		jid = to_jid.userhost()
+		log.msg('Settings for %s: %s' % (jid, settings))
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		bos.selfSettings = settings
 		
