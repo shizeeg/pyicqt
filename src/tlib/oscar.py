@@ -1552,7 +1552,8 @@ class BOSConnection(SNACBased):
 							request_pos_end = UnSafe_Notification.find('</req>')
 							if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
 								log.msg('Request for Xstatus details from %s' % user.name)
-								self.sendXstatusMessageResponse(user.name, cookie2)
+								if self.settingsOptionEnabled('xstatus_sending_enabled'):
+									self.sendXstatusMessageResponse(user.name, cookie2)
             else:
                 log.msg('unsupported rendezvous: %s' % requestClass)
                 log.msg(repr(moreTLVs))

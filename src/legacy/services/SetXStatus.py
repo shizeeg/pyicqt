@@ -23,9 +23,12 @@ class SetXStatus:
 		sessionid = None
 		do_action = None
 		stage = 0
+		changed_message = 'Your x-status has been set'
+		disabled_message = 'X-status sending support disabled. Check your settings for details'
 		
 		to = el.getAttribute('from')
 		toj = internJID(to)
+		jid = toj.userhost()
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
 		
@@ -33,6 +36,11 @@ class SetXStatus:
 		
 		for command in el.elements():
 			sessionid = command.getAttribute('sessionid')
+			
+			if self.pytrans.sessions.has_key(jid):
+				if not self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_enabled'):
+					self.sendXStatusCompleted(el, disabled_message, sessionid)
+			
 			if command.getAttribute('action') == 'execute':
 				pass
 			elif command.getAttribute('action') == 'complete':
@@ -61,7 +69,7 @@ class SetXStatus:
 									if value.name == 'value':
 										xstatus_desc = value.__str__()
 			
-		if not self.pytrans.sessions.has_key(toj.userhost()): # if user not logined
+		if not self.pytrans.sessions.has_key(jid): # if user not logined
 			self.pytrans.adhoc.sendError('setxstatus', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
 		elif not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):  # if user not connected to ICQ network
 			self.pytrans.adhoc.sendError('setxstatus', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
@@ -70,10 +78,10 @@ class SetXStatus:
 				self.sendXStatusTextSelectionForm(el, xstatus_name, sessionid) # send second form
 			else:
 				self.setXStatus(toj, xstatus_name) # set only x-status name (icon)
-				self.sendXStatusCompleted(el, sessionid) # send ack to user
+				self.sendXStatusCompleted(el, changed_message, sessionid) # send ack to user
 		elif stage == '2' or do_action == 'done':
 			self.setXStatus(toj, xstatus_name, xstatus_title, xstatus_desc) # set x-status name and text
-			self.sendXStatusCompleted(el, sessionid) # send ack to user
+			self.sendXStatusCompleted(el, changed_message, sessionid) # send ack to user
 		elif do_action == 'cancel':
 			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
 		else:
@@ -217,7 +225,7 @@ depends from ICQ client') # TODO: translate
 		
 		self.pytrans.send(iq)
 		
-	def sendXStatusCompleted(self, el, sessionid=None):
+	def sendXStatusCompleted(self, el, message, sessionid=None):
 		to = el.getAttribute('from')
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
@@ -240,7 +248,7 @@ depends from ICQ client') # TODO: translate
 		
 		note = command.addElement('note')
 		note.attributes['type'] = 'info'
-		note.addContent('Your x-status has been set')
+		note.addContent(message)
 		
 		self.pytrans.send(iq)
 	

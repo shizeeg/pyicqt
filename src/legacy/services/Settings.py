@@ -158,4 +158,10 @@ class Settings:
 		if self.pytrans.sessions.has_key(jid):
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, settings[key])
+				
+				if key == 'xstatus_sending_enabled' and str(settings[key]) == '0':
+					bos.selfCustomStatus['x-status name'] = ''
+					bos.updateSelfXstatus()
+				if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
+					pass # TODO: add fast redraw for all status messages (need exclude x-status information)
 	
