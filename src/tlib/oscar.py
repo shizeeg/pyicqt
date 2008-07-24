@@ -979,6 +979,9 @@ class BOSConnection(SNACBased):
         if not self.capabilities:
             self.capabilities = [CAP_CHAT]
 
+	self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
+	log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
+
     def parseUser(self,data,wantRest=0):
         l=ord(data[0])
         name=data[1:1+l]

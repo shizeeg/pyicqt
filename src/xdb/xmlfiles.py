@@ -255,6 +255,23 @@ class XDB:
 
 		self.set(jabberID, XDBNS_CSETTINGS, prefs)
 		
+	def getCSettingList(self, jabberID):
+		""" Gets a list of all custom settings for a user from the XDB. """
+		settings = dict([])
+		
+		result = self.request(jabberID, XDBNS_CSETTINGS)
+		if result == None:
+			return settings
+
+		for child in result.elements():
+			try:
+				if child.name == 'item':
+					settings[child.getAttribute('variable')] = child.__str__()
+			except AttributeError:
+				continue
+
+		return settings
+		
 	def getXstatusText(self, jabberID, number):
 		""" Get a latest title and desc for x-status """
 		result = self.request(jabberID, XDBNS_XSTATUSES)
