@@ -146,7 +146,7 @@ class Settings:
 		
 		note = command.addElement('note')
 		note.attributes['type'] = 'info'
-		note.addContent('Your setting were changed')
+		note.addContent('Your settings were changed')
 		
 		self.pytrans.send(iq)
 		
@@ -163,5 +163,14 @@ class Settings:
 					bos.selfCustomStatus['x-status name'] = ''
 					bos.updateSelfXstatus()
 				if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
-					pass # TODO: add fast redraw for all status messages (need exclude x-status information)
+					# fast redrawing for all status messages (need exclude x-status information)
+					legacycon = self.pytrans.sessions[jid].legacycon
+					contacts = legacycon.legacyList.ssicontacts
+					for contact in contacts:
+						if contacts[contact]['show']:
+							saved_snac = legacycon.getSavedSnac(str(contact))
+							if saved_snac != '':
+								legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
+								log.msg("Buddy updated: %s %s" % (contact, contacts[contact]))
+				
 	
