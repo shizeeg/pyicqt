@@ -124,6 +124,59 @@ class XDB:
 		c=self.db.cursor()
 		c.execute("DELETE FROM settings WHERE owner = '%s' AND variable = '%s'" % (jabberID, variable))
 		c.execute("INSERT INTO settings(owner,variable,value) VALUES('%s','%s','%s')" % (jabberID, variable, value))
+		
+	def getCSetting(self, jabberID, variable):
+		""" Gets a custom user setting from the XDB. """
+		self.db_ping()
+		c=self.db.cursor()
+		c.execute("SELECT value FROM csettings WHERE owner = '%s' AND variable = '%s'" % (jabberID, variable))
+		ret = c.fetchone()
+		if ret:
+			(value) = ret[0]
+			return value
+		else:
+			return None
+		
+	def setCSetting(self, jabberID, variable, value):
+		""" Sets a custom user setting in the XDB. """
+		self.db_ping()
+		c=self.db.cursor()
+		c.execute("DELETE FROM csettings WHERE owner = '%s' AND variable = '%s'" % (jabberID, variable))
+		c.execute("INSERT INTO csettings(owner,variable,value) VALUES('%s','%s','%s')" % (jabberID, variable, value))
+		
+	def getXstatusText(self, jabberID, number):
+		""" Get a latest title and desc for x-status """
+		self.db_ping()
+		c=self.db.cursor()
+		c.execute("SELECT title, value FROM xstatuses WHERE owner = '%s' AND number = '%s'" % (jabberID, number))
+		ret = c.fetchone()
+		if ret:
+			(title) = ret[0]
+			(value) = ret[1]
+			return (title, value)
+		else:
+			return ('','')
+		
+	def setXstatusText(self, jabberID, number, title, desc):
+		""" Set a latest title and desc for x-status """
+		self.db_ping()
+		c=self.db.cursor()
+		c.execute("DELETE FROM xstatuses WHERE owner = '%s' AND number = '%s'" % (jabberID, number))
+		c.execute("INSERT INTO xstatuses(owner,number,title,value) VALUES('%s','%s','%s','%s')" % (jabberID, number, title, desc))
+		
+	def getCSettingList(self, jabberID):
+		""" Gets a list of all custom settings for a user from the XDB. """
+		self.db_ping()
+		c=self.db.cursor()
+		c.execute("SELECT variable,value FROM csettings WHERE owner = '%s'" % (jabberID))
+		results = []
+		ret = c.fetchone()
+		while ret:
+			(variable) = ret[0]
+			(value) = ret[1]
+			results[variable] = value
+			ret = c.fetchone()
+		return results
 
 	def getListEntry(self, type, jabberID, legacyID):
 		""" Retrieves a legacy ID entry from a list in
