@@ -278,6 +278,5 @@ depends from ICQ client') # TODO: translate
 		if xstatus_number > -1:
 			if self.pytrans.sessions.has_key(jid):
 				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
-				log.msg('3. x-status desc: %s' % xstatus_desc)
 				if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
 					self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
