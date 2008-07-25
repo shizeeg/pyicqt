@@ -266,13 +266,18 @@ depends from ICQ client') # TODO: translate
 			bos.selfCustomStatus['x-status name'] = xstatus_name
 			if xstatus_title:
 				bos.selfCustomStatus['x-status title'] = xstatus_title
+			else:
+				bos.selfCustomStatus['x-status title'] = ''
 			if xstatus_desc:
 				bos.selfCustomStatus['x-status desc'] = xstatus_desc
+			else:
+				bos.selfCustomStatus['x-status desc'] = ''
 		bos.updateSelfXstatus()
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
-		if xstatus_title and xstatus_desc and xstatus_number > -1:
+		if xstatus_number > -1:
 			if self.pytrans.sessions.has_key(jid):
 				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
+				log.msg('3. x-status desc: %s' % xstatus_desc)
 				if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
 					self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))

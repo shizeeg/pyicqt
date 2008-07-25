@@ -301,8 +301,14 @@ class XDB:
 				
 		xstatus = xstatuses.addElement('item')
 		xstatus.attributes['number'] = str(number)
-		xstatus.attributes['title'] = str(title)
-		xstatus.addContent(str(desc))
+		if title:
+			xstatus.attributes['title'] = str(title)
+		else:
+			xstatus.attributes['title'] = ''
+		if desc:
+			xstatus.addContent(str(desc))
+		else:
+			xstatus.addContent('')
 
 		self.set(jabberID, XDBNS_XSTATUSES, xstatuses)
 
