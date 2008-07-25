@@ -50,3 +50,22 @@ CREATE TABLE `list_attributes` (
     `attribute` TINYTEXT,
     `value` TINYTEXT
 );
+
+--
+-- custom settings table
+--
+CREATE TABLE `csettings` (
+    `owner` TEXT NOT NULL,
+    `variable` TINYTEXT,
+    `value` TINYTEXT
+);
+
+--
+-- x-statuses table
+--
+CREATE TABLE `xstatuses` (
+    `owner` TEXT NOT NULL,
+    `number` TINYTEXT,
+    `title` TINYTEXT,
+    `value` TINYTEXT
+);
