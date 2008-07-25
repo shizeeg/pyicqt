@@ -30,7 +30,7 @@
 #
 
 transportname	= "PyICQt"
-dumpversion	= "1.0"
+dumpversion	= "1.0.1"
 
 import sys
 reload(sys)
@@ -81,6 +81,7 @@ from twisted.words.xish.domish import Element
 
 if args[0] == "dump":
 	import xdb
+	from tlib import oscar
 	myxdb = xdb.XDB(config.jid)
 	out = Element((None, "pydump"))
 	out["transport"] = transportname
@@ -97,8 +98,29 @@ if args[0] == "dump":
 		settinglist = myxdb.getSettingList(jid)
 		if settinglist:
 			for pref in settinglist:
-				thispref = settinglist.addElement(pref)
+				thispref = prefs.addElement(pref)
 				thispref.addContent(settinglist[pref])
+		cprefs = user.addElement("cpreferences")
+		csettinglist = myxdb.getCSettingList(jid)
+		if csettinglist:
+			for pref in csettinglist:
+				thispref = cprefs.addElement("item")
+				thispref.attributes['variable'] = pref
+				thispref.addContent(csettinglist[pref])
+		xstatuses = user.addElement("xstatuses")
+		for i in range(0, len(oscar.X_STATUS_CAPS)):
+			title, desc = myxdb.getXstatusText(jid, i)
+			if title or desc:
+				xstatus = xstatuses.addElement("item")
+				xstatus.attributes['number'] = str(i)
+				if title:
+					xstatus.attributes['title'] = str(title)
+				else:
+					xstatus.attributes['title'] = ''
+				if desc:
+					xstatus.addContent(str(desc))
+				else:
+					xstatus.addContent('')
 		listtypes = myxdb.getListTypes(jid)
 		if listtypes:
 			for listtype in listtypes:
@@ -135,7 +157,7 @@ elif args[0] == "restore":
 		for child2 in child.elements():
 			if child2.name == "preferences":
 				for pref in child2.elements():
-					myxdb.setSetting(jid, pref, pref.__str__())
+					myxdb.setSetting(jid, pref, pref.__str__())	
 			elif child2.name == "list":
 				type = child2.getAttribute("type")
 				for entry in child2.elements():
@@ -144,5 +166,13 @@ elif args[0] == "restore":
 					for attr in entry.elements():
 						attrs[attr.name] = attr.__str__()
 					myxdb.setListEntry(type, jid, name, payload=attrs)
+			elif child2.name == "xstatuses":
+				for pref in child2.elements():
+					if pref.name == 'item':
+						myxdb.setXstatusText(jid, pref.getAttribute('number'), pref.getAttribute('title'), pref.__str__())
+			elif child2.name == "cpreferences":
+				for pref in child2.elements():
+					if pref.name == 'item':
+						myxdb.setCSetting(jid, pref.getAttribute('variable'), pref.__str__())
 else:
 	showhelp()
