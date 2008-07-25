@@ -169,7 +169,7 @@ class XDB:
 		self.db_ping()
 		c=self.db.cursor()
 		c.execute("SELECT variable,value FROM csettings WHERE owner = '%s'" % (jabberID))
-		results = []
+		results = dict([])
 		ret = c.fetchone()
 		while ret:
 			(variable) = ret[0]
