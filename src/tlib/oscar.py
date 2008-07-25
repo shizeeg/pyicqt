@@ -981,6 +981,15 @@ class BOSConnection(SNACBased):
 
 	self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
 	log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
+	
+	if self.settingsOptionEnabled('xstatus_saving_enabled'):
+		latest_xstatus_number = self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'latest_xstatus_number')
+		if latest_xstatus_number:
+			self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
+			self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
+			if self.settingsOptionEnabled('xstatus_sending_enabled'):
+				self.updateSelfXstatus()
+	log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
 
     def parseUser(self,data,wantRest=0):
         l=ord(data[0])

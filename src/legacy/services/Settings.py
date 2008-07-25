@@ -69,6 +69,7 @@ class Settings:
 		
 		xstatus_receiving_enabled = '1'
 		xstatus_sending_enabled = '1'
+		xstatus_saving_enabled = '1'
 		if self.pytrans.sessions.has_key(jid):
 			xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
 			if not xstatus_receiving_enabled: # value not saved yet
@@ -76,6 +77,9 @@ class Settings:
 			xstatus_sending_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_sending_enabled')
 			if not xstatus_sending_enabled: # value not saved yet
 				xstatus_sending_enabled = '1' # enable by default
+			xstatus_saving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled')
+			if not xstatus_saving_enabled: # value not saved yet
+				xstatus_saving_enabled = '1' # enable by default
 
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -114,6 +118,13 @@ class Settings:
 		field.attributes['label'] = 'Support for x-status sending'
 		value = field.addElement('value')
 		value.addContent(xstatus_sending_enabled)
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'xstatus_saving_enabled'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = 'Restore latest x-status after disconnect'
+		value = field.addElement('value')
+		value.addContent(xstatus_saving_enabled)
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'

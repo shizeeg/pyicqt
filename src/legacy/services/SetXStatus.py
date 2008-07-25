@@ -10,6 +10,7 @@ import config
 import lang
 import globals
 
+# TODO: rewrite with better code)
 class SetXStatus:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
@@ -273,3 +274,5 @@ depends from ICQ client') # TODO: translate
 		if xstatus_title and xstatus_desc and xstatus_number > -1:
 			if self.pytrans.sessions.has_key(jid):
 				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
+				if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
+					self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
