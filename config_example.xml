@@ -96,6 +96,9 @@
 	<!-- (uncomment to disable) -->
 	<!-- NOT IMPLEMENTED YET -->
 	<!-- <disablePEPAvatars/> -->
+	
+	<!-- Support for x-statuses -->
+	<!-- <xstatusessupport/> -->
 
 	<!-- You can choose which users you wish to have as administrators. These users can perform some tasks with Ad-Hoc commands that others cannot -->
 	<admins>

@@ -67,19 +67,20 @@ class Settings:
 		toj = internJID(to)
 		jid = toj.userhost()
 		
-		xstatus_receiving_enabled = '1'
-		xstatus_sending_enabled = '1'
-		xstatus_saving_enabled = '1'
-		if self.pytrans.sessions.has_key(jid):
-			xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
-			if not xstatus_receiving_enabled: # value not saved yet
-				xstatus_receiving_enabled = '1' # enable by default
-			xstatus_sending_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_sending_enabled')
-			if not xstatus_sending_enabled: # value not saved yet
-				xstatus_sending_enabled = '1' # enable by default
-			xstatus_saving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled')
-			if not xstatus_saving_enabled: # value not saved yet
-				xstatus_saving_enabled = '1' # enable by default
+		if config.xstatusessupport:
+			xstatus_receiving_enabled = '1'
+			xstatus_sending_enabled = '1'
+			xstatus_saving_enabled = '1'
+			if self.pytrans.sessions.has_key(jid):
+				xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
+				if not xstatus_receiving_enabled: # value not saved yet
+					xstatus_receiving_enabled = '1' # enable by default
+				xstatus_sending_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_sending_enabled')
+				if not xstatus_sending_enabled: # value not saved yet
+					xstatus_sending_enabled = '1' # enable by default
+				xstatus_saving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled')
+				if not xstatus_saving_enabled: # value not saved yet
+					xstatus_saving_enabled = '1' # enable by default
 
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -105,26 +106,27 @@ class Settings:
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
 		
-		field = x.addElement('field')
-		field.attributes['var'] = 'xstatus_receiving_enabled'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = 'Support for x-status receiving'
-		value = field.addElement('value')
-		value.addContent(xstatus_receiving_enabled)
-		
-		field = x.addElement('field')
-		field.attributes['var'] = 'xstatus_sending_enabled'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = 'Support for x-status sending'
-		value = field.addElement('value')
-		value.addContent(xstatus_sending_enabled)
-		
-		field = x.addElement('field')
-		field.attributes['var'] = 'xstatus_saving_enabled'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = 'Restore latest x-status after disconnect'
-		value = field.addElement('value')
-		value.addContent(xstatus_saving_enabled)
+		if config.xstatusessupport:
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_receiving_enabled'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = 'Support for x-status receiving'
+			value = field.addElement('value')
+			value.addContent(xstatus_receiving_enabled)
+			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_sending_enabled'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = 'Support for x-status sending'
+			value = field.addElement('value')
+			value.addContent(xstatus_sending_enabled)
+			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_saving_enabled'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = 'Restore latest x-status after disconnect'
+			value = field.addElement('value')
+			value.addContent(xstatus_saving_enabled)
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -170,18 +172,19 @@ class Settings:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, settings[key])
 				
-				if key == 'xstatus_sending_enabled' and str(settings[key]) == '0':
-					bos.selfCustomStatus['x-status name'] = ''
-					bos.updateSelfXstatus()
-				if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
-					# fast redrawing for all status messages (need exclude x-status information)
-					legacycon = self.pytrans.sessions[jid].legacycon
-					contacts = legacycon.legacyList.ssicontacts
-					for contact in contacts:
-						if contacts[contact]['show']:
-							saved_snac = legacycon.getSavedSnac(str(contact))
-							if saved_snac != '':
-								legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
-								log.msg("Buddy updated: %s %s" % (contact, contacts[contact]))
+				if config.xstatusessupport:
+					if key == 'xstatus_sending_enabled' and str(settings[key]) == '0':
+						bos.selfCustomStatus['x-status name'] = ''
+						bos.updateSelfXstatus()
+					if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
+						# fast redrawing for all status messages (need exclude x-status information)
+						legacycon = self.pytrans.sessions[jid].legacycon
+						contacts = legacycon.legacyList.ssicontacts
+						for contact in contacts:
+							if contacts[contact]['show']:
+								saved_snac = legacycon.getSavedSnac(str(contact))
+								if saved_snac != '':
+									legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
+									log.msg("Buddy updated: %s %s" % (contact, contacts[contact]))
 				
 	

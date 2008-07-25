@@ -235,32 +235,33 @@ class B(oscar.BOSConnection):
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
 		
-		if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-			if status == None:
-				status = ''
-			if anormal != None:
-				if status != '':
-					status += '\n'
-				status += 'Status: %s' % anormal
-			x_status_name = self.oscarcon.getXStatus(user.name)
-			if x_status_name != '':
-				if status != '':
-					status += '\n'
-				status += 'X-status: %s' % x_status_name
-			x_status_title = self.oscarcon.getXStatusTitle(user.name)
-			if x_status_title != '':
-				if x_status_name != x_status_title: # user changed standart title
-					status += ' (%s)' % x_status_title
-			x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-			if x_status_desc != '':
-				if status != '':
-					status += '\n'
-				status += 'X-message: %s' % x_status_desc
-			if status == '':
-				status = None
-				
-			if selfcall == False:
-				self.sendXstatusMessageRequest(user.name) # request Xstatus message
+		if config.xstatusessupport:
+			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
+				if status == None:
+					status = ''
+				if anormal != None:
+					if status != '':
+						status += '\n'
+					status += 'Status: %s' % anormal
+				x_status_name = self.oscarcon.getXStatus(user.name)
+				if x_status_name != '':
+					if status != '':
+						status += '\n'
+					status += 'X-status: %s' % x_status_name
+				x_status_title = self.oscarcon.getXStatusTitle(user.name)
+				if x_status_title != '':
+					if x_status_name != x_status_title: # user changed standart title
+						status += ' (%s)' % x_status_title
+				x_status_desc = self.oscarcon.getXStatusDesc(user.name)
+				if x_status_desc != '':
+					if status != '':
+						status += '\n'
+					status += 'X-message: %s' % x_status_desc
+				if status == '':
+					status = None
+					
+				if selfcall == False:
+					self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
@@ -477,29 +478,30 @@ class B(oscar.BOSConnection):
 			else:
 				status=idle_time
 		
-		if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-			if status == None:
-				status = ''
-			if anormal != None:
-				if status != '':
-					status += '\n'
-				status += 'Status: %s' % anormal
-			x_status_name = self.oscarcon.getXStatus(user.name)
-			if x_status_name != '':
-				if status != '':
-					status += '\n'
-				status += 'X-status: %s' % x_status_name
-			x_status_title = self.oscarcon.getXStatusTitle(user.name)
-			if x_status_title != '':
-				if x_status_name != x_status_title: # user changed standart title
-					status += ' (%s)' % x_status_title
-			x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-			if x_status_desc != '':
-				if status != '':
-					status += '\n'
-				status += 'X-message: %s' % x_status_desc
-			if status == '':
-				status = None
+		if config.xstatusessupport:
+			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
+				if status == None:
+					status = ''
+				if anormal != None:
+					if status != '':
+						status += '\n'
+					status += 'Status: %s' % anormal
+				x_status_name = self.oscarcon.getXStatus(user.name)
+				if x_status_name != '':
+					if status != '':
+						status += '\n'
+					status += 'X-status: %s' % x_status_name
+				x_status_title = self.oscarcon.getXStatusTitle(user.name)
+				if x_status_title != '':
+					if x_status_name != x_status_title: # user changed standart title
+						status += ' (%s)' % x_status_title
+				x_status_desc = self.oscarcon.getXStatusDesc(user.name)
+				if x_status_desc != '':
+					if status != '':
+						status += '\n'
+					status += 'X-message: %s' % x_status_desc
+				if status == '':
+					status = None
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)

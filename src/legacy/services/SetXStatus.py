@@ -25,7 +25,8 @@ class SetXStatus:
 		do_action = None
 		stage = 0
 		changed_message = 'Your x-status has been set'
-		disabled_message = 'X-status sending support disabled. Check your settings for details'
+		disabled_message = 'X-status sending support disabled.\n Check your settings for details'
+		disabled_by_admin_message = 'X-status support disabled\n by your administrator'
 		
 		to = el.getAttribute('from')
 		toj = internJID(to)
@@ -39,6 +40,8 @@ class SetXStatus:
 			sessionid = command.getAttribute('sessionid')
 			
 			if self.pytrans.sessions.has_key(jid):
+				if not config.xstatusessupport:
+					self.sendXStatusCompleted(el, disabled_by_admin_message, sessionid)
 				if not self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_enabled'):
 					self.sendXStatusCompleted(el, disabled_message, sessionid)
 			
