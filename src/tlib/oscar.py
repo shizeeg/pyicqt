@@ -959,8 +959,6 @@ class BOSConnection(SNACBased):
 
     capabilities = None
     statusindicators = 0x0000
-    selfCustomStatus = dict([])
-    selfSettings = dict([])
     icqStatus = 0x0000
 
     def __init__(self,username,cookie):
@@ -978,6 +976,10 @@ class BOSConnection(SNACBased):
 
         if not self.capabilities:
             self.capabilities = [CAP_CHAT]
+
+	self.selfCustomStatus = dict([])
+	self.selfSettings = dict([])
+	self.icqStatus = 0x0000
 
 	self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
 	log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
