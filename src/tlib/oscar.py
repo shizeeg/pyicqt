@@ -2317,13 +2317,12 @@ class BOSConnection(SNACBased):
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
 	header = header + struct.pack('!H',0x3) # reason: channel-specific
 
+	xstatus_index = 0
 	if 'x-status name' in self.selfCustomStatus:
 		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
 		index_in_list = index_in_list + 1
 		if index_in_list > 1 and index_in_list < 32:
 			xstatus_index = index_in_list
-		else:
-			xstatus_index = 0	
 	if 'x-status title' in self.selfCustomStatus:
 		xstatus_title = self.selfCustomStatus['x-status title']
 	else:
