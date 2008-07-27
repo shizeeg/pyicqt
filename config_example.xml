@@ -45,8 +45,8 @@
 	<!-- The port of the ICQ server you wish to connect to -->
 	<icqPort>5190</icqPort>
 
-	<!-- Enable it if you want md5 authenticztion -->
-	<!-- <usemd5auth/> -->
+	<!-- Enable it if you want md5 authentication -->
+	<usemd5auth/>
 
 	<!-- The name of Socks Proxy if connecting thru a proxy -->
 	<!-- <socksProxyServer>im-proxy2</socksProxyServer> -->
