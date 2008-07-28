@@ -3476,7 +3476,7 @@ class OscarAuthenticator(OscarConnection):
         #    self.BOSClass=ICQConnection
 
     def oscar_(self,flap):
-        if config.usemd5auth :
+        if config.usemd5auth:
             self.sendFLAP("\000\000\000\001", 0x01)
             self.sendFLAP(SNAC(0x17,0x06,0,
                                TLV(TLV_USERNAME,self.username)+

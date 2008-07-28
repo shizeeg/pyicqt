@@ -621,21 +621,21 @@ class OA(oscar.OscarAuthenticator):
 			c = protocol.ClientCreator(reactor, self.BOSClass, self.username, self.cookie, self.oscarcon)
 			return c.connectTCP(server, port)
 
-	def connectionLost(self, reason):
-		message = "ICQ connection lost! Reason: %s" % reason
-		try:
-			LogEvent(INFO, self.session.jabberID, message)
-		except:
-			pass
-
-		try:
-			self.oscarcon.alertUser(message)
-		except:
-			pass
-
-		oscar.OscarConnection.connectionLost(self, reason)
-
-		try:
-			self.oscarcon.session.removeMe()
-		except:
-			pass
+#	def connectionLost(self, reason):
+#		message = "ICQ connection lost! Reason: %s" % reason
+#		try:
+#			LogEvent(INFO, self.session.jabberID, message)
+#		except:
+#			pass
+#
+#		try:
+#			self.oscarcon.alertUser(message)
+#		except:
+#			pass
+#
+#		oscar.OscarConnection.connectionLost(self, reason)
+#
+#		try:
+#			self.oscarcon.session.removeMe()
+#		except:
+#			pass
