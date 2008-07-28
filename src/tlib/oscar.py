@@ -3557,6 +3557,7 @@ class OscarAuthenticator(OscarConnection):
             snac[5]=snac[5][i:]
         tlvs=readTLVs(snac[5])
         log.msg(tlvs)
+	self.parseAnnounceAboutClientFromServer(tlvs)
         if tlvs.has_key(6):
             self.cookie=tlvs[6]
             server,port=string.split(tlvs[5],":")
@@ -3602,6 +3603,32 @@ class OscarAuthenticator(OscarConnection):
         log.msg("ERROR! %s %s" % (error,url))
         if self.deferred: self.deferred.errback((error,url))
         self.transport.loseConnection()
+	
+    def parseAnnounceAboutClientFromServer(self, tlvs):
+	if tlvs.has_key(65):
+		latestb_url = tlvs[65]
+		log.msg('Latest official client (beta). URL: %s' % latestb_url)
+	if tlvs.has_key(66):
+		latestb_info = tlvs[66]
+		log.msg('Latest official client (beta). Info: %s' % latestb_info)
+	if tlvs.has_key(64):
+		latestb_build = struct.unpack('!L',tlvs[64])
+		log.msg('Latest official client (beta). Build: %s' % latestb_build)
+	if tlvs.has_key(67):
+		latestb_name = tlvs[67]
+		log.msg('Latest official client (beta). Name: %s' % latestb_name)
+	if tlvs.has_key(69):
+		latestr_url = tlvs[69]
+		log.msg('Latest official client (release). URL: %s' % latestr_url)
+	if tlvs.has_key(70):
+		latestr_info = tlvs[70]
+		log.msg('Latest official client (release). Info: %s' % latestr_info)
+	if tlvs.has_key(68):
+		latestr_build = struct.unpack('!L',tlvs[68])
+		log.msg('Latest official client (release). Build: %s' % latestr_build)
+	if tlvs.has_key(71):
+		latestr_name = tlvs[71]
+		log.msg('Latest official client (release). Name: %s' % latestr_name)
 
 FLAP_CHANNEL_NEW_CONNECTION = 0x01
 FLAP_CHANNEL_DATA = 0x02
