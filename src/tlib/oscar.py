@@ -980,19 +980,20 @@ class BOSConnection(SNACBased):
 	self.selfCustomStatus = dict([])
 	self.selfSettings = dict([])
 	self.icqStatus = 0x0000
-
-	self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
-	log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
 	
-	if config.xstatusessupport:
-		if self.settingsOptionEnabled('xstatus_saving_enabled'):
-			latest_xstatus_number = self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'latest_xstatus_number')
-			if latest_xstatus_number:
-				self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
-				self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
-				if self.settingsOptionEnabled('xstatus_sending_enabled'):
-					self.updateSelfXstatus()
-	log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
+	if hasattr(self.session,'pytrans'):
+		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
+		log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
+	
+		if config.xstatusessupport:
+			if self.settingsOptionEnabled('xstatus_saving_enabled'):
+				latest_xstatus_number = self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'latest_xstatus_number')
+				if latest_xstatus_number:
+					self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
+					self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
+					if self.settingsOptionEnabled('xstatus_sending_enabled'):
+						self.updateSelfXstatus()
+		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
 
     def parseUser(self,data,wantRest=0):
         l=ord(data[0])
@@ -3475,7 +3476,7 @@ class OscarAuthenticator(OscarConnection):
         #    self.BOSClass=ICQConnection
 
     def oscar_(self,flap):
-        if config.usemd5auth :
+        if config.usemd5auth:
             self.sendFLAP("\000\000\000\001", 0x01)
             self.sendFLAP(SNAC(0x17,0x06,0,
                                TLV(TLV_USERNAME,self.username)+
@@ -3509,19 +3510,19 @@ class OscarAuthenticator(OscarConnection):
             #              TLV(0x14,"\x00\x00\x00\x55")+
             #              TLV(0x0f,"en")+
             #              TLV(0x0e,"us"),0x01)
-            self.sendFLAP('\000\000\000\001'+
-                          TLV(TLV_USERNAME,self.username)+
-                          TLV(TLV_PASSWORD,encpass)+
-                          TLV(TLV_CLIENTNAME,'ICQBasic')+
-                          TLV(TLV_CLIENTID,"\x01\x0a")+
-                          TLV(TLV_CLIENTMAJOR,"\x00\x14")+
-                          TLV(TLV_CLIENTMINOR,"\x00\x22")+
-                          TLV(TLV_CLIENTLESSER,"\x00\x00")+
-                          TLV(TLV_CLIENTSUB,"\x09\x11")+
-                          TLV(TLV_CLIENTDISTNUM,"\x00\x00\x04\x3d")+
-                          TLV(TLV_LANG,"en")+
-                          TLV(TLV_COUNTRY,"us"))
-            self.state="Cookie"
+	    self.sendFLAP('\000\000\000\001'+
+		TLV(TLV_USERNAME,self.username)+
+		TLV(TLV_ROASTPASSARRAY,encpass)+
+		TLV(TLV_CLIENTNAME,'ICQBasic')+
+		TLV(TLV_CLIENTID,"\x01\x0a")+
+		TLV(TLV_CLIENTMAJOR,"\x00\x14")+
+		TLV(TLV_CLIENTMINOR,"\x00\x22")+
+		TLV(TLV_CLIENTLESSER,"\x00\x00")+
+		TLV(TLV_CLIENTSUB,"\x09\x11")+
+		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x04\x3d")+
+		TLV(TLV_LANG,"en")+
+		TLV(TLV_COUNTRY,"us"),0x01)
+	    self.state="Cookie"
 
     def oscar_Key(self,data):
         snac=readSNAC(data[1])
@@ -3622,6 +3623,7 @@ serviceClasses = {
     SERVICE_EMAIL:EmailService
 }
 TLV_USERNAME = 0x0001
+TLV_ROASTPASSARRAY = 0x0002
 TLV_CLIENTNAME = 0x0003
 TLV_COUNTRY = 0x000E
 TLV_LANG = 0x000F
