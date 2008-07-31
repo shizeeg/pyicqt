@@ -56,7 +56,8 @@ class B(oscar.BOSConnection):
 
 	def connectionLost(self, reason):
 		message = "ICQ connection lost! Reason: %s" % reason
-		LogEvent(INFO, self.session.jabberID, message)
+		if self.session:
+			LogEvent(INFO, self.session.jabberID, message)
 		try:
 			self.oscarcon.alertUser(message)
 		except:
