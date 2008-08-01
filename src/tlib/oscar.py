@@ -463,7 +463,11 @@ class SSIGroup:
         user.group = None
 
     def oscarRep(self):
-        data = struct.pack(">H", len(self.name)) +self.name.encode("utf-8")
+	try:
+		name = self.name.encode("utf-8","replace")
+	except UnicodeError:
+		name = 'unknown'
+        data = struct.pack(">H", len(name)) + name
         tlvs = TLV(0xc8, struct.pack(">H",len(self.users)))
         data += struct.pack(">4H", self.groupID, self.buddyID, 1, len(tlvs))
         return data+tlvs
