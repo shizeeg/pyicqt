@@ -429,12 +429,28 @@ class App:
 		pf = open(config.pid, "w")
 		pf.write("%s\n" % pid)
 		pf.close()
+		
+	def removePID(self, pidfile):
+		# Remove a PID file
+		if not pidfile:
+			return
+		try:
+			os.unlink(pidfile)
+		except OSError, e:
+			if e.errno == errno.EACCES or e.errno == errno.EPERM:
+				log.msg("Warning: No permission to delete pid file")
+			else:
+				log.msg("Failed to unlink PID file:")
+				log.deferr()
+		except:
+			log.msg("Failed to unlink PID file:")
+			log.deferr()
 
 	def shuttingDown(self):
 		self.transportSvc.removeMe()
 		def cb(ignored=None):
 			if config.pid:
-				twistd.removePID(config.pid)
+				self.removePID(config.pid)
 		d = Deferred()
 		d.addCallback(cb)
 		reactor.callLater(3.0, d.callback, None)
