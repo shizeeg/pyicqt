@@ -124,6 +124,7 @@ from twisted.internet.defer import Deferred
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber import component
 from twisted.words.protocols.jabber.jid import internJID
+from twisted.python import log
 
 
 import xdb
