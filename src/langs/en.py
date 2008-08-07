@@ -72,6 +72,14 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	statistics_FailedMessageCount_Desc = u"The number of messages that didn't make it to the ICQ recipient and were bounced."
 	statistics_AvatarCount_Desc = u"How many avatars have been transferred to and from the ICQ network."
 	statistics_FailedAvatarCount_Desc = u"The number of avatar transfers that have failed."
+	xstatus_set = u"Your x-status has been set"
+	xstatus_support_disabled = u"X-status support disabled\n by your administrator"
+	xstatus_sending_disabled = u"X-status sending support disabled.\n Check your settings for details"
+	xstatus_set_xstatus_name = u"Set x-status name"
+	xstatus_set_instructions = u"Select x-status from list below\nNote: official clients supports only 24 statuses\n(Angry - Typing), support for other could be\ndepends from ICQ client"
+	xstatus_keep_current = u"Keep current x-status"
+	xstatus_no_xstatus = u"No x-status"
+	xstatus_set_details = u"Set x-status title and description"
 en_US = en # en-US is the same as en, so are the others
 en_AU = en
 en_GB = en
