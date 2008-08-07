@@ -80,6 +80,9 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_keep_current = u"Keep current x-status"
 	xstatus_no_xstatus = u"No x-status"
 	xstatus_set_details = u"Set x-status title and description"
+	settings_xstatus_recv_support = u"Support for x-status receiving"
+	settings_xstatus_send_support = u"Support for x-status sending"
+	settings_xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
 en_US = en # en-US is the same as en, so are the others
 en_AU = en
 en_GB = en

@@ -52,7 +52,7 @@ class Settings:
 			self.ApplySettings(toj, settings_dict) # apply settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif do_action == 'cancel':
-			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
+			self.pytrans.adhoc.sendCancellation("settings", el, sessionid) # correct cancel handling
 		else:
 			self.sendSettingsForm(el, sessionid) # send form
 			
@@ -107,21 +107,21 @@ class Settings:
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_receiving_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Support for x-status receiving'
+			field.attributes['label'] = lang.get('settings_xstatus_recv_support')
 			value = field.addElement('value')
 			value.addContent(xstatus_receiving_enabled)
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_sending_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Support for x-status sending'
+			field.attributes['label'] = lang.get('settings_xstatus_send_support')
 			value = field.addElement('value')
 			value.addContent(xstatus_sending_enabled)
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Restore latest x-status after disconnect'
+			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
 			value = field.addElement('value')
 			value.addContent(xstatus_saving_enabled)
 		
