@@ -122,38 +122,38 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
 
-	def detectAdditionalNormalStatus(self, user):
+	def detectAdditionalNormalStatus(self, icqStatus):
+		LogEvent(INFO, self.session.jabberID)
 		anormal = None
 		show = None
-		log.msg('Status for %s is %s' % (user.name, user.icqStatus))
 		# normal statuses
-		if user.icqStatus.count('dnd'):
+		if icqStatus.count('dnd'):
 			show = 'dnd'
-		elif user.icqStatus.count('xa'):
+		elif icqStatus.count('xa'):
 			show = 'xa'
-		elif user.icqStatus.count('busy'):
+		elif icqStatus.count('busy'):
 			show = 'dnd'
-		elif user.icqStatus.count('chat'):
+		elif icqStatus.count('chat'):
 			show = 'chat'
-		elif user.icqStatus.count('away'):
+		elif icqStatus.count('away'):
 			show = 'away'
 		# additional "normal" statuses
-		elif user.icqStatus.count('lunch'):
+		elif icqStatus.count('lunch'):
 			show = 'xa'
 			anormal = 'Out to lunch'
-		elif user.icqStatus.count('phone'):
+		elif icqStatus.count('phone'):
 			show = 'dnd'
 			anormal = 'On the phone'
-		elif user.icqStatus.count('home'):
+		elif icqStatus.count('home'):
 			show = 'online'
 			anormal = 'At home'
-		elif user.icqStatus.count('work'):
+		elif icqStatus.count('work'):
 			show = 'online'
 			anormal = 'At work'
-		elif user.icqStatus.count('evil'):
+		elif icqStatus.count('evil'):
 			show = 'online'
 			anormal = 'Evil'
-		elif user.icqStatus.count('depression'):
+		elif icqStatus.count('depression'):
 			show = 'online'
 			anormal = 'Depression'
 		else:
@@ -161,6 +161,7 @@ class B(oscar.BOSConnection):
 		return (show, anormal)
 	
 	def appendXStatus(self, username, anormal, status):
+		LogEvent(INFO, self.session.jabberID)
 		if status == None:
 			status = ''
 		if anormal != None:
@@ -195,7 +196,7 @@ class B(oscar.BOSConnection):
 
 		ptype = None
 		
-		show, anormal = self.detectAdditionalNormalStatus(user)
+		show, anormal = self.detectAdditionalNormalStatus(user.icqStatus)
 	
 		status = user.status
 		encoding = user.statusencoding
@@ -397,7 +398,7 @@ class B(oscar.BOSConnection):
 
 		ptype = None
 		
-		show, anormal = self.detectAdditionalNormalStatus(user)
+		show, anormal = self.detectAdditionalNormalStatus(user.icqStatus)
 
 		status = msg[1]
 		url = user.url
