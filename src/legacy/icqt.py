@@ -162,22 +162,24 @@ class B(oscar.BOSConnection):
 	
 	def appendXStatus(self, username, anormal, status):
 		LogEvent(INFO, self.session.jabberID)
+		
+		x_status_name = self.oscarcon.getXStatus(username)
+		x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(username)
+		
 		if status == None:
 			status = ''
 		if anormal != None:
 			if status != '':
 				status += '\n'
 			status += 'Status: %s' % anormal
-		x_status_name = self.oscarcon.getXStatus(username)
+
 		if x_status_name != '':
 			if status != '':
 				status += '\n'
 			status += 'X-status: %s' % x_status_name
-		x_status_title = self.oscarcon.getXStatusTitle(username)
 		if x_status_title != '':
 			if x_status_name != x_status_title: # user changed standart title
 				status += ' (%s)' % x_status_title
-		x_status_desc = self.oscarcon.getXStatusDesc(username)
 		if x_status_desc != '':
 			if status != '':
 				status += '\n'
