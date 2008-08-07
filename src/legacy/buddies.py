@@ -75,12 +75,13 @@ class BuddyList:
 		self.session.legacycon.deauthContact(userHandle)
 
 	def setCustomStatus(self, contact, customStatus):
+		LogEvent(INFO, self.session.jabberID)
 		lo_contact = contact.lower()
-		if self.usercustomstatuses.has_key(lo_contact): # if customStatus for user exista
-			for key in customStatus:
-				if self.usercustomstatuses[lo_contact].has_key(key): # update value if key present (and not touch other keys)
-					self.usercustomstatuses[lo_contact][key] = customStatus[key]
-		else: # if customStatus for user not exista 
+		if lo_contact in self.usercustomstatuses: # if custom status for user exists
+			for key in customStatus: # for all keys
+				if key in self.usercustomstatuses[lo_contact]: # if key present
+					self.usercustomstatuses[lo_contact][key] = customStatus[key] # update it!
+		else: 
 			self.usercustomstatuses[lo_contact] = customStatus # copy full customStatus
 
 	def setCapabilities(self, contact, caplist):
