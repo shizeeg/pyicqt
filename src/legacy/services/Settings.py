@@ -4,6 +4,7 @@ import utils
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber.jid import internJID
 from tlib import oscar
+from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
@@ -162,6 +163,7 @@ class Settings:
 		
 	def ApplySettings(self, to_jid, settings):
 		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		bos.selfSettings = settings
 		if jid in self.pytrans.sessions:

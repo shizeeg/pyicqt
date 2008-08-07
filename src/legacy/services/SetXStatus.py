@@ -4,6 +4,7 @@ import utils
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber.jid import internJID
 from tlib import oscar
+from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
@@ -249,6 +250,7 @@ class SetXStatus:
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
 		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
