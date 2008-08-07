@@ -122,16 +122,9 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
 
-	def updateBuddy(self, user, selfcall = False):
-		from glue import icq2jid
-		LogEvent(INFO, self.session.jabberID)
-		
-		buddyjid = icq2jid(user.name)
-                c = self.session.contactList.findContact(buddyjid)
-                if not c: return
-
-		ptype = None
+	def detectAdditionalNormalStatus(self, user):
 		anormal = None
+		show = None
 		log.msg('Status for %s is %s' % (user.name, user.icqStatus))
 		# normal statuses
 		if user.icqStatus.count('dnd'):
@@ -165,6 +158,45 @@ class B(oscar.BOSConnection):
 			anormal = 'Depression'
 		else:
 			show = 'online'
+		return (show, anormal)
+	
+	def appendXStatus(self, username, anormal, status):
+		if status == None:
+			status = ''
+		if anormal != None:
+			if status != '':
+				status += '\n'
+			status += 'Status: %s' % anormal
+		x_status_name = self.oscarcon.getXStatus(username)
+		if x_status_name != '':
+			if status != '':
+				status += '\n'
+			status += 'X-status: %s' % x_status_name
+		x_status_title = self.oscarcon.getXStatusTitle(username)
+		if x_status_title != '':
+			if x_status_name != x_status_title: # user changed standart title
+				status += ' (%s)' % x_status_title
+		x_status_desc = self.oscarcon.getXStatusDesc(username)
+		if x_status_desc != '':
+			if status != '':
+				status += '\n'
+			status += 'X-message: %s' % x_status_desc
+		if status == '':
+			status = None
+		return status
+
+	def updateBuddy(self, user, selfcall = False):
+		from glue import icq2jid
+		LogEvent(INFO, self.session.jabberID)
+		
+		buddyjid = icq2jid(user.name)
+                c = self.session.contactList.findContact(buddyjid)
+                if not c: return
+
+		ptype = None
+		
+		show, anormal = self.detectAdditionalNormalStatus(user)
+	
 		status = user.status
 		encoding = user.statusencoding
 		url = user.url
@@ -238,28 +270,7 @@ class B(oscar.BOSConnection):
 		
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-				if status == None:
-					status = ''
-				if anormal != None:
-					if status != '':
-						status += '\n'
-					status += 'Status: %s' % anormal
-				x_status_name = self.oscarcon.getXStatus(user.name)
-				if x_status_name != '':
-					if status != '':
-						status += '\n'
-					status += 'X-status: %s' % x_status_name
-				x_status_title = self.oscarcon.getXStatusTitle(user.name)
-				if x_status_title != '':
-					if x_status_name != x_status_title: # user changed standart title
-						status += ' (%s)' % x_status_title
-				x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-				if x_status_desc != '':
-					if status != '':
-						status += '\n'
-					status += 'X-message: %s' % x_status_desc
-				if status == '':
-					status = None
+				status = self.appendXStatus(user.name, anormal, status)
 					
 				if selfcall == False:
 					self.sendXstatusMessageRequest(user.name) # request Xstatus message
@@ -385,40 +396,8 @@ class B(oscar.BOSConnection):
 		if not c: return
 
 		ptype = None
-		anormal = None
-		log.msg('Status for %s is %s' % (user.name, user.icqStatus))
-		# normal statuses
-		if user.icqStatus.count('dnd'):
-			show = 'dnd'
-		elif user.icqStatus.count('xa'):
-			show = 'xa'
-		elif user.icqStatus.count('busy'):
-			show = 'dnd'
-		elif user.icqStatus.count('chat'):
-			show = 'chat'
-		elif user.icqStatus.count('away'):
-			show = 'away'
-		# additional "normal" statuses
-		elif user.icqStatus.count('lunch'):
-			show = 'xa'
-			anormal = 'Out to lunch'
-		elif user.icqStatus.count('phone'):
-			show = 'dnd'
-			anormal = 'On the phone'
-		elif user.icqStatus.count('home'):
-			show = 'online'
-			anormal = 'At home'
-		elif user.icqStatus.count('work'):
-			show = 'online'
-			anormal = 'At work'
-		elif user.icqStatus.count('evil'):
-			show = 'online'
-			anormal = 'Evil'
-		elif user.icqStatus.count('depression'):
-			show = 'online'
-			anormal = 'Depression'
-		else:
-			show = 'online'
+		
+		show, anormal = self.detectAdditionalNormalStatus(user)
 
 		status = msg[1]
 		url = user.url
@@ -481,28 +460,7 @@ class B(oscar.BOSConnection):
 		
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-				if status == None:
-					status = ''
-				if anormal != None:
-					if status != '':
-						status += '\n'
-					status += 'Status: %s' % anormal
-				x_status_name = self.oscarcon.getXStatus(user.name)
-				if x_status_name != '':
-					if status != '':
-						status += '\n'
-					status += 'X-status: %s' % x_status_name
-				x_status_title = self.oscarcon.getXStatusTitle(user.name)
-				if x_status_title != '':
-					if x_status_name != x_status_title: # user changed standart title
-						status += ' (%s)' % x_status_title
-				x_status_desc = self.oscarcon.getXStatusDesc(user.name)
-				if x_status_desc != '':
-					if status != '':
-						status += '\n'
-					status += 'X-message: %s' % x_status_desc
-				if status == '':
-					status = None
+				status = self.appendXStatus(user.name, anormal, status)
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
