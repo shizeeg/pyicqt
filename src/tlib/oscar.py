@@ -340,7 +340,7 @@ class OSCARUser:
 					else: caps.append(("unknown",c))
 					v=v[16:]
 					
-					if X_STATUS_CAPS.has_key(c):
+					if c in X_STATUS_CAPS:
 						self.customStatus['x-status'] = X_STATUS_NAME[X_STATUS_CAPS[c]]
 		
 				caps.sort()
@@ -397,13 +397,12 @@ class OSCARUser:
 						# XXX: there should be probably more information available for extraction here
 					elif exttype == 0x0e:
 						# ICQ 6 custom status (mood)
-						log.msg('ICQ 6 custom status (mood) with length %s' % extlen)
 						if extlen >= 8:
 							icq_mood_iconstr=v[4:(4+extlen)]
 							if icq_mood_iconstr.find('icqmood') != -1:
-								icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
+								icq_mood_num = int(icq_mood_iconstr.replace('icqmood',''))
 								self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
-								log.msg('ICQ 6 mood #:',icq_mood_num)
+								log.msg('	ICQ 6 mood #:',icq_mood_num)
 					else:
 						log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
 					#v=v[ord(v[3])+4:]
@@ -885,13 +884,13 @@ class SNACBased(OscarConnection):
 	
 	MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
 	if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
-		log.msg('Message type id: xtraz script')
+		log.msg('	Message type id: xtraz script')
 		MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
 		if MsgSubType == 0x0008:
-			log.msg('Message subtype: Script Notify')
+			log.msg('	Message subtype: Script Notify')
 			MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
 			if MsgAction == 0x002a:
-				log.msg('Request type string')
+				log.msg('	Request type string')
 				NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
 				Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
 				# TODO: parse as XML
@@ -907,7 +906,7 @@ class SNACBased(OscarConnection):
 				if desc_begin_pos !=-1 and desc_end_pos !=-1:
 					desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
 	
-	if self.oscarcon.legacyList.usercustomstatuses.has_key(buddy):
+	if buddy in self.oscarcon.legacyList.usercustomstatuses:
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
 		log.msg('CustomStatus for %s: %s' % (buddy, self.oscarcon.legacyList.usercustomstatuses[buddy]))
@@ -1321,9 +1320,9 @@ class BOSConnection(SNACBased):
                 status=v[4:4+statlen]
                 log.msg("   extracted status message: %s"%(status))
 	    elif exttype == 0x0e: # ICQ6 mood only or mood + available message?
-		mood_str_len=int((struct.unpack('!H', v[2:4]))[0])
-		mood_str=v[4:4+mood_str_len]
-		log.msg("   extracted mood: %s"%(mood_str))
+		mood_str_len = int((struct.unpack('!H', v[2:4]))[0])
+		mood_str = v[4:4+mood_str_len]
+		log.msg("   extracted mood: %s" % (mood_str))
             else:
                 log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
             v=v[ord(v[3])+4:]
@@ -2268,11 +2267,11 @@ class BOSConnection(SNACBased):
 	    return unsafexml
  
     def sendXstatusMessageRequest(self, user):
-	  if self.oscarcon.legacyList.usercaps.has_key(user):
+	  if user in self.oscarcon.legacyList.usercaps:
 		  log.msg("Caps for user %s: %s" % (user, self.oscarcon.legacyList.usercaps[user]))
 		  if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]:
 			log.msg("User %s has cap xtraz" % user)
-			if self.oscarcon.legacyList.usercustomstatuses.has_key(user) and self.oscarcon.legacyList.usercustomstatuses[user].has_key('x-status'):
+			if user in self.oscarcon.legacyList.usercustomstatuses and 'x-status' in self.oscarcon.legacyList.usercustomstatuses[user]:
 				log.msg("User %s has x-status" % user)
 				
 				# AIM messaging header
