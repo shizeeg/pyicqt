@@ -341,3 +341,15 @@ def encryptPassword(password):
 
 def decryptPassword(password):
 	return base64.decodestring(password)
+
+def getSafeXML(unsafexml):
+	safexml = unsafexml.replace('&','&amp;')
+	safexml = safexml.replace('<','&lt;')
+	safexml = safexml.replace('>','&gt;')
+	return safexml
+    
+def getUnSafeXML(safexml):
+	unsafexml = safexml.replace('&amp;','&')
+	unsafexml = unsafexml.replace('&lt;','<')
+	unsafexml = unsafexml.replace('&gt;','>')
+	return unsafexml

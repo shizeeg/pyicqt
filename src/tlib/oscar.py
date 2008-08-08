@@ -33,6 +33,7 @@ import socks5, sockserror
 import countrycodes
 import config
 import datetime
+import utils
 
 def logPacketData(data):
     # Comment out to display packet log data
@@ -894,7 +895,7 @@ class SNACBased(OscarConnection):
 				NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
 				Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
 				# TODO: parse as XML
-				UnSafe_Notification = self.getUnSafeXML(Notification)
+				UnSafe_Notification = utils.getUnSafeXML(Notification)
 				
 				title_begin_pos = UnSafe_Notification.find('<title>')
 				title_end_pos = UnSafe_Notification.find('</title>')
@@ -1566,7 +1567,7 @@ class BOSConnection(SNACBased):
 								NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
 								Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
 								# TODO: parse as XML
-								UnSafe_Notification = self.getUnSafeXML(Notification)
+								UnSafe_Notification = utils.getUnSafeXML(Notification)
 								
 								request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
 								request_pos_end = UnSafe_Notification.find('</req>')
@@ -2253,18 +2254,6 @@ class BOSConnection(SNACBased):
 
     def _cbSendMessageAck(self, snac, user, message):
         return user, message
-	    
-    def getSafeXML(self, unsafexml):
-	    safexml = unsafexml.replace('&','&amp;')
-	    safexml = safexml.replace('<','&lt;')
-	    safexml = safexml.replace('>','&gt;')
-	    return safexml
-    
-    def getUnSafeXML(self, safexml):
-	    unsafexml = safexml.replace('&amp;','&')
-	    unsafexml = unsafexml.replace('&lt;','<')
-	    unsafexml = unsafexml.replace('&gt;','>')
-	    return unsafexml
  
     def sendXstatusMessageRequest(self, user):
 	  if user in self.oscarcon.legacyList.usercaps:
@@ -2280,7 +2269,7 @@ class BOSConnection(SNACBased):
 				# xtraz request
 				notifyBody='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name
 				queryBody = '<Q><PluginID>srvMng</PluginID></Q>'
-				query = '<N><QUERY>' + self.getSafeXML(queryBody) + '</QUERY><NOTIFY>' + self.getSafeXML(notifyBody) + '</NOTIFY></N>'
+				query = '<N><QUERY>' + utils.getSafeXML(queryBody) + '</QUERY><NOTIFY>' + utils.getSafeXML(notifyBody) + '</NOTIFY></N>'
 				# extended data body
 				extended_data = struct.pack('<H',0x1b) # unknown
 				extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2351,7 +2340,7 @@ class BOSConnection(SNACBased):
 <title>' + str(xstatus_title) + '</title>\
 <desc>' + str(xstatus_desc) + '</desc></Root></val></srv></ret>'
 
-	query = '<NR><RES>' + self.getSafeXML(content) + '</NR></RES>'
+	query = '<NR><RES>' + utils.getSafeXML(content) + '</NR></RES>'
 
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
