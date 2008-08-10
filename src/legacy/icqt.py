@@ -176,7 +176,7 @@ class B(oscar.BOSConnection):
 		if x_status_name != '':
 			if status != '':
 				status += '\n'
-			status += 'X-status: %s' % x_status_name
+			status += 'X-status: %s' % lang.get(x_status_name)
 		if x_status_title != '':
 			if x_status_name != x_status_title: # user changed standart title
 				status += ' (%s)' % x_status_title

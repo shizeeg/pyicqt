@@ -134,13 +134,13 @@ class SetXStatus:
 		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
 		if current_xstatus_name != '':
 			option = field.addElement('option')
-			option.attributes['label'] = '%s (%s)' % (lang.get('xstatus_keep_current'), current_xstatus_name)
+			option.attributes['label'] = '%s (%s)' % (lang.get('xstatus_keep_current'), lang.get(current_xstatus_name))
 			value = option.addElement('value')
 			value.addContent(current_xstatus_name)
 		
 		for xstatus_title in oscar.X_STATUS_NAME:
 			option = field.addElement('option')
-			option.attributes['label'] = xstatus_title
+			option.attributes['label'] = lang.get(xstatus_title)
 			value = option.addElement('value')
 			value.addContent(xstatus_title)
 			
@@ -191,7 +191,7 @@ class SetXStatus:
 		xstatus_number = self.pytrans.sessions[jid].legacycon.bos.getXstatusNumberByName(xstatus_name)
 		title, desc = self.pytrans.xdb.getXstatusText(jid, xstatus_number)
 		if title == '':
-			title = xstatus_name	
+			title = lang.get(xstatus_name)	
 			
 		xstatus_title = x.addElement('field')
 		xstatus_title.attributes['type'] = 'text-single'
