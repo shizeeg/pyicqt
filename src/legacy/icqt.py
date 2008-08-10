@@ -171,19 +171,19 @@ class B(oscar.BOSConnection):
 		if anormal != None:
 			if status != '':
 				status += '\n'
-			status += 'Status: %s' % anormal
+			status += '%s: %s' % (lang.get('xstatus_append_status'), anormal)
 
 		if x_status_name != '':
 			if status != '':
 				status += '\n'
-			status += 'X-status: %s' % lang.get(x_status_name)
+			status += '%s: %s' % (lang.get('xstatus_append_xstatus'), lang.get(x_status_name))
 		if x_status_title != '':
 			if x_status_name != x_status_title: # user changed standart title
 				status += ' (%s)' % x_status_title
 		if x_status_desc != '':
 			if status != '':
 				status += '\n'
-			status += 'X-message: %s' % x_status_desc
+			status += '%s: %s' % (lang.get('xstatus_append_xmessage'), x_status_desc)
 		if status == '':
 			status = None
 		return status

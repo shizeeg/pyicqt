@@ -128,6 +128,10 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_ru3 = u"RuJournal"
 	xstatus_bombus1 = u"Smoking"
 	xstatus_bombus2 = u"Sex" 
+	# these lines for adding to user's status
+	xstatus_append_status = u"Status"
+	xstatus_append_xstatus = u"X-status"
+	xstatus_append_xmessage = u"X-message"
 	
 en_US = en # en-US is the same as en, so are the others
 en_AU = en
