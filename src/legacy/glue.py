@@ -826,10 +826,11 @@ class LegacyConnection:
 		return pBuddyID
 
 	def alertUser(self, message):
-		tmpjid = config.jid
-		if self.session.registeredmunge:
-			tmpjid = tmpjid + "/registered"
-		self.session.sendMessage(to=self.session.jabberID, fro=tmpjid, body=message, mtype="error")
+		if self.session:
+			tmpjid = config.jid
+			if self.session.registeredmunge:
+				tmpjid = tmpjid + "/registered"
+			self.session.sendMessage(to=self.session.jabberID, fro=tmpjid, body=message, mtype="error")
 
 
 
