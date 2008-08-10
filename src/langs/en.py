@@ -83,6 +83,13 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_xstatus_recv_support = u"Support for x-status receiving"
 	settings_xstatus_send_support = u"Support for x-status sending"
 	settings_xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
+	# additional "normal" statuses
+	anormal_out_to_lunch = u"Out to lunch"
+	anormal_on_the_phone = u"On the phone"
+	anormal_at_home = u"At home"
+	anormal_at_work = u"At work"
+	anormal_evil = u"Evil"
+	anormal_depression = u"Depression"
 	# x-statuses
 	xstatus_angry = u"Angry"
 	xstatus_taking_a_bath = u"Taking a bath"

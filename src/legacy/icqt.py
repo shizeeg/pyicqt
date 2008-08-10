@@ -140,22 +140,22 @@ class B(oscar.BOSConnection):
 		# additional "normal" statuses
 		elif icqStatus.count('lunch'):
 			show = 'xa'
-			anormal = 'Out to lunch'
+			anormal = lang.get('anormal_out_to_lunch')
 		elif icqStatus.count('phone'):
 			show = 'dnd'
-			anormal = 'On the phone'
+			anormal = lang.get('anormal_on_the_phone')
 		elif icqStatus.count('home'):
 			show = 'online'
-			anormal = 'At home'
+			anormal = lang.get('anormal_at_home')
 		elif icqStatus.count('work'):
 			show = 'online'
-			anormal = 'At work'
+			anormal = lang.get('anormal_at_work')
 		elif icqStatus.count('evil'):
 			show = 'online'
-			anormal = 'Evil'
+			anormal = lang.get('anormal_evil')
 		elif icqStatus.count('depression'):
 			show = 'online'
-			anormal = 'Depression'
+			anormal = lang.get('anormal_depression')
 		else:
 			show = 'online'
 		return (show, anormal)
