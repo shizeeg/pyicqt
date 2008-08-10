@@ -856,7 +856,7 @@ class SNACBased(OscarConnection):
 
     def oscar_04_0B(self, snac):
 	"""
-	Xstatus message response
+	Xstatus message response received
 	"""
 	buddy = ''
 	title = ''
@@ -903,6 +903,9 @@ class SNACBased(OscarConnection):
         self.sendSNACnr(0x01,0x02,d)
 	
     def extractXStatusNotification(self, extdata):
+	"""
+	extract notification text from extended body of message
+        """
 	UnSafe_Notification = ''
 	
 	# skip 'first header' 
@@ -2234,8 +2237,11 @@ class BOSConnection(SNACBased):
         return user, message
  
     def sendXstatusMessageRequest(self, user):
-	  if user in self.oscarcon.legacyList.usercaps:
-		  if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]: # xtraz supported by client
+	"""
+	send request for x-status message to user
+        """
+	if user in self.oscarcon.legacyList.usercaps:
+		if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]: # xtraz supported by client
 			if user in self.oscarcon.legacyList.usercustomstatuses and 'x-status' in self.oscarcon.legacyList.usercustomstatuses[user]: # and x-status was set
 				log.msg("Sending x-status details request to %s" % user)
 				# AIM messaging header
@@ -2266,6 +2272,9 @@ class BOSConnection(SNACBased):
 				self.sendSNAC(0x04, 0x06, data).addCallback(self._sendXstatusMessageRequest) # send request
 					
     def sendXstatusMessageResponse(self, user, cookie):
+	"""
+	send x-status message response to user
+        """
 	log.msg("Sending x-status details response to %s" % user)
 	# AIM messaging header
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
@@ -2290,15 +2299,21 @@ class BOSConnection(SNACBased):
 	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
 
     def packPluginTypeId(self):
-	    dt =  struct.pack('<H',0x4f) # length
-	    dt += struct.pack('!LLLL', MSGTYPE_ID_XTRAZ_SCRIPT[0], MSGTYPE_ID_XTRAZ_SCRIPT[1], MSGTYPE_ID_XTRAZ_SCRIPT[2], MSGTYPE_ID_XTRAZ_SCRIPT[3]) # Message type id: xtraz script
-	    dt += struct.pack('<H',0x0008) # message subtype: Script Notify
-	    dt += struct.pack('<L',0x002a) # request type string
-	    dt += 'Script Plug-in: Remote Notification Arrive'
-	    dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
-	    return dt
+    	"""
+	pack typeid for plugin
+        """
+	dt =  struct.pack('<H',0x4f) # length
+	dt += struct.pack('!LLLL', MSGTYPE_ID_XTRAZ_SCRIPT[0], MSGTYPE_ID_XTRAZ_SCRIPT[1], MSGTYPE_ID_XTRAZ_SCRIPT[2], MSGTYPE_ID_XTRAZ_SCRIPT[3]) # Message type id: xtraz script
+	dt += struct.pack('<H',0x0008) # message subtype: Script Notify
+	dt += struct.pack('<L',0x002a) # request type string
+	dt += 'Script Plug-in: Remote Notification Arrive'
+	dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
+	return dt
 
     def prepareExtendedDataBody(self, query):
+	"""
+	prepare it
+        """
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2321,27 +2336,24 @@ class BOSConnection(SNACBased):
 	return extended_data
 
     def _sendXstatusMessageRequest(self, snac):
-	     log.msg("Request for x-status details sent")
-
-    def	setSelfXstatusName(self, xstatus_name):
-	if xstatus_name and xstatus_name != 'None':
-		    if xstatus_name in X_STATUS_NAME:
-			index_in_list = X_STATUS_NAME.index(xstatus_name)
-			for key in X_STATUS_CAPS:
-				if X_STATUS_CAPS[key] == index_in_list:
-					self.removeSelfXstatusNoUpdate()
-	    				self.capabilities.append(key)
-					log.msg('setSelfXstatus %s' % repr(key))
-					self.setUserInfo()
-					self.setExtendedStatusRequest()
+	"""
+	callback for sending of x-status request
+        """
+	log.msg("Request for x-status details sent")
 	
     def getSelfXstatusName(self):
+	"""
+	return name of x-status
+        """
 	if 'x-status name' in self.selfCustomStatus:
 		return self.selfCustomStatus['x-status name']
 	else:
 		return ''
 
     def getSelfXstatusDetails(self):
+	"""
+	return title and desc of x-status
+        """
 	title = ''
 	desc = ''
 	if 'x-status title' in self.selfCustomStatus:
@@ -2350,51 +2362,104 @@ class BOSConnection(SNACBased):
 		desc = self.selfCustomStatus['x-status desc']
 	return title, desc
 	
+    def getSelfXstatusNumber(self):
+	"""
+	return number of x-status
+        """
+	if 'x-status number' in self.selfCustomStatus:
+		return self.selfCustomStatus['x-status number']
+	else:
+		return -1
+	
     def getSelfXstatusIndex(self):
-	xstatus_index = 0
-	if 'x-status name' in self.selfCustomStatus:
-		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
-		index_in_list = index_in_list + 1
-		if index_in_list > 1 and index_in_list < 32:
-			xstatus_index = index_in_list
-	return xstatus_index
+	"""
+	return index of x-status (ICQ5.1-like)
+        """
+	index = self.getSelfXstatusNumber() + 1
+	if index > 1 and index < 32:
+		return index
+	else:
+		return 0
+	
+    def getSelfXstatusMoodIndex(self):
+	"""
+	return index of x-status mood (ICQ6-like)
+        """
+	xstatus_key = ''
+	mood_num = -1
+	for key in X_STATUS_CAPS:
+		if key in self.capabilities:
+			xstatus_key = key
+	if xstatus_key !='':
+		if xstatus_key in X_STATUS_CAPS:
+			xstatus_num = X_STATUS_CAPS[xstatus_key]
+			if xstatus_num in X_STATUS_MOODS:
+				mood_num = X_STATUS_MOODS[xstatus_num]
+	return mood_num
+	
+    def getXstatusNumberByName(self, xstatus_name):
+	"""
+	return index of x-status (ICQ5.1-like)
+        """
+	if xstatus_name in X_STATUS_NAME:
+		return X_STATUS_NAME.index(xstatus_name)
+	else:
+		return -1
 	
     def removeSelfXstatusNoUpdate(self):
+	"""
+	remove x-status line from caps
+        """
 	for key in X_STATUS_CAPS:
 		if key in self.capabilities:
 			self.capabilities.remove(key)
 
-    
     def removeSelfXstatus(self):
+	"""
+	notify server about changes in caps
+        """
 	self.removeSelfXstatusNoUpdate()
 	self.setUserInfo()
 	self.setExtendedStatusRequest()
 	
     def updateSelfXstatus(self):
+	"""
+	update x-status
+        """
 	if 'x-status name' in self.selfCustomStatus:
 		if self.selfCustomStatus['x-status name'] == '':
 			self.removeSelfXstatus()
 		else:
 			self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
 	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
-	
-    def getXstatusNumberByName(self, xstatus_name):
-	# TODO: may be put in selfCustomStatus?
-	if xstatus_name in X_STATUS_NAME:
-		return X_STATUS_NAME.index(xstatus_name)
-	else:
-		return -1
-	
 			
     def settingsOptionEnabled(self, option):
+	"""
+	check setting value
+        """
 	if option in self.selfSettings:
 		if str(self.selfSettings[option]) == '1':
 			return True
 	return False
-					
+	
+    def	setSelfXstatusName(self, xstatus_name):
+	"""
+	set x-status name, notify server about change and update internal x-status number
+        """
+	if xstatus_name and xstatus_name != 'None':
+		    if xstatus_name in X_STATUS_NAME:
+			index_in_list = X_STATUS_NAME.index(xstatus_name)
+			for key in X_STATUS_CAPS:
+				if X_STATUS_CAPS[key] == index_in_list:
+					self.selfCustomStatus['x-status number'] = index_in_list
+					self.removeSelfXstatusNoUpdate()
+	    				self.capabilities.append(key)
+					self.setUserInfo()
+					self.setExtendedStatusRequest()
+	
     def setUserInfo(self):
         """
-        send self info
+        send self info (capslist)
         """
 	caps = ''
 	for cap in self.capabilities:
@@ -2406,21 +2471,14 @@ class BOSConnection(SNACBased):
 			 
     def setExtendedStatusRequest(self):
 	"""
-        send self info in ICQ6 format
+        send self info in ICQ6 format (x-status mood + available message)
         """
-	xstatus_key = ''
 	moodTLV = ''
-	for key in X_STATUS_CAPS:
-		if key in self.capabilities:
-			xstatus_key = key
-	if xstatus_key !='':
-		if xstatus_key in X_STATUS_CAPS:
-			xstatus_num = X_STATUS_CAPS[xstatus_key]
-			if xstatus_num in X_STATUS_MOODS:
-				mood_num = X_STATUS_MOODS[xstatus_num]
-				mood_str = 'icqmood' + str(mood_num)
-				mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-				moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
+	mood_num = self.getSelfXstatusMoodIndex()
+	if mood_num > -1:
+		mood_str = 'icqmood' + str(mood_num)
+		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+		moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
 		# TODO: add available message
 	status = struct.pack('!L',self.icqStatus)
 	onlinestatusTLV = TLV(0x0006, status)
