@@ -1553,7 +1553,7 @@ class BOSConnection(SNACBased):
 						if self.settingsOptionEnabled('xstatus_sending_enabled'):
 							self.sendXstatusMessageResponse(user.name, cookie2)
 			except:
-				log.msg('Strange rendezvous. msgcontent with len %s' % len(msgcontent))
+				log.msg('Strange rendezvous')
 				log.msg(repr(moreTLVs))
 		else:
 			log.msg('more TLVs for serv_relay: %s' % moreTLVs)
@@ -2271,20 +2271,8 @@ class BOSConnection(SNACBased):
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
 	header = header + struct.pack('!H',0x3) # reason: channel-specific
 
-	xstatus_index = 0
-	if 'x-status name' in self.selfCustomStatus:
-		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
-		index_in_list = index_in_list + 1
-		if index_in_list > 1 and index_in_list < 32:
-			xstatus_index = index_in_list
-	if 'x-status title' in self.selfCustomStatus:
-		xstatus_title = self.selfCustomStatus['x-status title']
-	else:
-		xstatus_title = ''
-	if 'x-status desc' in self.selfCustomStatus:
-		xstatus_desc = self.selfCustomStatus['x-status desc']	
-	else:
-		xstatus_desc = ''
+	index = self.getSelfXstatusIndex()
+	title, desc = self.getSelfXstatusDetails()
 
 	# message content
 	content = """\
@@ -2295,7 +2283,7 @@ class BOSConnection(SNACBased):
 <uin>%s</uin>\
 <index>%s</index>\
 <title>%s</title>\
-<desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(xstatus_index), str(xstatus_title), str(xstatus_desc))
+<desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(index), str(title), str(desc))
 	query = '<NR><RES>%s</NR></RES>' % utils.getSafeXML(content)
 	data = header + self.prepareExtendedDataBody(query) # data for response formed
 
@@ -2352,7 +2340,25 @@ class BOSConnection(SNACBased):
 		return self.selfCustomStatus['x-status name']
 	else:
 		return ''
-    
+
+    def getSelfXstatusDetails(self):
+	title = ''
+	desc = ''
+	if 'x-status title' in self.selfCustomStatus:
+		title = self.selfCustomStatus['x-status title']
+	if 'x-status desc' in self.selfCustomStatus:
+		desc = self.selfCustomStatus['x-status desc']
+	return title, desc
+	
+    def getSelfXstatusIndex(self):
+	xstatus_index = 0
+	if 'x-status name' in self.selfCustomStatus:
+		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
+		index_in_list = index_in_list + 1
+		if index_in_list > 1 and index_in_list < 32:
+			xstatus_index = index_in_list
+	return xstatus_index
+	
     def removeSelfXstatusNoUpdate(self):
 	for key in X_STATUS_CAPS:
 		if key in self.capabilities:
@@ -2378,6 +2384,7 @@ class BOSConnection(SNACBased):
 		return X_STATUS_NAME.index(xstatus_name)
 	else:
 		return -1
+	
 			
     def settingsOptionEnabled(self, option):
 	if option in self.selfSettings:
