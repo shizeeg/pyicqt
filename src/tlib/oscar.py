@@ -2293,7 +2293,7 @@ class BOSConnection(SNACBased):
 <index>%s</index>\
 <title>%s</title>\
 <desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(index), str(title), str(desc))
-	query = '<NR><RES>%s</NR></RES>' % utils.getSafeXML(content)
+	query = '<NR><RES>%s</RES></NR>' % utils.getSafeXML(content)
 	data = header + self.prepareExtendedDataBody(query) # data for response formed
 
 	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
