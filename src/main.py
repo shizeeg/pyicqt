@@ -89,10 +89,7 @@ if os.name == "posix":
 	import signal
 	signal.signal(signal.SIGHUP, reloadConfig)
 	# Load scripts for PID and daemonizing
-	try:
-		from twisted.scripts import _twistd_unix as twistd
-	except:
-		from twisted.scripts import twistd
+	import twistd
 
 selectWarning = "Unable to install any good reactors (kqueue, cf, epoll, poll).\nWe fell back to using select. You may have scalability problems.\nThis reactor will not support more than 1024 connections +at a time.  You may silence this message by choosing 'select' or 'default' as your reactor in the transport config."
 if config.reactor and len(config.reactor) > 0:
@@ -430,34 +427,16 @@ class App:
 		pf = open(config.pid, "w")
 		pf.write("%s\n" % pid)
 		pf.close()
-		
-	def removePID(self, pidfile):
-		# Remove a PID file
-		if not pidfile:
-			return
-		try:
-			os.unlink(pidfile)
-		except OSError, e:
-			if e.errno == errno.EACCES or e.errno == errno.EPERM:
-				log.msg("Warning: No permission to delete pid file")
-			else:
-				log.msg("Failed to unlink PID file:")
-				log.deferr()
-		except:
-			log.msg("Failed to unlink PID file:")
-			log.deferr()
 
 	def shuttingDown(self):
 		self.transportSvc.removeMe()
 		def cb(ignored=None):
 			if config.pid:
-				self.removePID(config.pid)
+				twistd.removePID(config.pid)
 		d = Deferred()
 		d.addCallback(cb)
 		reactor.callLater(3.0, d.callback, None)
 		return d
-
-
 
 def main():
 	app = App()
