@@ -7,7 +7,6 @@ from twisted.words.xish.domish import Element
 from twisted.internet import protocol, reactor, defer, task
 from tlib import oscar
 from tlib import socks5, sockserror
-from twisted.python import log
 import icqt
 import config
 from debug import LogEvent, INFO, WARN, ERROR
@@ -484,59 +483,38 @@ class LegacyConnection:
 	def getXStatus(self, userHandle):
 	# returns text of x-status icon
 	# sample: 'Working','Typing', ''
-		if self.legacyList.usercustomstatuses.has_key(userHandle):
+		LogEvent(INFO, self.session.jabberID)
+		if userHandle in self.legacyList.usercustomstatuses:
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			log.msg('[getXStatus]Contact: %s' % userHandle)
-			log.msg('[getXStatus]CustomStatus: %s' % customStatus)
-			if customStatus.has_key('x-status'):
+			if 'x-status' in customStatus:
 				return customStatus['x-status']
-			elif customStatus.has_key('mood'):
+			elif 'mood' in customStatus:
 				return customStatus['mood']
-			else:
-				return ''
-		else:
-			return ''
+		return ''
 		
-	def getXStatusTitle(self, userHandle):
-	# returns title of x-status message
-		if self.legacyList.usercustomstatuses.has_key(userHandle):
+	def getXStatusDetails(self, userHandle):
+	# returns title and description of x-status message
+		LogEvent(INFO, self.session.jabberID)
+		title = ''
+		desc = ''
+		if userHandle in self.legacyList.usercustomstatuses:
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			log.msg('[getXStatusTitle]Contact: %s' % userHandle)
-			log.msg('[getXStatusTitle]CustomStatus: %s' % customStatus)
-			if customStatus.has_key('x-status title'):
-				return customStatus['x-status title']
-			else:
-				return ''
-		else:
-			return ''
-		
-	def getXStatusDesc(self, userHandle):
-	# returns description of x-status message
-		if self.legacyList.usercustomstatuses.has_key(userHandle):
-			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			log.msg('[getXStatusDesc]Contact: %s' % userHandle)
-			log.msg('[getXStatusDesc]CustomStatus: %s' % customStatus)
-			if customStatus.has_key('x-status desc'):
-				return customStatus['x-status desc']
-			else:
-				return ''
-		else:
-			return ''
+			if 'x-status title' in customStatus:
+				title = customStatus['x-status title']
+			if 'x-status desc' in customStatus:
+				desc = customStatus['x-status desc']
+		return title, desc
 	
 	def setSavedSnac(self, userHandle, snac):
-		log.msg('setSavedSnac called for %s with data: %s' % (userHandle, snac))
+		LogEvent(INFO, self.session.jabberID)
 		self.legacyList.saved_snacs[userHandle] = snac
 	
 	def getSavedSnac(self, userHandle):
-		log.msg('getSavedSnac called for %s' % userHandle)
+		LogEvent(INFO, self.session.jabberID)
 		if self.legacyList.saved_snacs.has_key(userHandle):
-			snac = self.legacyList.saved_snacs[userHandle]
-			log.msg('getSavedSnac called for %s with data: %s' % (userHandle, snac))
-			return snac
+			return self.legacyList.saved_snacs[userHandle]
 		else:
 			return ''
-			
-		
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid

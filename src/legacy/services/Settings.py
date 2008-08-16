@@ -3,9 +3,8 @@
 import utils
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber.jid import internJID
-from twisted.python import log
-from debug import LogEvent, INFO, WARN, ERROR
 from tlib import oscar
+from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
@@ -22,10 +21,9 @@ class Settings:
 		
 		to = el.getAttribute('from')
 		toj = internJID(to)
+		jid = toj.userhost()
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
-		
-		log.msg('Settings: to %s, toj %s, ID %s, ulang %s' % (to,toj,ID,ulang))
 		
 		for command in el.elements():
 			sessionid = command.getAttribute('sessionid')
@@ -47,7 +45,7 @@ class Settings:
 									if value.name == 'value':
 										settings_dict[field.getAttribute('var')] = value.__str__()
 			
-		if not self.pytrans.sessions.has_key(toj.userhost()): # if user not logined
+		if jid not in self.pytrans.sessions: # if user not logined
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
 		elif not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):  # if user not connected to ICQ network
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
@@ -55,11 +53,11 @@ class Settings:
 			self.ApplySettings(toj, settings_dict) # apply settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif do_action == 'cancel':
-			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
+			self.pytrans.adhoc.sendCancellation("settings", el, sessionid) # correct cancel handling
 		else:
-			self.sendSettingsForm(toj, el, sessionid) # send form
+			self.sendSettingsForm(el, sessionid) # send form
 			
-	def sendSettingsForm(self, toj, el, sessionid=None):
+	def sendSettingsForm(self, el, sessionid=None):
 		to = el.getAttribute("from")
 		ID = el.getAttribute("id")
 		ulang = utils.getLang(el)
@@ -71,7 +69,7 @@ class Settings:
 			xstatus_receiving_enabled = '1'
 			xstatus_sending_enabled = '1'
 			xstatus_saving_enabled = '1'
-			if self.pytrans.sessions.has_key(jid):
+			if jid in self.pytrans.sessions:
 				xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
 				if not xstatus_receiving_enabled: # value not saved yet
 					xstatus_receiving_enabled = '1' # enable by default
@@ -110,21 +108,21 @@ class Settings:
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_receiving_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Support for x-status receiving'
+			field.attributes['label'] = lang.get('settings_xstatus_recv_support')
 			value = field.addElement('value')
 			value.addContent(xstatus_receiving_enabled)
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_sending_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Support for x-status sending'
+			field.attributes['label'] = lang.get('settings_xstatus_send_support')
 			value = field.addElement('value')
 			value.addContent(xstatus_sending_enabled)
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = 'Restore latest x-status after disconnect'
+			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
 			value = field.addElement('value')
 			value.addContent(xstatus_saving_enabled)
 		
@@ -165,10 +163,10 @@ class Settings:
 		
 	def ApplySettings(self, to_jid, settings):
 		jid = to_jid.userhost()
-		log.msg('Settings for %s: %s' % (jid, settings))
+		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		bos.selfSettings = settings
-		if self.pytrans.sessions.has_key(jid):
+		if jid in self.pytrans.sessions:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, settings[key])
 				
@@ -185,6 +183,3 @@ class Settings:
 								saved_snac = legacycon.getSavedSnac(str(contact))
 								if saved_snac != '':
 									legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
-									log.msg("Buddy updated: %s %s" % (contact, contacts[contact]))
-				
-	

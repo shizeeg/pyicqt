@@ -33,6 +33,7 @@ import socks5, sockserror
 import countrycodes
 import config
 import datetime
+import utils
 
 def logPacketData(data):
     # Comment out to display packet log data
@@ -340,7 +341,7 @@ class OSCARUser:
 					else: caps.append(("unknown",c))
 					v=v[16:]
 					
-					if X_STATUS_CAPS.has_key(c):
+					if c in X_STATUS_CAPS:
 						self.customStatus['x-status'] = X_STATUS_NAME[X_STATUS_CAPS[c]]
 		
 				caps.sort()
@@ -380,6 +381,10 @@ class OSCARUser:
 									enclen = (struct.unpack('!HH',v[pos:pos+4]))[1]
 									self.statusencoding = v[pos+4:pos+4+enclen]
 							log.msg("   extracted status message: %s"%(self.status))
+							zeropos = self.status.find('\x00')
+							if zeropos > 0:
+								self.status = self.status[:zeropos]
+								log.msg('	fixing QIP Infium status message. Status message: %s' % self.status) 
 							if self.statusencoding:
 								log.msg("   status message encoding: %s"%(str(self.statusencoding)))
 					elif exttype == 0x09: # iTunes URL
@@ -397,13 +402,12 @@ class OSCARUser:
 						# XXX: there should be probably more information available for extraction here
 					elif exttype == 0x0e:
 						# ICQ 6 custom status (mood)
-						log.msg('ICQ 6 custom status (mood) with length %s' % extlen)
 						if extlen >= 8:
 							icq_mood_iconstr=v[4:(4+extlen)]
 							if icq_mood_iconstr.find('icqmood') != -1:
-								icq_mood_num=int(icq_mood_iconstr.replace('icqmood',''))
+								icq_mood_num = int(icq_mood_iconstr.replace('icqmood',''))
 								self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
-								log.msg('ICQ 6 mood #:',icq_mood_num)
+								log.msg('	ICQ 6 mood #:',icq_mood_num)
 					else:
 						log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
 					#v=v[ord(v[3])+4:]
@@ -463,7 +467,11 @@ class SSIGroup:
         user.group = None
 
     def oscarRep(self):
-        data = struct.pack(">H", len(self.name)) +self.name.encode("utf-8")
+	try:
+		name = self.name.encode("utf-8","replace")
+	except UnicodeError:
+		name = 'unknown'
+        data = struct.pack(">H", len(name)) + name
         tlvs = TLV(0xc8, struct.pack(">H",len(self.users)))
         data += struct.pack(">4H", self.groupID, self.buddyID, 1, len(tlvs))
         return data+tlvs
@@ -852,11 +860,8 @@ class SNACBased(OscarConnection):
 
     def oscar_04_0B(self, snac):
 	"""
-	Xstatus message response
+	Xstatus message response received
 	"""
-	log.msg("Xstatus message response")
-	log.msg(snac)
-	
 	buddy = ''
 	title = ''
 	desc = ''
@@ -865,53 +870,28 @@ class SNACBased(OscarConnection):
 	buddylen = struct.unpack('!B',snacdata[10:11])[0]
 	buddy_end = 11+buddylen
 	buddy = snacdata[11:buddy_end] # buddy uin
+	log.msg("x-status message response from %s" % buddy)
 	
 	extdata = snacdata[buddy_end+2:]
-	# skip 'first header' 
-	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
-	# skip 'second header' 	
-	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
-	
-	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
-	emptymsglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
-	msgcontent_pos = msg_features_pos + 8 + emptymsglen
-	msgcontent = extdata[msgcontent_pos:]
-	
-	PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
-	
-	MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
-	if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
-		log.msg('Message type id: xtraz script')
-		MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
-		if MsgSubType == 0x0008:
-			log.msg('Message subtype: Script Notify')
-			MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
-			if MsgAction == 0x002a:
-				log.msg('Request type string')
-				NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
-				Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
-				# TODO: parse as XML
-				UnSafe_Notification = self.getUnSafeXML(Notification)
+	UnSafe_Notification = self.extractXStatusNotification(extdata)
 				
-				title_begin_pos = UnSafe_Notification.find('<title>')
-				title_end_pos = UnSafe_Notification.find('</title>')
-				if title_begin_pos !=-1 and title_end_pos !=-1:
-					title = UnSafe_Notification[title_begin_pos+len('<title>'):title_end_pos]
+	title_begin_pos = UnSafe_Notification.find('<title>')
+	title_end_pos = UnSafe_Notification.find('</title>')
+	if title_begin_pos !=-1 and title_end_pos !=-1:
+		title = UnSafe_Notification[title_begin_pos+len('<title>'):title_end_pos]
 					
-				desc_begin_pos = UnSafe_Notification.find('<desc>')
-				desc_end_pos = UnSafe_Notification.find('</desc>')
-				if desc_begin_pos !=-1 and desc_end_pos !=-1:
-					desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
+	desc_begin_pos = UnSafe_Notification.find('<desc>')
+	desc_end_pos = UnSafe_Notification.find('</desc>')
+	if desc_begin_pos !=-1 and desc_end_pos !=-1:
+		desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
 	
-	if self.oscarcon.legacyList.usercustomstatuses.has_key(buddy):
+	if buddy in self.oscarcon.legacyList.usercustomstatuses:
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
 		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
-		log.msg('CustomStatus for %s: %s' % (buddy, self.oscarcon.legacyList.usercustomstatuses[buddy]))
 	saved_snac = self.oscarcon.getSavedSnac(buddy)
 	if saved_snac != '':
 		self.updateBuddy(self.parseUser(saved_snac), True)
-		log.msg('Buddy %s updated from saved snac' % buddy)
-		
+		log.msg('Buddy %s updated from saved snac' % buddy)	
 
     def clientReady(self):
         """
@@ -925,6 +905,45 @@ class SNACBased(OscarConnection):
                 log.msg("    We do support at %s %s %s" % (str(version), str(hex(toolID)), str(hex(toolVersion))))
                 d = d + struct.pack('!4H',fam,version,toolID,toolVersion)
         self.sendSNACnr(0x01,0x02,d)
+	
+    def extractXStatusNotification(self, extdata):
+	"""
+	extract notification text from extended body of message
+        """
+	UnSafe_Notification = ''
+	
+	# skip 'first header' 
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
+	# skip 'second header' 	
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+	# message type, flags, status and priority. It don't matter usually
+	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
+	msgflags = struct.unpack('!B',extdata[msg_features_pos+1:msg_features_pos+2])[0]
+	msgstatus = struct.unpack('!H',extdata[msg_features_pos+2:msg_features_pos+4])[0]
+	msgpriority = struct.unpack('!H',extdata[msg_features_pos+4:msg_features_pos+6])[0]
+			
+	emptymsglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
+				
+	msgcontent_pos = msg_features_pos + 8 + emptymsglen
+	msgcontent = extdata[msgcontent_pos:]
+			
+	if len(msgcontent) > 0:
+		PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
+		# check for xtraz request
+		MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
+		if MsgTypeId == MSGTYPE_ID_XTRAZ_SCRIPT:
+			MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
+			if MsgSubType == MSGSUBTYPE_SCRIPT_NOTIFY:
+				MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
+				if MsgAction == MSGACTION_REQUEST_TYPE_STRING:
+					MsgActionText = msgcontent[24:PluginTypeIdLen + 2 - 15]
+					# 15 bytes after - unknown
+					NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
+					Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
+					# TODO: parse as XML
+					UnSafe_Notification = utils.getUnSafeXML(Notification)
+	return UnSafe_Notification
 
 
 class BOSConnection(SNACBased):
@@ -1317,9 +1336,9 @@ class BOSConnection(SNACBased):
                 status=v[4:4+statlen]
                 log.msg("   extracted status message: %s"%(status))
 	    elif exttype == 0x0e: # ICQ6 mood only or mood + available message?
-		mood_str_len=int((struct.unpack('!H', v[2:4]))[0])
-		mood_str=v[4:4+mood_str_len]
-		log.msg("   extracted mood: %s"%(mood_str))
+		mood_str_len = int((struct.unpack('!H', v[2:4]))[0])
+		mood_str = v[4:4+mood_str_len]
+		log.msg("   extracted mood: %s" % (mood_str))
             else:
                 log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
             v=v[ord(v[3])+4:]
@@ -1528,49 +1547,23 @@ class BOSConnection(SNACBased):
             elif requestClass == CAP_SEND_LIST:
                 pass
             elif requestClass == CAP_SERV_REL:
-		log.msg('more TLVs: %s' % moreTLVs)
                 if 0x2711 in moreTLVs:
 			# Extended data
 			extdata = moreTLVs[0x2711]
-			# skip 'first header' 
-			headerlen1 = struct.unpack('<H',extdata[0:2])[0]
-			# skip 'second header' 	
-			headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
-			# message type, flags, status and priority. It don't matter usually
-			msg_features_pos = 2 + headerlen1 + 2 + headerlen2
-			msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
-			msgflags = struct.unpack('!B',extdata[msg_features_pos+1:msg_features_pos+2])[0]
-			msgstatus = struct.unpack('!H',extdata[msg_features_pos+2:msg_features_pos+4])[0]
-			msgpriority = struct.unpack('!H',extdata[msg_features_pos+4:msg_features_pos+6])[0]
-			
-			emptymsglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
-				
-			msgcontent_pos = msg_features_pos + 8 + emptymsglen
-			msgcontent = extdata[msgcontent_pos:]
-			
-			if len(msgcontent) > 0:
-				PluginTypeIdLen = struct.unpack('<H',msgcontent[0:2])[0]
-				# check for xtraz request
-				MsgTypeId = struct.unpack('!LLLL',msgcontent[2:18])
-				if MsgTypeId == (0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865):
-					MsgSubType = struct.unpack('<H',msgcontent[18:20])[0]
-					if MsgSubType == 0x0008:
-						MsgAction = struct.unpack('<L',msgcontent[20:24])[0]
-						if MsgAction == 0x002a:
-							MsgActionText = msgcontent[24:PluginTypeIdLen + 2 - 15]
-							# 15 bytes after - unknown
-							NotificationLen = struct.unpack('<LL',msgcontent[PluginTypeIdLen+2:PluginTypeIdLen+10])[1]
-							Notification = msgcontent[PluginTypeIdLen+10:PluginTypeIdLen+10+NotificationLen]
-							# TODO: parse as XML
-							UnSafe_Notification = self.getUnSafeXML(Notification)
-							
-							request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
-							request_pos_end = UnSafe_Notification.find('</req>')
-							if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
-								log.msg('Request for Xstatus details from %s' % user.name)
-								if config.xstatusessupport:
-									if self.settingsOptionEnabled('xstatus_sending_enabled'):
-										self.sendXstatusMessageResponse(user.name, cookie2)
+			try:
+				UnSafe_Notification = self.extractXStatusNotification(extdata)
+				request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
+				request_pos_end = UnSafe_Notification.find('</req>')
+				if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
+					log.msg('Request for x-status details from %s' % user.name)
+					if config.xstatusessupport:
+						if self.settingsOptionEnabled('xstatus_sending_enabled'):
+							self.sendXstatusMessageResponse(user.name, cookie2)
+			except:
+				log.msg('Strange rendezvous')
+				log.msg(repr(moreTLVs))
+		else:
+			log.msg('more TLVs for serv_relay: %s' % moreTLVs)
             else:
                 log.msg('unsupported rendezvous: %s' % requestClass)
                 log.msg(repr(moreTLVs))
@@ -2246,58 +2239,27 @@ class BOSConnection(SNACBased):
 
     def _cbSendMessageAck(self, snac, user, message):
         return user, message
-	    
-    def getSafeXML(self, unsafexml):
-	    safexml = unsafexml.replace('&','&amp;')
-	    safexml = safexml.replace('<','&lt;')
-	    safexml = safexml.replace('>','&gt;')
-	    return safexml
-    
-    def getUnSafeXML(self, safexml):
-	    unsafexml = safexml.replace('&amp;','&')
-	    unsafexml = unsafexml.replace('&lt;','<')
-	    unsafexml = unsafexml.replace('&gt;','>')
-	    return unsafexml
  
     def sendXstatusMessageRequest(self, user):
-	  if self.oscarcon.legacyList.usercaps.has_key(user):
-		  log.msg("Caps for user %s: %s" % (user, self.oscarcon.legacyList.usercaps[user]))
-		  if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]:
-			log.msg("User %s has cap xtraz" % user)
-			if self.oscarcon.legacyList.usercustomstatuses.has_key(user) and self.oscarcon.legacyList.usercustomstatuses[user].has_key('x-status'):
-				log.msg("User %s has x-status" % user)
-				
+	"""
+	send request for x-status message to user
+        """
+	if user in self.oscarcon.legacyList.usercaps:
+		if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]: # xtraz supported by client
+			if user in self.oscarcon.legacyList.usercustomstatuses and 'x-status' in self.oscarcon.legacyList.usercustomstatuses[user]: # and x-status was set
+				log.msg("Sending x-status details request to %s" % user)
 				# AIM messaging header
 				cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
 				header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 				# xtraz request
 				notifyBody='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name
 				queryBody = '<Q><PluginID>srvMng</PluginID></Q>'
-				query = '<N><QUERY>' + self.getSafeXML(queryBody) + '</QUERY><NOTIFY>' + self.getSafeXML(notifyBody) + '</NOTIFY></N>'
-				# extended data body
-				extended_data = struct.pack('<H',0x1b) # unknown
-				extended_data = extended_data + struct.pack('!B',0x08) # protocol version
-				extended_data = extended_data + CAP_EMPTY # Plugin Version
-				extended_data = extended_data + struct.pack("!L", 0x3) # client features
-				extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
-				msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
-				extended_data = extended_data + msgcookie # message cookie
-				extended_data = extended_data + struct.pack('<H',0x0e) # unknown
-				extended_data = extended_data + msgcookie # message cookie again
-				extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
-				extended_data = extended_data + struct.pack('!B', 0x1a) # msg type: Plugin message described by text string
-				extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
-				extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
-				extended_data = extended_data + struct.pack('!H',0x0100) # priority
-				extended_data = extended_data + struct.pack('!HB',0x0100,0x00) # empty message
-				extended_data = extended_data + self.packPluginTypeId()
-				extended_data = extended_data + struct.pack('<LL', len(query)+4, len(query))
-				extended_data = extended_data + query
-				# make TLV with extended data
-				extdataTLV = TLV(0x2711, extended_data)
+				query = '<N><QUERY>%s</QUERY><NOTIFY>%s</NOTIFY></N>' % (utils.getSafeXML(queryBody), utils.getSafeXML(notifyBody))
+				# request TLV
+				extdataTLV = TLV(0x2711, self.prepareExtendedDataBody(query)) # make TLV with extended data
 				# Render Vous Data body
 				rvdataTLV = struct.pack('!H',0x0000) # request
-				rvdataTLV = rvdataTLV + cookie
+				rvdataTLV = rvdataTLV + cookie # ICBM cookie
 				rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
 				# additional TLVs
 				addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
@@ -2314,38 +2276,48 @@ class BOSConnection(SNACBased):
 				self.sendSNAC(0x04, 0x06, data).addCallback(self._sendXstatusMessageRequest) # send request
 					
     def sendXstatusMessageResponse(self, user, cookie):
+	"""
+	send x-status message response to user
+        """
+	log.msg("Sending x-status details response to %s" % user)
 	# AIM messaging header
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
 	header = header + struct.pack('!H',0x3) # reason: channel-specific
 
-	xstatus_index = 0
-	if 'x-status name' in self.selfCustomStatus:
-		index_in_list = X_STATUS_NAME.index(self.selfCustomStatus['x-status name'])
-		index_in_list = index_in_list + 1
-		if index_in_list > 1 and index_in_list < 32:
-			xstatus_index = index_in_list
-	if 'x-status title' in self.selfCustomStatus:
-		xstatus_title = self.selfCustomStatus['x-status title']
-	else:
-		xstatus_title = ''
-	if 'x-status desc' in self.selfCustomStatus:
-		xstatus_desc = self.selfCustomStatus['x-status desc']	
-	else:
-		xstatus_desc = ''
+	index = self.getSelfXstatusIndex()
+	title, desc = self.getSelfXstatusDetails()
 
 	# message content
-	content = '\
-<ret event=\'OnRemoteNotification\'>\
+	content = """\
+<ret event='OnRemoteNotification'>\
 <srv><id>cAwaySrv</id>\
-<val srv_id=\'cAwaySrv\'><Root>\
+<val srv_id='cAwaySrv'><Root>\
 <CASXtraSetAwayMessage></CASXtraSetAwayMessage>\
-<uin>' + str(self.username) + '</uin>\
-<index>' + str(xstatus_index) + '</index>\
-<title>' + str(xstatus_title) + '</title>\
-<desc>' + str(xstatus_desc) + '</desc></Root></val></srv></ret>'
+<uin>%s</uin>\
+<index>%s</index>\
+<title>%s</title>\
+<desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(index), str(title), str(desc))
+	query = '<NR><RES>%s</RES></NR>' % utils.getSafeXML(content)
+	data = header + self.prepareExtendedDataBody(query) # data for response formed
 
-	query = '<NR><RES>' + self.getSafeXML(content) + '</NR></RES>'
+	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
 
+    def packPluginTypeId(self):
+    	"""
+	pack typeid for plugin
+        """
+	dt =  struct.pack('<H',0x4f) # length
+	dt += struct.pack('!LLLL', MSGTYPE_ID_XTRAZ_SCRIPT[0], MSGTYPE_ID_XTRAZ_SCRIPT[1], MSGTYPE_ID_XTRAZ_SCRIPT[2], MSGTYPE_ID_XTRAZ_SCRIPT[3]) # Message type id: xtraz script
+	dt += struct.pack('<H',0x0008) # message subtype: Script Notify
+	dt += struct.pack('<L',0x002a) # request type string
+	dt += 'Script Plug-in: Remote Notification Arrive'
+	dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
+	return dt
+
+    def prepareExtendedDataBody(self, query):
+	"""
+	prepare it
+        """
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2364,78 +2336,134 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + struct.pack('!HB',0x0100,0x00) # empty message
 	extended_data = extended_data + self.packPluginTypeId()
 	extended_data = extended_data + struct.pack('<LL', len(query)+4, len(query))
-	
-	log.msg('Query: %s' % query)
 	extended_data = extended_data + query
-	data = header + extended_data
+	return extended_data
 
-	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
-
-    def packPluginTypeId(self):
-	    dt =  struct.pack('<H',0x4f) # length
-	    dt += struct.pack('!LLLL', 0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865) # Message type id: xtraz script
-	    dt += struct.pack('<H',0x0008) # message subtype: Script Notify
-	    dt += struct.pack('<L',0x002a) # request type string
-	    dt += 'Script Plug-in: Remote Notification Arrive'
-	    dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
-	    return dt
-    
     def _sendXstatusMessageRequest(self, snac):
-	     log.msg("_sendXstatusMessageRequest %r" % snac)
-	     
-    def	setSelfXstatusName(self, xstatus_name):
-	if xstatus_name and xstatus_name != 'None':
-		    if xstatus_name in X_STATUS_NAME:
-			index_in_list = X_STATUS_NAME.index(xstatus_name)
-			for key in X_STATUS_CAPS:
-				if X_STATUS_CAPS[key] == index_in_list:
-					self.removeSelfXstatusNoUpdate()
-	    				self.capabilities.append(key)
-					log.msg('setSelfXstatus %s' % repr(key))
-					self.setUserInfo()
-					self.setExtendedStatusRequest()
+	"""
+	callback for sending of x-status request
+        """
+	log.msg("Request for x-status details sent")
 	
     def getSelfXstatusName(self):
+	"""
+	return name of x-status
+        """
 	if 'x-status name' in self.selfCustomStatus:
 		return self.selfCustomStatus['x-status name']
 	else:
 		return ''
-    
+
+    def getSelfXstatusDetails(self):
+	"""
+	return title and desc of x-status
+        """
+	title = ''
+	desc = ''
+	if 'x-status title' in self.selfCustomStatus:
+		title = self.selfCustomStatus['x-status title']
+	if 'x-status desc' in self.selfCustomStatus:
+		desc = self.selfCustomStatus['x-status desc']
+	return title, desc
+	
+    def getSelfXstatusNumber(self):
+	"""
+	return number of x-status
+        """
+	if 'x-status number' in self.selfCustomStatus:
+		return self.selfCustomStatus['x-status number']
+	else:
+		return -1
+	
+    def getSelfXstatusIndex(self):
+	"""
+	return index of x-status (ICQ5.1-like)
+        """
+	index = self.getSelfXstatusNumber() + 1
+	if index > 1 and index < 32:
+		return index
+	else:
+		return 0
+	
+    def getSelfXstatusMoodIndex(self):
+	"""
+	return index of x-status mood (ICQ6-like)
+        """
+	xstatus_key = ''
+	mood_num = -1
+	for key in X_STATUS_CAPS:
+		if key in self.capabilities:
+			xstatus_key = key
+	if xstatus_key !='':
+		if xstatus_key in X_STATUS_CAPS:
+			xstatus_num = X_STATUS_CAPS[xstatus_key]
+			if xstatus_num in X_STATUS_MOODS:
+				mood_num = X_STATUS_MOODS[xstatus_num]
+	return mood_num
+	
+    def getXstatusNumberByName(self, xstatus_name):
+	"""
+	return index of x-status (ICQ5.1-like)
+        """
+	if xstatus_name in X_STATUS_NAME:
+		return X_STATUS_NAME.index(xstatus_name)
+	else:
+		return -1
+	
     def removeSelfXstatusNoUpdate(self):
+	"""
+	remove x-status line from caps
+        """
 	for key in X_STATUS_CAPS:
 		if key in self.capabilities:
 			self.capabilities.remove(key)
 
-    
     def removeSelfXstatus(self):
+	"""
+	notify server about changes in caps
+        """
 	self.removeSelfXstatusNoUpdate()
 	self.setUserInfo()
 	self.setExtendedStatusRequest()
 	
     def updateSelfXstatus(self):
+	"""
+	update x-status
+        """
 	if 'x-status name' in self.selfCustomStatus:
 		if self.selfCustomStatus['x-status name'] == '':
 			self.removeSelfXstatus()
 		else:
 			self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
 	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
-	
-    def getXstatusNumberByName(self, xstatus_name):
-	# TODO: may be put in selfCustomStatus?
-	if xstatus_name in X_STATUS_NAME:
-		return X_STATUS_NAME.index(xstatus_name)
-	else:
-		return -1
 			
     def settingsOptionEnabled(self, option):
+	"""
+	check setting value
+        """
 	if option in self.selfSettings:
 		if str(self.selfSettings[option]) == '1':
 			return True
 	return False
-					
+	
+    def	setSelfXstatusName(self, xstatus_name):
+	"""
+	set x-status name, notify server about change and update internal x-status number
+        """
+	if xstatus_name and xstatus_name != 'None':
+		    if xstatus_name in X_STATUS_NAME:
+			index_in_list = X_STATUS_NAME.index(xstatus_name)
+			for key in X_STATUS_CAPS:
+				if X_STATUS_CAPS[key] == index_in_list:
+					self.selfCustomStatus['x-status number'] = index_in_list
+					self.removeSelfXstatusNoUpdate()
+	    				self.capabilities.append(key)
+					self.setUserInfo()
+					self.setExtendedStatusRequest()
+	
     def setUserInfo(self):
         """
-        send self info
+        send self info (capslist)
         """
 	caps = ''
 	for cap in self.capabilities:
@@ -2447,21 +2475,14 @@ class BOSConnection(SNACBased):
 			 
     def setExtendedStatusRequest(self):
 	"""
-        send self info in ICQ6 format
+        send self info in ICQ6 format (x-status mood + available message)
         """
-	xstatus_key = ''
 	moodTLV = ''
-	for key in X_STATUS_CAPS:
-		if key in self.capabilities:
-			xstatus_key = key
-	if xstatus_key !='':
-		if xstatus_key in X_STATUS_CAPS:
-			xstatus_num = X_STATUS_CAPS[xstatus_key]
-			if xstatus_num in X_STATUS_MOODS:
-				mood_num = X_STATUS_MOODS[xstatus_num]
-				mood_str = 'icqmood' + str(mood_num)
-				mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-				moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
+	mood_num = self.getSelfXstatusMoodIndex()
+	if mood_num > -1:
+		mood_str = 'icqmood' + str(mood_num)
+		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+		moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
 		# TODO: add available message
 	status = struct.pack('!L',self.icqStatus)
 	onlinestatusTLV = TLV(0x0006, status)
@@ -3865,43 +3886,43 @@ X_STATUS_MOODS = dict([
 	
 # names for x-statuses and moods
 X_STATUS_NAME = [	
-	'Angry',
-	'Taking a bath',
-	'Tired',
-	'Party',
-	'Drinking beer',
-	'Thinking',
-	'Eating',
-	'Watching TV',
-	'Meeting',
-	'Coffee',
-	'Listening to music',
-	'Business',
-	'Shooting',
-	'Having fun',
-	'On the phone',
-	'Gaming',
-	'Studying',
-	'Shopping',
-	'Feeling sick',
-	'Sleeping',
-	'Surfing',
-	'Browsing',
-	'Working',
-	'Typing',
-	'Eating/Picnic',
-	'Having fun/PDA/Cooking',
-	'Chit chatting/Mobile/Smoking',
-	'Sleeping/I\'m high',
-	'I\'m mooving/On WC',
-	'To be or not to be',
-	'Watching pro7 on TV',
-	'Love',
-	'RuSearch',
-	'RuLove',
-	'RuJournal',
-	'Smoking',
-	'Sex' 
+	'xstatus_angry',
+	'xstatus_taking_a_bath',
+	'xstatus_tired',
+	'xstatus_party',
+	'xstatus_drinking_beer',
+	'xstatus_thinking',
+	'xstatus_eating',
+	'xstatus_wathing_tv',
+	'xstatus_meeting',
+	'xstatus_coffee',
+	'xstatus_listening_to_music',
+	'xstatus_business',
+	'xstatus_shooting',
+	'xstatus_having_fun',
+	'xstatus_on_the_phone',
+	'xstatus_gaming',
+	'xstatus_studyng',
+	'xstatus_shopping',
+	'xstatus_feeling_sick',
+	'xstatus_sleeping',
+	'xstatus_surfing',
+	'xstatus_browsing',
+	'xstatus_working',
+	'xstatus_typing',
+	'xstatus_cn1',
+	'xstatus_cn2',
+	'xstatus_cn3',
+	'xstatus_cn4',
+	'xstatus_cn5',
+	'xstatus_de1',
+	'xstatus_de2',
+	'xstatus_de3',
+	'xstatus_ru1',
+	'xstatus_ru2',
+	'xstatus_ru3',
+	'xstatus_bombus1',
+	'xstatus_bombus2' 
 	]
 
 ###
@@ -3968,3 +3989,10 @@ AIM_SSI_PERMDENY_PERMIT_BUDDIES = 0x05
 ###
 AIM_SSI_VISIBILITY_ALL = '\xff\xff\xff\xff'
 AIM_SSI_VISIBILITY_NOTAIM = '\x00\x00\x00\x04'
+
+###
+# Xtraz stuff
+###
+MSGTYPE_ID_XTRAZ_SCRIPT = 0x3b60b3ef, 0xd82a6c45, 0xa4e09c5a, 0x5e67e865
+MSGSUBTYPE_SCRIPT_NOTIFY = 0x0008
+MSGACTION_REQUEST_TYPE_STRING = 0x002a

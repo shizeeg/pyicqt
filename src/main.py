@@ -89,10 +89,7 @@ if os.name == "posix":
 	import signal
 	signal.signal(signal.SIGHUP, reloadConfig)
 	# Load scripts for PID and daemonizing
-	try:
-		from twisted.scripts import _twistd_unix as twistd
-	except:
-		from twisted.scripts import twistd
+	import twistd
 
 selectWarning = "Unable to install any good reactors (kqueue, cf, epoll, poll).\nWe fell back to using select. You may have scalability problems.\nThis reactor will not support more than 1024 connections +at a time.  You may silence this message by choosing 'select' or 'default' as your reactor in the transport config."
 if config.reactor and len(config.reactor) > 0:
@@ -124,6 +121,7 @@ from twisted.internet.defer import Deferred
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber import component
 from twisted.words.protocols.jabber.jid import internJID
+from twisted.python import log
 
 
 import xdb
@@ -439,8 +437,6 @@ class App:
 		d.addCallback(cb)
 		reactor.callLater(3.0, d.callback, None)
 		return d
-
-
 
 def main():
 	app = App()

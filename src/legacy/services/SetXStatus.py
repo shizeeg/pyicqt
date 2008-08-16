@@ -3,9 +3,8 @@
 import utils
 from twisted.words.xish.domish import Element
 from twisted.words.protocols.jabber.jid import internJID
-from twisted.python import log
-from debug import LogEvent, INFO, WARN, ERROR
 from tlib import oscar
+from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
@@ -24,9 +23,6 @@ class SetXStatus:
 		sessionid = None
 		do_action = None
 		stage = 0
-		changed_message = 'Your x-status has been set'
-		disabled_message = 'X-status sending support disabled.\n Check your settings for details'
-		disabled_by_admin_message = 'X-status support disabled\n by your administrator'
 		
 		to = el.getAttribute('from')
 		toj = internJID(to)
@@ -34,16 +30,14 @@ class SetXStatus:
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
 		
-		log.msg('to %s, toj %s, ID %s, ulang %s' % (to,toj,ID,ulang))
-		
 		for command in el.elements():
 			sessionid = command.getAttribute('sessionid')
 			
-			if self.pytrans.sessions.has_key(jid):
+			if jid in self.pytrans.sessions:
 				if not config.xstatusessupport:
-					self.sendXStatusCompleted(el, disabled_by_admin_message, sessionid)
+					self.sendXStatusCompleted(el, lang.get('xstatus_support_disabled'), sessionid)
 				if not self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_enabled'):
-					self.sendXStatusCompleted(el, disabled_message, sessionid)
+					self.sendXStatusCompleted(el, lang.get('xstatus_sending_disabled'), sessionid)
 			
 			if command.getAttribute('action') == 'execute':
 				pass
@@ -73,7 +67,7 @@ class SetXStatus:
 									if value.name == 'value':
 										xstatus_desc = value.__str__()
 			
-		if not self.pytrans.sessions.has_key(jid): # if user not logined
+		if jid not in self.pytrans.sessions: # if user not logined
 			self.pytrans.adhoc.sendError('setxstatus', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
 		elif not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):  # if user not connected to ICQ network
 			self.pytrans.adhoc.sendError('setxstatus', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
@@ -82,17 +76,18 @@ class SetXStatus:
 				self.sendXStatusTextSelectionForm(el, xstatus_name, sessionid) # send second form
 			else:
 				self.setXStatus(toj, xstatus_name) # set only x-status name (icon)
-				self.sendXStatusCompleted(el, changed_message, sessionid) # send ack to user
+				self.sendXStatusCompleted(el, lang.get('xstatus_set'), sessionid) # send ack to user
 		elif stage == '2' or do_action == 'done':
 			self.setXStatus(toj, xstatus_name, xstatus_title, xstatus_desc) # set x-status name and text
-			self.sendXStatusCompleted(el, changed_message, sessionid) # send ack to user
+			self.sendXStatusCompleted(el, lang.get('xstatus_set'), sessionid) # send ack to user
 		elif do_action == 'cancel':
 			self.pytrans.adhoc.sendCancellation("setxstatus", el, sessionid) # correct cancel handling
 		else:
-			self.sendXStatusNameSelectionForm(toj, el, sessionid) # send first form
+			self.sendXStatusNameSelectionForm(el, sessionid) # send first form
 			
-	def sendXStatusNameSelectionForm(self, to_jid, el, sessionid=None):
+	def sendXStatusNameSelectionForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
+		to_jid = internJID(to)
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
 		
@@ -121,13 +116,10 @@ class SetXStatus:
 		x.attributes['type'] = 'form'
 
 		title = x.addElement('title')
-		title.addContent('Set x-status name') # TODO: translate
+		title.addContent(lang.get('xstatus_set_xstatus_name'))
 		
 		instructions = x.addElement('instructions')
-		instructions.addContent('Select x-status from list below\n\
-Note: official clients supports only 24 statuses\n\
-(Angry - Typing), support for other could be\n\
-depends from ICQ client') # TODO: translate
+		instructions.addContent(lang.get('xstatus_set_instructions'))
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'xstatus_name'
@@ -135,20 +127,20 @@ depends from ICQ client') # TODO: translate
 		field.attributes['label'] =  'x-status name'
 		
 		option = field.addElement('option')
-		option.attributes['label'] = 'No x-status'
+		option.attributes['label'] = lang.get('xstatus_no_xstatus')
 		value = option.addElement('value')
 		value.addContent('None')
 		
 		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
 		if current_xstatus_name != '':
 			option = field.addElement('option')
-			option.attributes['label'] = 'Keep current x-status (%s)' % current_xstatus_name
+			option.attributes['label'] = '%s (%s)' % (lang.get('xstatus_keep_current'), lang.get(current_xstatus_name))
 			value = option.addElement('value')
 			value.addContent(current_xstatus_name)
 		
 		for xstatus_title in oscar.X_STATUS_NAME:
 			option = field.addElement('option')
-			option.attributes['label'] = xstatus_title
+			option.attributes['label'] = lang.get(xstatus_title)
 			value = option.addElement('value')
 			value.addContent(xstatus_title)
 			
@@ -161,7 +153,7 @@ depends from ICQ client') # TODO: translate
 		self.pytrans.send(iq)
 		
 	def sendXStatusTextSelectionForm(self, el, xstatus_name, sessionid=None):
-		# TODO: add check for None and KeepCurrent, save title and desc in conf for user
+
 		to = el.getAttribute('from')
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
@@ -192,14 +184,14 @@ depends from ICQ client') # TODO: translate
 		x.attributes['type'] = 'form'
 
 		title = x.addElement('title')
-		title.addContent('Set x-status title and description') # TODO: translate	
+		title.addContent(lang.get('xstatus_set_details'))	
 			
 		toj = internJID(to)
 		jid = toj.userhost()
 		xstatus_number = self.pytrans.sessions[jid].legacycon.bos.getXstatusNumberByName(xstatus_name)
 		title, desc = self.pytrans.xdb.getXstatusText(jid, xstatus_number)
 		if title == '':
-			title = xstatus_name	
+			title = lang.get(xstatus_name)	
 			
 		xstatus_title = x.addElement('field')
 		xstatus_title.attributes['type'] = 'text-single'
@@ -258,6 +250,7 @@ depends from ICQ client') # TODO: translate
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
 		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
@@ -279,7 +272,7 @@ depends from ICQ client') # TODO: translate
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
 		if xstatus_number > -1:
-			if self.pytrans.sessions.has_key(jid):
+			if jid in self.pytrans.sessions:
 				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
 				if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
 					self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
