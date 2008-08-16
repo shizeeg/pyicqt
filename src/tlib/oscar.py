@@ -381,6 +381,10 @@ class OSCARUser:
 									enclen = (struct.unpack('!HH',v[pos:pos+4]))[1]
 									self.statusencoding = v[pos+4:pos+4+enclen]
 							log.msg("   extracted status message: %s"%(self.status))
+							zeropos = self.status.find('\x00')
+							if zeropos > 0:
+								self.status = self.status[:zeropos]
+								log.msg('	fixing QIP Infium status message. Status message: %s' % self.status) 
 							if self.statusencoding:
 								log.msg("   status message encoding: %s"%(str(self.statusencoding)))
 					elif exttype == 0x09: # iTunes URL
