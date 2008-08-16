@@ -23,7 +23,7 @@ import md5
 name = "ICQ Transport"
 
 # The transport's version
-version = "0.8.1a"
+version = "0.8.1a2"
 
 # URL of the transport's web site
 url = "http://pyicqt.googlecode.com/"
