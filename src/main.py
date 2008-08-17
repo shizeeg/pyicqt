@@ -132,7 +132,7 @@ import jabw
 import iq
 import disco
 import adhoc
-#import pubsub
+import pubsub
 import register
 import legacy
 import lang
@@ -163,7 +163,7 @@ class PyTransport(component.Service):
 		# Ad-hoc commands support
 		self.adhoc = adhoc.AdHocCommands(self)
 		# Pubsub/PEP support
-		#self.pubsub = pubsub.PublishSubscribe(self)
+		self.pubsub = pubsub.PublishSubscribe(self)
 		# Registration support
 		self.registermanager = register.RegisterManager(self)
 
