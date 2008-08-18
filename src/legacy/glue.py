@@ -488,8 +488,8 @@ class LegacyConnection:
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
 			if 'x-status' in customStatus:
 				return customStatus['x-status']
-			elif 'mood' in customStatus:
-				return customStatus['mood']
+			elif 'icqmood' in customStatus:
+				return customStatus['icqmood']
 		return ''
 		
 	def getXStatusDetails(self, userHandle):
