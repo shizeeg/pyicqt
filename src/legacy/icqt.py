@@ -265,8 +265,10 @@ class B(oscar.BOSConnection):
 
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
-		if user.customStatus:
+		if user.customStatus and len(user.customStatus) != 0:
 			self.oscarcon.legacyList.setCustomStatus(user.name, user.customStatus)
+		else:
+			self.oscarcon.legacyList.delCustomStatus(user.name)
 		LogEvent(WARN, self.session.jabberID, "Status message before crash %s" % status)
 		status = status.encode("utf-8", "replace")
 		# status = status.encode(config.encoding, "replace")
