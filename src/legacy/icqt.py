@@ -601,3 +601,45 @@ class OA(oscar.OscarAuthenticator):
 #			self.oscarcon.session.removeMe()
 #		except:
 #			pass
+
+# mapping x-statuses on moods and activities
+X_STATUS_MAP = dict([
+	('xstatus_angry', ['angry', None, None]),
+	('xstatus_taking_a_bath', [None, 'grooming', 'taking_a_bath']),
+	('xstatus_tired', ['intoxicated', None, None]),
+	('xstatus_party', [None, 'relaxing', 'partying']),
+	('xstatus_drinking_beer', [None, 'drinking', 'having_a_beer']),
+	('xstatus_thinking', ['serious', None, None]),
+	('xstatus_eating', [None, 'eating', None]),
+	('xstatus_watching_tv', [None, 'relaxing', 'watching_tv']),
+	('xstatus_meeting', [None, 'relaxing', 'socializing']),
+	('xstatus_coffee', [None, 'drinking', 'having_coffee']),
+	('xstatus_listening_to_music', [None, 'relaxing', 'watching_a_movie']),
+	('xstatus_business', [None, 'having_appointment', None]),
+	('xstatus_shooting', [None, 'traveling', 'commuting']),
+	('xstatus_having_fun', ['happy', None, None]),
+	('xstatus_on_the_phone', [None, 'talking', 'on_the_phone']),
+	('xstatus_gaming', [None, 'relaxing', 'gaming']),
+	('xstatus_studying', [None, 'working', 'studying']),
+	('xstatus_shopping', [None, 'relaxing', 'shopping']),
+	('xstatus_feeling_sick', ['sick', None, None]),
+	('xstatus_sleeping', [None, 'inactive', 'sleeping']),
+	('xstatus_surfing', [None, 'exercising', 'swimming']),
+	('xstatus_browsing', [None, 'relaxing', 'reading']),
+	('xstatus_working', [None, 'working', None]),
+	('xstatus_typing', [None, 'working', 'writing']),
+	('xstatus_cn1', [None, 'relaxing', 'going_out']),
+	('xstatus_cn2', [None, 'doing_chores', 'cooking']),
+	('xstatus_cn3', [None, 'talking', 'in_real_life']),
+	('xstatus_cn4', [None, 'inactive', 'hanging_out']),
+	('xstatus_cn5', ['excited', None, None]),
+	('xstatus_de1', ['amazed', None, None]),
+	('xstatus_de2', ['surprised', None, None]),
+	('xstatus_de3', ['in_love', None, None]),
+	('xstatus_ru1', ['curious', None, None]),
+	('xstatus_ru2', ['flirtatious', None, None]),
+	('xstatus_ru3', ['impressed', None, None]),
+	('xstatus_bombus1', ['lonely', None, None]),
+	('xstatus_bombus2', ['playful', None, None])
+])
+
