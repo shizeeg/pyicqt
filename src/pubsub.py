@@ -52,6 +52,86 @@ class PublishSubscribe:
 		self.storage.setItem(jid, node, itemid, el)
 
 
+	def sendMood(self, to=None, fro=None, mood=None, text=None, action=None):
+		"""
+		send mood to user
+		"""
+		LogEvent(INFO)
+		el = Element((None, "message"))
+		el.attributes["id"] = self.pytrans.makeMessageID()
+		if to:
+			el.attributes["to"] = to
+		if fro:
+			el.attributes["from"] = fro
+	
+		e = el.addElement("event")
+		e.attributes["xmlns"] = globals.PUBSUBEVENT
+		
+		items = e.addElement("items")
+		items.attributes["node"] = globals.MOOD
+		
+		if action == 'retract':
+			r = items.addElement("retract")
+			r.attributes["id"] = self.pytrans.makeMessageID()
+		else:
+			item = items.addElement("item")
+			item.attributes["id"] = self.pytrans.makeMessageID()
+			
+			m = item.addElement("mood")
+			m.attributes["xmlns"] = globals.MOOD
+			
+			if mood:
+				m.addElement(mood)
+			if text:
+				t = m.addElement("text")
+				t.addContent(text)
+		
+		self.pytrans.send(el)
+	
+	def sendActivity(self, to=None, fro=None, act=None, subact=None, text=None, subact_xmlns=None, action=None,  extend_subact_xmlns=None):
+		"""
+		send activity to user
+		"""
+		LogEvent(INFO)
+		if extend_subact_xmlns and extend_subact_xmlns is True:
+			subact_xmlns = globals.EXT_SUBACTIVITY # our xmlns for extended activity
+		else:
+			subact_xmlns = None
+		
+		el = Element((None, "message"))
+		el.attributes["id"] = self.pytrans.makeMessageID()
+		if to:
+			el.attributes["to"] = to
+		if fro:
+			el.attributes["from"] = fro
+	
+		e = el.addElement("event")
+		e.attributes["xmlns"] = globals.PUBSUBEVENT
+		
+		items = e.addElement("items")
+		items.attributes["node"] = globals.ACTIVITY
+		
+		if action == 'retract':
+			r = items.addElement("retract")
+			r.attributes["id"] = self.pytrans.makeMessageID()
+		else:
+			item = items.addElement("item")
+			item.attributes["id"] = self.pytrans.makeMessageID()
+			
+			a = item.addElement("activity")
+			a.attributes["xmlns"] = globals.ACTIVITY
+			
+			if act:
+				a_name = a.addElement(act)
+				if subact:
+					sa_name = a_name.addElement(subact)
+					if subact_xmlns:
+						sa_name.attributes["xmlns"] = subact_xmlns
+			if text:
+				t = a.addElement("text")
+				t.addContent(text)
+		
+		self.pytrans.send(el)
 
 class PubSubStorage:
 	""" Manages pubsub nodes on disk. Nodes are stored according to
