@@ -273,6 +273,37 @@ class B(oscar.BOSConnection):
 		
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
+								
+				x_status_name = self.oscarcon.getXStatus(user.name)
+				x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
+				if x_status_name != '':
+					if x_status_name in X_STATUS_MAP:
+						s_mood, s_act, s_subact = self.oscarcon.getPersonalEvents(user.name)
+							
+						mood, act, subact = X_STATUS_MAP[x_status_name]
+						
+						if s_mood: # if mood was set
+							if not mood: # if don't set mood now
+								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
+							else: # set mood now
+								if mood != s_mood: # if need set other mood
+									self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc)
+						else: # if this attempt - first
+							if mood: # set it!
+								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc) # just send new mood
+							
+						if s_act: # if activity was set
+							if not act: # if don't set activity now
+								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
+							else: # set activity now
+								if not (act == s_act and subact == s_subact): # if need set other activity/subactivity pair
+									self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc)
+						else: # if this attempt - first
+							if act: # set it!
+								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc) # just send new activity
+							
+						self.oscarcon.setPersonalEvents(user.name, mood, act, subact)
+				
 				status = self.appendXStatus(user.name, anormal, status)
 					
 				if selfcall == False:
