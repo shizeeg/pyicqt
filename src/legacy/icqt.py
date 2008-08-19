@@ -338,6 +338,10 @@ class B(oscar.BOSConnection):
 		ptype = "unavailable"
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status)
+		self.oscarcon.legacyList.delCustomStatus(user.name) # reset custom status struct for user
+		self.oscarcon.setPersonalEvents(user.name, None, None, None) # reset personal events struct
+		self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
+		self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
 
 	def receiveMessage(self, user, multiparts, flags, delay=None):
 		from glue import icq2jid
