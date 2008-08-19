@@ -325,7 +325,7 @@ class B(oscar.BOSConnection):
 					self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
 		if user.flags.count("away"):
-			self.getAway(user.name).addCallback(self.sendAwayPresence, user)
+			self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)
 		else:
 			c.updatePresence(show=show, status=status, ptype=ptype, url=url)
 			self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
@@ -441,18 +441,15 @@ class B(oscar.BOSConnection):
 
 
 	# Callbacks
-	def sendAwayPresence(self, msg, user):
+	def sendAwayPresence(self, msg, user, show, pstatus):
 		from glue import icq2jid
 		buddyjid = icq2jid(user.name)
+		LogEvent(INFO, self.session.jabberID)
 
 		c = self.session.contactList.findContact(buddyjid)
 		if not c: return
 
 		ptype = None
-		
-		show, anstatus = self.detectAdditionalNormalStatus(user.icqStatus)
-		if anstatus:
-			anormal = lang.get(anstatus)
 
 		status = msg[1]
 		url = user.url
@@ -512,10 +509,12 @@ class B(oscar.BOSConnection):
 				status="%s - %s"%(idle_time,status)
 			else:
 				status=idle_time
-		
-		if config.xstatusessupport:
-			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-				status = self.appendXStatus(user.name, anormal, status)
+
+		if status:
+			if pstatus:
+				status = status + '\n' + pstatus
+		else:
+			status = pstatus
 
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
