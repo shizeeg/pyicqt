@@ -140,22 +140,22 @@ class B(oscar.BOSConnection):
 		# additional "normal" statuses
 		elif icqStatus.count('lunch'):
 			show = 'xa'
-			anormal = lang.get('anormal_out_to_lunch')
+			anormal = 'anstatus_out_to_lunch'
 		elif icqStatus.count('phone'):
 			show = 'dnd'
-			anormal = lang.get('anormal_on_the_phone')
+			anormal = 'anstatus_on_the_phone'
 		elif icqStatus.count('home'):
 			show = 'online'
-			anormal = lang.get('anormal_at_home')
+			anormal = 'anstatus_at_home'
 		elif icqStatus.count('work'):
 			show = 'online'
-			anormal = lang.get('anormal_at_work')
+			anormal = 'anstatus_at_work'
 		elif icqStatus.count('evil'):
 			show = 'online'
-			anormal = lang.get('anormal_evil')
+			anormal = 'anstatus_evil'
 		elif icqStatus.count('depression'):
 			show = 'online'
-			anormal = lang.get('anormal_depression')
+			anormal = 'anstatus_depression'
 		else:
 			show = 'online'
 		return (show, anormal)
@@ -198,7 +198,10 @@ class B(oscar.BOSConnection):
 
 		ptype = None
 		
-		show, anormal = self.detectAdditionalNormalStatus(user.icqStatus)
+		anormal = None
+		show, anstatus = self.detectAdditionalNormalStatus(user.icqStatus)
+		if anstatus:
+			anormal = lang.get(anstatus)
 	
 		status = user.status
 		encoding = user.statusencoding
@@ -265,7 +268,7 @@ class B(oscar.BOSConnection):
 
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
-		if user.customStatus and len(user.customStatus) > 0:
+		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
 			self.oscarcon.legacyList.setCustomStatus(user.name, user.customStatus)
 		else:
 			self.oscarcon.legacyList.delCustomStatus(user.name)
@@ -275,40 +278,46 @@ class B(oscar.BOSConnection):
 		
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
-								
+				
 				x_status_name = self.oscarcon.getXStatus(user.name)
 				x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
-				if x_status_name != '': # x-status presents
-					if x_status_name in X_STATUS_MAP:
-						s_mood, s_act, s_subact = self.oscarcon.getPersonalEvents(user.name)
-							
+				
+				mood = None
+				act = None
+				subact = None
+				s_mood, s_act, s_subact = self.oscarcon.getPersonalEvents(user.name)
+				
+				if x_status_name != '' or anstatus: # x-status or additional normal status presents 
+					if anstatus in AN_STATUS_MAP:
+						mood, act, subact = AN_STATUS_MAP[anstatus]
+					if x_status_name in X_STATUS_MAP:	
 						mood, act, subact = X_STATUS_MAP[x_status_name]
 						
-						if s_mood: # if mood was set
-							if not mood: # if don't set mood now
-								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
-							else: # set mood now
-								if mood != s_mood: # if need set other mood
-									self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc)
-						else: # if this attempt - first
-							if mood: # set it!
-								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc) # just send new mood
+					if s_mood: # if mood was set
+						if not mood: # if don't set mood now
+							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
+						else: # set mood now
+							if mood != s_mood: # if need set other mood
+								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc)
+					else: # if this attempt - first
+						if mood: # set it!
+							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc) # just send new mood
 							
-						if s_act: # if activity was set
-							if not act: # if don't set activity now
-								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
-							else: # set activity now
-								if not (act == s_act and subact == s_subact): # if need set other activity/subactivity pair
-									self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc)
-						else: # if this attempt - first
-							if act: # set it!
-								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc) # just send new activity
+					if s_act: # if activity was set
+						if not act: # if don't set activity now
+							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
+						else: # set activity now
+							if not (act == s_act and subact == s_subact): # if need set other activity/subactivity pair
+								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc)
+					else: # if this attempt - first
+						if act: # set it!
+							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc) # just send new activity
 							
-						self.oscarcon.setPersonalEvents(user.name, mood, act, subact)
-				else: # no x-status
+				else: # no x-status and additional normal status
 					self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
 					self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
-					self.oscarcon.setPersonalEvents(user.name, None, None, None) # clean personal events
+					
+				self.oscarcon.setPersonalEvents(user.name, mood, act, subact) # set personal events
 				
 				status = self.appendXStatus(user.name, anormal, status)
 					
@@ -441,7 +450,9 @@ class B(oscar.BOSConnection):
 
 		ptype = None
 		
-		show, anormal = self.detectAdditionalNormalStatus(user.icqStatus)
+		show, anstatus = self.detectAdditionalNormalStatus(user.icqStatus)
+		if anstatus:
+			anormal = lang.get(anstatus)
 
 		status = msg[1]
 		url = user.url
@@ -685,11 +696,11 @@ X_STATUS_MAP = dict([
 ])
 
 AN_STATUS_MAP = dict([
-	('evil', ['annoyed', None, None]),
-	('depression', ['depressed', None, None]),
-	('home', [None, 'inactive ', 'day_off']),
-	('work', [None, 'working', 'in_a_meeting']),
-	('lunch', [None, 'eating', 'having_lunch']),
-	('phone', [None, 'talking', None])
-]}
+	('anstatus_evil', ['annoyed', None, None]),
+	('anstatus_depression', ['depressed', None, None]),
+	('anstatus_at_home', [None, 'inactive ', 'day_off']),
+	('anstatus_at_work', [None, 'working', 'in_a_meeting']),
+	('anstatus_out_to_lunch', [None, 'eating', 'having_lunch']),
+	('anstatus_on_the_phone', [None, 'talking', None])
+])
 
