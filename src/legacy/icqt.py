@@ -278,7 +278,7 @@ class B(oscar.BOSConnection):
 								
 				x_status_name = self.oscarcon.getXStatus(user.name)
 				x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
-				if x_status_name != '':
+				if x_status_name != '': # x-status presents
 					if x_status_name in X_STATUS_MAP:
 						s_mood, s_act, s_subact = self.oscarcon.getPersonalEvents(user.name)
 							
@@ -305,6 +305,10 @@ class B(oscar.BOSConnection):
 								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc) # just send new activity
 							
 						self.oscarcon.setPersonalEvents(user.name, mood, act, subact)
+				else: # no x-status
+					self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
+					self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
+					self.oscarcon.setPersonalEvents(user.name, None, None, None) # clean personal events
 				
 				status = self.appendXStatus(user.name, anormal, status)
 					
