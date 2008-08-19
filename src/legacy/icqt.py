@@ -684,3 +684,12 @@ X_STATUS_MAP = dict([
 	('xstatus_bombus2', ['playful', None, None])
 ])
 
+AN_STATUS_MAP = dict([
+	('evil', ['annoyed', None, None]),
+	('depression', ['depressed', None, None]),
+	('home', [None, 'inactive ', 'day_off']),
+	('work', [None, 'working', 'in_a_meeting']),
+	('lunch', [None, 'eating', 'having_lunch']),
+	('phone', [None, 'talking', None])
+]}
+
