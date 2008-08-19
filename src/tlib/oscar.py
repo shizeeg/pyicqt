@@ -1007,10 +1007,11 @@ class BOSConnection(SNACBased):
 	
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_saving_enabled'):
-				latest_xstatus_number = self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'latest_xstatus_number')
-				if latest_xstatus_number:
-					self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
-					self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
+				if 'latest_xstatus_number' in self.selfSettings: # if it saved
+					latest_xstatus_number = self.selfSettings['latest_xstatus_number']
+					if int(latest_xstatus_number) > 0:
+						self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
+						self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
 					if self.settingsOptionEnabled('xstatus_sending_enabled'):
 						self.updateSelfXstatus()
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
@@ -2431,11 +2432,10 @@ class BOSConnection(SNACBased):
 	"""
 	update x-status
         """
-	if 'x-status name' in self.selfCustomStatus:
-		if self.selfCustomStatus['x-status name'] == '':
-			self.removeSelfXstatus()
-		else:
-			self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
+	if 'x-status name' in self.selfCustomStatus: # self x-status exists
+		self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
+	else: # no self x-status
+		self.removeSelfXstatus() # tell to server about it
 	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
 			
     def settingsOptionEnabled(self, option):

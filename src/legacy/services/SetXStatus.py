@@ -254,7 +254,8 @@ class SetXStatus:
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
-			bos.selfCustomStatus['x-status name'] = ''
+			del bos.selfCustomStatus # erase CustomStatus struct
+			bos.selfCustomStatus = dict([]) # and create empty one
 		elif xstatus_name == 'KeepCurrent':
 			# not do nothing
 			pass
@@ -271,8 +272,7 @@ class SetXStatus:
 		bos.updateSelfXstatus()
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
-		if xstatus_number > -1:
-			if jid in self.pytrans.sessions:
-				self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
-				if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
-					self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
+		if jid in self.pytrans.sessions:
+			self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
+			if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
+				self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))

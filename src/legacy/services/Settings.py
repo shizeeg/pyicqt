@@ -171,8 +171,9 @@ class Settings:
 				self.pytrans.xdb.setCSetting(jid, key, settings[key])
 				
 				if config.xstatusessupport:
-					if key == 'xstatus_sending_enabled' and str(settings[key]) == '0':
-						bos.selfCustomStatus['x-status name'] = ''
+					if key == 'xstatus_sending_enabled' and str(settings[key]) == '0': # disable sending of x-statuses 
+						del bos.selfCustomStatus # erase CustomStatus struct
+						bos.selfCustomStatus = dict([]) # and create empty one
 						bos.updateSelfXstatus()
 					if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
 						# fast redrawing for all status messages (need exclude x-status information)
