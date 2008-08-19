@@ -885,9 +885,10 @@ class SNACBased(OscarConnection):
 	if desc_begin_pos !=-1 and desc_end_pos !=-1:
 		desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
 	
-	if buddy in self.oscarcon.legacyList.usercustomstatuses:
-		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status title'] = title
-		self.oscarcon.legacyList.usercustomstatuses[buddy]['x-status desc'] = desc
+	CustomStatus = {}
+	CustomStatus['x-status title'] = title
+	CustomStatus['x-status desc'] = desc
+	self.oscarcon.legacyList.setCustomStatus(buddy, CustomStatus)
 	saved_snac = self.oscarcon.getSavedSnac(buddy)
 	if saved_snac != '':
 		self.updateBuddy(self.parseUser(saved_snac), True)
