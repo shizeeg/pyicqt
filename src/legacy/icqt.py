@@ -265,7 +265,7 @@ class B(oscar.BOSConnection):
 
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
-		if user.customStatus and len(user.customStatus) != 0:
+		if user.customStatus and len(user.customStatus) > 0:
 			self.oscarcon.legacyList.setCustomStatus(user.name, user.customStatus)
 		else:
 			self.oscarcon.legacyList.delCustomStatus(user.name)
