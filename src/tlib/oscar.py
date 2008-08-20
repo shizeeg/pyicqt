@@ -1917,7 +1917,7 @@ class BOSConnection(SNACBased):
                 struct.unpack('!4H', itemdata[2+nameLength:10+nameLength])
             tlvs = readTLVs(itemdata[10+nameLength:10+nameLength+restLength])
             itemdata = itemdata[10+nameLength+restLength:]
-            if itemType == AIM_SSI_TYPE_BUDDY: # buddies
+            if itemType in AIM_SSI_TYPE_BUDDIES: # buddies
                 groups[groupID].addUser(buddyID, SSIBuddy(name, groupID, buddyID, tlvs))
             elif itemType == AIM_SSI_TYPE_GROUP: # group
                 g = SSIGroup(name, groupID, buddyID, tlvs)
@@ -3973,7 +3973,10 @@ AIM_SSI_TYPE_LASTUPDATE = 0x000f
 AIM_SSI_TYPE_SMS = 0x0010
 AIM_SSI_TYPE_IMPORTTIME = 0x0013
 AIM_SSI_TYPE_ICONINFO = 0x0014
+AIM_SSI_TYPE_UNKNOWN0 = 0x0019
+AIM_SSI_TYPE_UNKNOWN1 = 0x001b
 AIM_SSI_TYPE_LOCALBUDDYNAME = 0x0131
+AIM_SSI_TYPE_BUDDIES = (AIM_SSI_TYPE_BUDDY, AIM_SSI_TYPE_UNKNOWN0, AIM_SSI_TYPE_UNKNOWN1)
 
 ###
 # Permission Types
