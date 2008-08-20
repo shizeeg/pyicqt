@@ -1000,6 +1000,7 @@ class BOSConnection(SNACBased):
 	self.selfCustomStatus = dict([])
 	self.selfSettings = dict([])
 	self.icqStatus = 0x0000
+	self.updateSelfXstatusOnStart = False
 	
 	if hasattr(self.session,'pytrans'):
 		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
@@ -1013,7 +1014,7 @@ class BOSConnection(SNACBased):
 						self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
 						self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
 					if self.settingsOptionEnabled('xstatus_sending_enabled'):
-						self.updateSelfXstatus()
+						self.updateSelfXstatusOnStart = True
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
 
     def parseUser(self,data,wantRest=0):

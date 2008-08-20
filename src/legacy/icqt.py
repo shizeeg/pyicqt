@@ -52,6 +52,8 @@ class B(oscar.BOSConnection):
 		self.requestSelfInfo().addCallback(self.gotSelfInfo)
 		#self.requestSelfInfo() # experimenting with no callback
 		self.requestSSI().addCallback(self.gotBuddyList)
+		if self.updateSelfXstatusOnStart:
+			self.updateSelfXstatus()
 		LogEvent(INFO, self.session.jabberID)
 
 	def connectionLost(self, reason):
