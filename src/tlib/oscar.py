@@ -1335,9 +1335,10 @@ class BOSConnection(SNACBased):
                     self.receivedIconUploadRequest(iconhash)
             elif exttype == 0x02: # Extended Status Message
                 # I'm not sure if we should do something about this here?
-                statlen=int((struct.unpack('!H', v[2:4]))[0])
-                status=v[4:4+statlen]
-                log.msg("   extracted status message: %s"%(status))
+		statlen=int((struct.unpack('!H', v[4:6]))[0])
+		status=v[6:6+statlen]
+		log.msg("   extracted status message: %s"%(status))
+		self.status = status
 	    elif exttype == 0x0e: # ICQ6 mood only or mood + available message?
 		mood_str_len = int((struct.unpack('!H', v[2:4]))[0])
 		mood_str = v[4:4+mood_str_len]
