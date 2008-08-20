@@ -1917,7 +1917,7 @@ class BOSConnection(SNACBased):
                 struct.unpack('!4H', itemdata[2+nameLength:10+nameLength])
             tlvs = readTLVs(itemdata[10+nameLength:10+nameLength+restLength])
             itemdata = itemdata[10+nameLength+restLength:]
-            if itemType in AIM_SSI_TYPE_BUDDIES: # buddies
+            if itemType == AIM_SSI_TYPE_BUDDY: # buddies
                 groups[groupID].addUser(buddyID, SSIBuddy(name, groupID, buddyID, tlvs))
             elif itemType == AIM_SSI_TYPE_GROUP: # group
                 g = SSIGroup(name, groupID, buddyID, tlvs)
@@ -1951,6 +1951,10 @@ class BOSConnection(SNACBased):
                 iconcksum.append(SSIIconSum(name, groupID, buddyID, tlvs))
             elif itemType == AIM_SSI_TYPE_LOCALBUDDYNAME: # locally stored buddy name
                 pass
+	    elif itemType == AIM_SSI_TYPE_PHANTOMBUDDY:
+		log.msg('SSI entry with type phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
+	    elif itemType == AIM_SSI_TYPE_UNKNOWN0:
+		log.msg('SSI entry with type unknown0: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
             else:
                 log.msg('unknown SSI entry: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs))
         timestamp = struct.unpack('!L',itemdata)[0]
@@ -1964,7 +1968,10 @@ class BOSConnection(SNACBased):
         if (len(groups) <= 0):
             gusers = None
         else:
-            gusers = groups[0].users
+	    if 0 in groups:
+        	gusers = groups[0].users
+	    else: # seems contact-list corrupted
+		gusers = None
         return (gusers,permit,deny,permitMode,visibility,iconcksum,timestamp,revision,permitDenyInfo)
 
     def _ebDeferredRequestSSIError(self, error, revision, groups, permit, deny, permitMode, visibility, iconcksum, permitDenyInfo):
@@ -3973,10 +3980,9 @@ AIM_SSI_TYPE_LASTUPDATE = 0x000f
 AIM_SSI_TYPE_SMS = 0x0010
 AIM_SSI_TYPE_IMPORTTIME = 0x0013
 AIM_SSI_TYPE_ICONINFO = 0x0014
-AIM_SSI_TYPE_UNKNOWN0 = 0x0019
-AIM_SSI_TYPE_UNKNOWN1 = 0x001b
+AIM_SSI_TYPE_PHANTOMBUDDY = 0x0019
+AIM_SSI_TYPE_UNKNOWN0 = 0x001b
 AIM_SSI_TYPE_LOCALBUDDYNAME = 0x0131
-AIM_SSI_TYPE_BUDDIES = (AIM_SSI_TYPE_BUDDY, AIM_SSI_TYPE_UNKNOWN0, AIM_SSI_TYPE_UNKNOWN1)
 
 ###
 # Permission Types
