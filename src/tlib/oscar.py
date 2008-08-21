@@ -996,6 +996,11 @@ class BOSConnection(SNACBased):
         if not self.capabilities:
             self.capabilities = [CAP_CHAT]
 
+	self.ssistats = dict([])
+	self.ssistats['buddies'] = 0
+	self.ssistats['phantombuddies'] = 0
+	self.ssistats['groups'] = 0
+
 	self.selfCustomStatus = dict([])
 	self.selfSettings = dict([])
 	self.icqStatus = 0x0000
@@ -1919,10 +1924,14 @@ class BOSConnection(SNACBased):
             itemdata = itemdata[10+nameLength+restLength:]
             if itemType == AIM_SSI_TYPE_BUDDY: # buddies
                 groups[groupID].addUser(buddyID, SSIBuddy(name, groupID, buddyID, tlvs))
+		self.ssistats['buddies'] += 1
             elif itemType == AIM_SSI_TYPE_GROUP: # group
                 g = SSIGroup(name, groupID, buddyID, tlvs)
-                if groups.has_key(0): groups[0].addUser(groupID, g)
+                if groups.has_key(0): 
+			groups[0].addUser(groupID, g)
+			self.ssistats['buddies'] += 1
                 groups[groupID] = g
+		self.ssistats['groups'] += 1
             elif itemType == AIM_SSI_TYPE_PERMIT: # permit
                 permit.append(name)
             elif itemType == AIM_SSI_TYPE_DENY: # deny
@@ -1953,6 +1962,7 @@ class BOSConnection(SNACBased):
                 pass
 	    elif itemType == AIM_SSI_TYPE_PHANTOMBUDDY:
 		log.msg('SSI entry with type phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
+		self.ssistats['phantombuddies'] += 1
 	    elif itemType == AIM_SSI_TYPE_UNKNOWN0:
 		log.msg('SSI entry with type unknown0: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
             else:
@@ -1971,7 +1981,9 @@ class BOSConnection(SNACBased):
 	    if 0 in groups:
         	gusers = groups[0].users
 	    else: # seems contact-list corrupted
+		log.msg('Seems contact-list on server corrupted. Dump: %s' % itemdata)
 		gusers = None
+	log.msg('Contact-list imported from server. Found %s groups, %s contacts and %s temporary contacts' % (self.ssistats['groups'], self.ssistats['buddies'], self.ssistats['phantombuddies']))
         return (gusers,permit,deny,permitMode,visibility,iconcksum,timestamp,revision,permitDenyInfo)
 
     def _ebDeferredRequestSSIError(self, error, revision, groups, permit, deny, permitMode, visibility, iconcksum, permitDenyInfo):
