@@ -290,10 +290,19 @@ class B(oscar.BOSConnection):
 				s_mood, s_act, s_subact = self.oscarcon.getPersonalEvents(user.name)
 				
 				if x_status_name != '' or anstatus: # x-status or additional normal status presents 
+					mood_a = None
+					act_a = None
+					subact_a = None
 					if anstatus in AN_STATUS_MAP:
-						mood, act, subact = AN_STATUS_MAP[anstatus]
+						mood_a, act_a, subact_a = AN_STATUS_MAP[anstatus]
 					if x_status_name in X_STATUS_MAP:	
 						mood, act, subact = X_STATUS_MAP[x_status_name]
+						
+					if not mood and mood_a: # if no mood from x-status
+						mood = mood_a # get mood from additional normal status
+					if not act and act_a: # if no activity from x-status
+						act = act_a # get activity
+						subact = subact_a # get subactivity
 						
 					if s_mood: # if mood was set
 						if not mood: # if don't set mood now
