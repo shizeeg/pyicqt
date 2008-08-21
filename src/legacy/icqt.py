@@ -778,3 +778,100 @@ MOODS = dict([
 	('mood_worried', 'worried')
 ])
 
+ACTIVITIES = dict([
+	('act_doing_chores', dict([
+		('category', 'doing_chores'),
+		('subact_buying_groceries', 'buying_groceries'),
+		('subact_cleaning', 'cleaning'),
+		('subact_cooking', 'cooking'),
+		('subact_doing_maintenance', 'doing_maintenance'),
+		('subact_doing_the_dishes', 'doing_the_dishes'),
+		('subact_doing_the_laundry', 'doing_the_laundry'),
+		('subact_gardening', 'gardening'),
+		('subact_running_an_errand', 'running_an_errand'),
+		('subact_walking_the_dog', 'walking_the_dog')
+	])),
+	('act_drinking', dict([
+		('category', 'drinking'),
+		('subact_having_a_beer', 'having_a_beer'),
+		('subact_having_coffee', 'having_coffee'),
+		('subact_having_tea', 'having_tea')
+	])),
+	('act_eating', dict([
+		('category', 'eating'),
+		('subact_having_a_snack', 'having_a_snack'),
+		('subact_having_breakfast', 'having_breakfast'),
+		('subact_having_dinner', 'having_dinner'),
+		('subact_having_lunch', 'having_lunch')
+	])),
+	('act_exercising', dict([
+		('category', 'exercising'),
+		('subact_cycling', 'cycling'),
+		('subact_hiking', 'hiking'),
+		('subact_jogging', 'jogging'),
+		('subact_playing_sports', 'playing_sports'),
+		('subact_running', 'running'),
+		('subact_skiing', 'skiing'),
+		('subact_swimming', 'swimming'),
+		('subact_working_out', 'working_out')
+	])),
+	('act_grooming', dict([
+		('category', 'grooming'),
+		('subact_at_the_spa', 'at_the_spa'),
+		('subact_brushing_teeth', 'brushing_teeth'),
+		('subact_getting_a_haircut', 'getting_a_haircut'),
+		('subact_shaving', 'shaving'),
+		('subact_taking_a_bath', 'taking_a_bath'),
+		('subact_taking_a_shower', 'taking_a_shower')
+	])),
+	('act_having_appointment', dict([
+		('category', 'having_appointment')
+	])),
+	('act_inactive', dict([
+		('category', 'inactive'),
+		('subact_day_off', 'day_off'),
+		('subact_hanging_out', 'hanging_out'),
+		('subact_on_vacation', 'on_vacation'),
+		('subact_scheduled_holiday', 'scheduled_holiday'),
+		('subact_sleeping', 'sleeping')
+	])),
+	('act_relaxing', dict([
+		('category', 'relaxing'),
+		('subact_gaming', 'gaming'),
+		('subact_going_out', 'going_out'),
+		('subact_partying', 'partying'),
+		('subact_reading', 'reading'),
+		('subact_rehearsing', 'rehearsing'),
+		('subact_shopping', 'shopping'),
+		('subact_socializing', 'socializing'),
+		('subact_sunbathing', 'sunbathing'),
+		('subact_watching_tv', 'watching_tv'),
+		('watching_a_movie', 'watching_a_movie')
+	])),
+	('act_talking', dict([
+		('category', 'talking'),
+		('subact_in_real_life', 'in_real_life'),
+		('subact_on_the_phone', 'on_the_phone'),
+		('subact_on_video_phone', 'on_video_phone')
+	])),
+	('act_traveling', dict([
+		('category', 'traveling'),
+		('subact_commuting', 'commuting'),
+		('subact_cycling', 'cycling'),
+		('subact_driving', 'driving'),
+		('subact_in_a_car', 'in_a_car'),
+		('subact_on_a_bus', 'on_a_bus'),
+		('subact_on_a_plane', 'on_a_plane'),
+		('subact_on_a_train', 'on_a_train'),
+		('subact_on_a_trip', 'on_a_trip'),
+		('subact_walking', 'walking')
+	])),
+	('act_working', dict([
+		('category', 'working'),
+		('subact_coding', 'coding'),
+		('subact_in_a_meeting', 'in_a_meeting'),
+		('subact_studying', 'studying'),
+		('subact_writing', 'writing')
+	]))
+])
+
