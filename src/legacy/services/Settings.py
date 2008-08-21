@@ -16,6 +16,7 @@ class Settings:
 		
 	def incomingIq(self, el):
 		settings_page = 'xstatus_settings'
+		return_back = False
 		do_action = ''
 		stage = 0
 		settings_dict = dict([])
@@ -32,6 +33,8 @@ class Settings:
 				do_action = 'done'
 			elif command.getAttribute('action') == 'cancel':
 				do_action = 'cancel'
+			elif command.getAttribute('action') == 'prev': # back
+				return_back = True
 				
 			for child in command.elements():
 				if child.name == 'x':
@@ -45,6 +48,8 @@ class Settings:
 								for value in field.elements():
 									if value.name == 'value':
 										stage = value.__str__()
+										if return_back and int(stage) >= 0:
+											stage = int(stage) - 1
 							elif field.getAttribute('var'):
 								for value in field.elements():
 									if value.name == 'value':
@@ -168,6 +173,7 @@ class Settings:
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
 		actions.addElement("complete")
 
 		x = command.addElement("x")
@@ -238,6 +244,7 @@ class Settings:
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
 		actions.addElement("complete")
 
 		x = command.addElement("x")

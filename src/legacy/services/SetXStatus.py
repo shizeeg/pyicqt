@@ -22,6 +22,7 @@ class SetXStatus:
 		xstatus_desc = None
 		sessionid = None
 		do_action = None
+		return_back = False
 		stage = 0
 		
 		to = el.getAttribute('from')
@@ -45,6 +46,8 @@ class SetXStatus:
 				do_action = 'done'
 			elif command.getAttribute('action') == 'cancel':
 				do_action = 'cancel'
+			elif command.getAttribute('action') == 'prev': # back
+				return_back = True
 			
 			for child in command.elements():
 				if child.name == 'x':
@@ -54,6 +57,8 @@ class SetXStatus:
 								for value in field.elements():
 									if value.name == 'value':
 										stage = value.__str__()
+										if return_back and int(stage) >= 0:
+											stage = int(stage) - 1
 							if field.getAttribute('var') == 'xstatus_name':
 								for value in field.elements():
 									if value.name == 'value':
@@ -124,25 +129,25 @@ class SetXStatus:
 		field = x.addElement('field')
 		field.attributes['var'] = 'xstatus_name'
 		field.attributes['type'] =  'list-single'
-		field.attributes['label'] =  'x-status name'
+		field.attributes['label'] = lang.get('xstatus_name')
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('xstatus_no_xstatus')
 		value = option.addElement('value')
 		value.addContent('None')
 		
-		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
-		if current_xstatus_name != '':
-			option = field.addElement('option')
-			option.attributes['label'] = '%s (%s)' % (lang.get('xstatus_keep_current'), lang.get(current_xstatus_name))
-			value = option.addElement('value')
-			value.addContent(current_xstatus_name)
-		
 		for xstatus_title in oscar.X_STATUS_NAME:
 			option = field.addElement('option')
 			option.attributes['label'] = lang.get(xstatus_title)
 			value = option.addElement('value')
 			value.addContent(xstatus_title)
+			
+		value = field.addElement('value')
+		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
+		if current_xstatus_name != '':
+			value.addContent(current_xstatus_name)
+		else:
+			value.addContent('None')
 			
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -175,7 +180,7 @@ class SetXStatus:
 		command.attributes['status'] = 'executing'
 		
 		actions = command.addElement('actions')
-		actions.attributes['execute'] = 'next'
+		actions.attributes['execute'] = 'complete'
 		actions.addElement('prev')
 		actions.addElement('complete')
 
@@ -196,14 +201,14 @@ class SetXStatus:
 		xstatus_title = x.addElement('field')
 		xstatus_title.attributes['type'] = 'text-single'
 		xstatus_title.attributes['var'] = 'xstatus_title'
-		xstatus_title.attributes['label'] = 'x-status title'
+		xstatus_title.attributes['label'] = lang.get('xstatus_title')
 		value = xstatus_title.addElement('value')
 		value.addContent(title)
 		
 		xstatus_desc = x.addElement('field')
 		xstatus_desc.attributes['type'] = 'text-multi'
 		xstatus_desc.attributes['var'] = 'xstatus_desc'
-		xstatus_desc.attributes['label'] = 'x-status description'
+		xstatus_desc.attributes['label'] = lang.get('xstatus_description')
 		value = xstatus_desc.addElement('value')
 		value.addContent(desc)
 		
