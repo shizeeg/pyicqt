@@ -1929,7 +1929,6 @@ class BOSConnection(SNACBased):
                 g = SSIGroup(name, groupID, buddyID, tlvs)
                 if groups.has_key(0): 
 			groups[0].addUser(groupID, g)
-			self.ssistats['buddies'] += 1
                 groups[groupID] = g
 		self.ssistats['groups'] += 1
             elif itemType == AIM_SSI_TYPE_PERMIT: # permit
@@ -1961,7 +1960,10 @@ class BOSConnection(SNACBased):
             elif itemType == AIM_SSI_TYPE_LOCALBUDDYNAME: # locally stored buddy name
                 pass
 	    elif itemType == AIM_SSI_TYPE_PHANTOMBUDDY:
-		log.msg('SSI entry with type phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
+		if self.settingsOptionEnabled('clist_show_phantombuddies'):
+			groups[groupID].addUser(buddyID, SSIBuddy(name, groupID, buddyID, tlvs))
+		else:
+			log.msg('SSI entry with type phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
 		self.ssistats['phantombuddies'] += 1
 	    elif itemType == AIM_SSI_TYPE_UNKNOWN0:
 		log.msg('SSI entry with type unknown0: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
