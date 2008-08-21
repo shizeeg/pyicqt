@@ -189,6 +189,36 @@ class B(oscar.BOSConnection):
 		if status == '':
 			status = None
 		return status
+		
+	def parseAndSearchForActivity(self, title):
+		for key in ACTIVITIES:
+			subactivities = ACTIVITIES[key]
+			for subkey in subactivities:
+				if subkey != 'category':
+					title_lo = title.lower()
+			#		native_lo = lang.get(subkey).lower()
+					intern_lo = ACTIVITIES[key][subkey]
+			#		if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
+					if title_lo.find(intern_lo) != -1:
+						return [ACTIVITIES[key]['category'], ACTIVITIES[key][subkey]]
+			if 'category' in subactivities:
+				title_lo = title.lower()
+				native_lo = get(ACTIVITIES[key]['category']).lower()
+				intern_lo = key
+			#	if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
+				if title_lo.find(intern_lo) != -1:
+					return [ACTIVITIES[key]['category'], 'None']
+	return [None, None]
+	
+	def parseAndSearchForMood(self, title):
+		for key in MOODS:
+			title_lo = title.lower()
+		#	native_lo = lang.get(key).lower()
+			intern_lo = MOODS[key]
+		#	if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
+			if title_lo.find(intern_lo) != -1:
+				return MOODS[key]
+	return None
 
 	def updateBuddy(self, user, selfcall = False):
 		from glue import icq2jid
