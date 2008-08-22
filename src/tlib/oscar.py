@@ -870,7 +870,7 @@ class SNACBased(OscarConnection):
 	buddylen = struct.unpack('!B',snacdata[10:11])[0]
 	buddy_end = 11+buddylen
 	buddy = snacdata[11:buddy_end] # buddy uin
-	log.msg("x-status message response from %s" % buddy)
+	log.msg("Received x-status message response from %s" % buddy)
 	
 	extdata = snacdata[buddy_end+2:]
 	UnSafe_Notification = self.extractXStatusNotification(extdata)
