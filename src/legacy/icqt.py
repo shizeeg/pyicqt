@@ -195,30 +195,27 @@ class B(oscar.BOSConnection):
 			subactivities = ACTIVITIES[key]
 			for subkey in subactivities:
 				if subkey != 'category':
-					title_lo = title.lower()
-			#		native_lo = lang.get(subkey).lower()
-					intern_lo = ACTIVITIES[key][subkey]
-			#		if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
-					if title_lo.find(intern_lo) != -1:
+					title_lo = title.lower().replace('_', ' ')
+					native_lo = lang.get(subkey).lower().replace('_', ' ')
+					intern_lo = ACTIVITIES[key][subkey].replace('_', ' ')
+					if title_lo.find(intern_lo) != -1 or title_lo.find(native_lo) != -1:
 						return [ACTIVITIES[key]['category'], ACTIVITIES[key][subkey]]
 			if 'category' in subactivities:
-				title_lo = title.lower()
-				native_lo = get(ACTIVITIES[key]['category']).lower()
-				intern_lo = key
-			#	if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
-				if title_lo.find(intern_lo) != -1:
+				title_lo = title.lower().replace('_', ' ')
+				native_lo = lang.get(key).lower().replace('_', ' ')
+				intern_lo = key.replace('_', ' ')
+				if title_lo.find(intern_lo) != -1 or title_lo.find(native_lo) != -1:
 					return [ACTIVITIES[key]['category'], 'None']
-	return [None, None]
+		return [None, None]
 	
 	def parseAndSearchForMood(self, title):
 		for key in MOODS:
-			title_lo = title.lower()
-		#	native_lo = lang.get(key).lower()
-			intern_lo = MOODS[key]
-		#	if title_lo.find(native_lo) != -1 or title_lo.find(intern_lo) != -1:
-			if title_lo.find(intern_lo) != -1:
+			title_lo = title.lower().replace('_', ' ')
+			native_lo = lang.get(key).lower().replace('_', ' ')
+			intern_lo = MOODS[key].replace('_', ' ')
+			if title_lo.find(intern_lo) != -1 or title_lo.find(native_lo) != -1:
 				return MOODS[key]
-	return None
+		return None
 
 	def updateBuddy(self, user, selfcall = False):
 		from glue import icq2jid
@@ -327,6 +324,19 @@ class B(oscar.BOSConnection):
 						mood_a, act_a, subact_a = AN_STATUS_MAP[anstatus]
 					if x_status_name in X_STATUS_MAP:	
 						mood, act, subact = X_STATUS_MAP[x_status_name]
+						
+					mood_p = None
+					act_p = None
+					subact_p = None
+					if x_status_title != '':
+						mood_p = self.parseAndSearchForMood(x_status_title)
+						act_p, subact_p = self.parseAndSearchForActivity(x_status_title)
+						
+					if mood_p: # mood found in x-status title
+						mood = mood_p # use it
+					if act_p: # activity found in x-status title
+						act = act_p # use activity from title
+						subact = subact_p # and subactivity from title too
 						
 					if not mood and mood_a: # if no mood from x-status
 						mood = mood_a # get mood from additional normal status
