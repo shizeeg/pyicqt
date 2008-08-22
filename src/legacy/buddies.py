@@ -79,8 +79,7 @@ class BuddyList:
 		lo_contact = contact.lower()
 		if lo_contact in self.usercustomstatuses and len(self.usercustomstatuses[lo_contact]) > 0: # if custom status for user exists
 			for key in customStatus: # for all keys
-				if key in self.usercustomstatuses[lo_contact]: # if key present
-					self.usercustomstatuses[lo_contact][key] = customStatus[key] # update it!
+				self.usercustomstatuses[lo_contact][key] = customStatus[key] # update it!
 		else: 
 			self.usercustomstatuses[lo_contact] = customStatus # copy full customStatus
 			
