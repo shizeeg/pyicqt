@@ -1000,6 +1000,8 @@ class BOSConnection(SNACBased):
 	self.ssistats['buddies'] = 0
 	self.ssistats['phantombuddies'] = 0
 	self.ssistats['groups'] = 0
+	self.ssistats['ssipackets'] = 0
+	self.ssistats['least_groupID'] = -1
 
 	self.selfCustomStatus = dict([])
 	self.selfSettings = dict([])
@@ -1915,17 +1917,15 @@ class BOSConnection(SNACBased):
             visibility = None
             iconcksum = []
             permitDenyInfo = None
-	least_groupID = None
+	least_groupID = self.ssistats['least_groupID']
         while len(itemdata)>4:
             nameLength = struct.unpack('!H', itemdata[:2])[0]
             name = itemdata[2:2+nameLength]
             groupID, buddyID, itemType, restLength = \
                 struct.unpack('!4H', itemdata[2+nameLength:10+nameLength])
-	    if least_groupID:
-		    if int(groupID) < (least_groupID):
-			least_groupID = groupID
-	    else:
+	    if least_groupID == -1:
 		least_groupID = groupID
+		self.ssistats['least_groupID'] = least_groupID
             tlvs = readTLVs(itemdata[10+nameLength:10+nameLength+restLength])
             itemdata = itemdata[10+nameLength+restLength:]
             if itemType == AIM_SSI_TYPE_BUDDY: # buddies
@@ -1970,12 +1970,13 @@ class BOSConnection(SNACBased):
 			if groupID in groups:
 				groups[groupID].addUser(buddyID, SSIBuddy(name, groupID, buddyID, tlvs))
 		else:
-			log.msg('SSI entry with type phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
+			log.msg('SSI phantombuddy : %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
 		self.ssistats['phantombuddies'] += 1
 	    elif itemType == AIM_SSI_TYPE_UNKNOWN0:
 		log.msg('SSI entry with type unknown0: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs)) 
             else:
                 log.msg('unknown SSI entry: %s %s %s %s %s' % (name, groupID, buddyID, itemType, tlvs))
+	self.ssistats['ssipackets'] += 1
         timestamp = struct.unpack('!L',itemdata)[0]
         if not timestamp: # we've got more packets coming
             # which means add some deferred stuff
@@ -1989,10 +1990,10 @@ class BOSConnection(SNACBased):
         else:
 	    if least_groupID in groups:
         	gusers = groups[least_groupID].users
-	    else: # seems contact-list corrupted
+	    else:
 		log.msg('Contact-list have interesting format')
-	log.msg('Contact-list imported from server. Found %s groups, %s contacts and %s temporary contacts' % (self.ssistats['groups'], self.ssistats['buddies'], self.ssistats['phantombuddies']))
-	self.session.pytrans.xdb.setCSetting(self.session.jabberID, 'least_groupID', str(least_groupID))
+	log.msg('Contact-list imported from server. Found %s groups, %s contacts and %s temporary contacts' % (self.ssistats['groups'], self.ssistats['buddies'], self.ssistats['phantombuddies'])) # write in stats
+	log.msg('Root groupID: %s. Import took %s packets' % (self.ssistats['least_groupID'], self.ssistats['ssipackets']))
         return (gusers,permit,deny,permitMode,visibility,iconcksum,timestamp,revision,permitDenyInfo)
 
     def _ebDeferredRequestSSIError(self, error, revision, groups, permit, deny, permitMode, visibility, iconcksum, permitDenyInfo):
@@ -2032,10 +2033,7 @@ class BOSConnection(SNACBased):
                 #tlvData = TLV(0xc8, struct.pack(">H", buddyID))
                 #data += struct.pack(">H", len(tlvData))+tlvData
                 #self.sendSNACnr(0x13,0x09, data)
-	    least_groupID = int(self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'least_groupID'))
-	    if not least_groupID:
-		least_groupID = 0
-            if item.buddyID != least_groupID: # is it a buddy or a group?
+            if item.buddyID != 0: # is it a buddy or a group?
                 self.buddyAdded(item.name)
         elif snac[5][pos:pos+2] == "\00\x0a":
             # invalid, error while adding
@@ -2056,7 +2054,7 @@ class BOSConnection(SNACBased):
 
     def modifyItemSSI(self, item, groupID = None, buddyID = None):
         if groupID is None:
-	    least_groupID = int(self.session.pytrans.xdb.getCSetting(self.session.jabberID, 'least_groupID'))
+	    least_groupID = self.ssistats['least_groupID']
 	    if not least_groupID:
 		least_groupID = 0
             if isinstance(item, SSIIconSum):
@@ -2065,13 +2063,8 @@ class BOSConnection(SNACBased):
                 groupID = least_groupID
             elif isinstance(item, SSIGroup):
                 groupID = least_groupID
-            elif hasattr(item, "group"):
-		try:
-                	groupID = item.group.group.findIDFor(item.group)
-		except:
-			log.msg('Except: modifyItemSSI %s' % item)
 	    else:
-		groupID = 0
+		groupID = item.group.group.findIDFor(item.group)
         if buddyID is None:
             if isinstance(item, SSIIconSum):
                 buddyID = 0x5dd6
