@@ -242,16 +242,17 @@ class LegacyConnection:
 		if not self.session.ready:
 			return
 
-		if not show or show == "online" or show == "Online" or show == "chat":
-			self.setICQStatus(show)
-			self.setBack(friendly)
-			self.setURL(url)
-			self.session.sendPresence(to=self.session.jabberID, fro=config.jid, show=None, url=url)
-		else:
-			self.setICQStatus(show)
-			self.setAway(friendly)
-			self.setURL(url)
-			self.session.sendPresence(to=self.session.jabberID, fro=config.jid, show=show, status=friendly, url=url)
+	#	if not show or show == "online" or show == "Online" or show == "chat":
+	#		self.setICQStatus(show)
+	#		self.setBack(friendly)
+	#		self.setURL(url)
+	#		self.session.sendPresence(to=self.session.jabberID, fro=config.jid, show=None, url=url)
+	#	else:
+		self.setICQStatus(show)
+		self.setAway(friendly)
+		self.setBack(friendly)
+		self.setURL(url)
+		self.session.sendPresence(to=self.session.jabberID, fro=config.jid, show=show, status=friendly, url=url)
 
 	def setProfile(self, profileMessage=None):
 		LogEvent(INFO, self.session.jabberID)

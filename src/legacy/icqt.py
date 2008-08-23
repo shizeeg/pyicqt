@@ -644,10 +644,11 @@ class B(oscar.BOSConnection):
 			tmpjid=config.jid+"/registered"
 		if self.session.pytrans:
 			self.session.sendPresence(to=self.session.jabberID, fro=tmpjid, show=self.oscarcon.savedShow, status=self.oscarcon.savedFriendly, url=self.oscarcon.savedURL)
-		if not self.oscarcon.savedShow or self.oscarcon.savedShow == "online":
-			self.oscarcon.setBack(self.oscarcon.savedFriendly)
-		else:
-			self.oscarcon.setAway(self.oscarcon.savedFriendly)
+		#if not self.oscarcon.savedShow or self.oscarcon.savedShow == "online":
+		#	self.oscarcon.setBack(self.oscarcon.savedFriendly)
+		#else:
+		self.oscarcon.setBack(self.oscarcon.savedFriendly)
+		self.oscarcon.setAway(self.oscarcon.savedFriendly)
 		if hasattr(self.oscarcon, "myavatar") and not config.disableAvatars:
 			self.oscarcon.changeAvatar(self.oscarcon.myavatar)
 		self.oscarcon.setICQStatus(self.oscarcon.savedShow)

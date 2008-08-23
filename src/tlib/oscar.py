@@ -2082,8 +2082,8 @@ class BOSConnection(SNACBased):
         set the extended status message
         """
         # If our away message is set, clear it.
-        if self.awayMessage:
-            self.setAway()
+        #if self.awayMessage:
+        #    self.setAway()
         
         if not status:
             status = ""
