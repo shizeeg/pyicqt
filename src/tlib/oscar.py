@@ -1011,6 +1011,8 @@ class BOSConnection(SNACBased):
 	
 	if hasattr(self.session,'pytrans'):
 		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
+		if len(self.selfSettings) == 0: # user just registered and not set anything
+			self.selfSettings = self.selfSettingsByDefault()
 		log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
 	
 		if config.xstatusessupport:
@@ -1023,6 +1025,15 @@ class BOSConnection(SNACBased):
 					if self.settingsOptionEnabled('xstatus_sending_enabled'):
 						self.updateSelfXstatusOnStart = True
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
+
+    def selfSettingsByDefault(self):
+	settings = dict([
+	('xstatus_receiving_enabled', 1),
+	('xstatus_sending_enabled', 1),
+	('xstatus_saving_enabled', 1),
+	('clist_show_phantombuddies', 0)
+	])
+	return settings
 
     def parseUser(self,data,wantRest=0):
         l=ord(data[0])
