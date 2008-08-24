@@ -15,6 +15,8 @@ class Settings:
 		self.pytrans.adhoc.addCommand('settings', self.incomingIq, 'command_Settings')
 		
 	def incomingIq(self, el):
+		settings_page = 'xstatus_settings'
+		return_back = False
 		do_action = ''
 		stage = 0
 		settings_dict = dict([])
@@ -31,15 +33,23 @@ class Settings:
 				do_action = 'done'
 			elif command.getAttribute('action') == 'cancel':
 				do_action = 'cancel'
+			elif command.getAttribute('action') == 'prev': # back
+				return_back = True
 				
 			for child in command.elements():
 				if child.name == 'x':
 					for field in child.elements():
 						if field.name == 'field': # extract data
-							if field.getAttribute('var') == 'stage':
+							if field.getAttribute('var') == 'settings_page':
+								for value in field.elements():
+									if value.name == 'value':
+										settings_page = value.__str__()
+							elif field.getAttribute('var') == 'stage':
 								for value in field.elements():
 									if value.name == 'value':
 										stage = value.__str__()
+										if return_back and int(stage) >= 0:
+											stage = int(stage) - 1
 							elif field.getAttribute('var'):
 								for value in field.elements():
 									if value.name == 'value':
@@ -49,15 +59,80 @@ class Settings:
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
 		elif not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):  # if user not connected to ICQ network
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
-		elif stage == '1' or do_action == 'done':
-			self.ApplySettings(toj, settings_dict) # apply settings
-			self.sendCompletedForm(el, sessionid) # send answer
 		elif do_action == 'cancel':
 			self.pytrans.adhoc.sendCancellation("settings", el, sessionid) # correct cancel handling
+		elif stage == '2' or do_action == 'done':
+			if settings_page == 'xstatus_settings':
+				self.ApplyXstatusSettings(toj, settings_dict) # apply x-status settings
+			elif settings_page == 'clist_settings':
+				self.ApplyContactListSettings(toj, settings_dict) # apply contact list settings
+			self.sendCompletedForm(el, sessionid) # send answer
+		elif stage == '1':
+			if settings_page == 'xstatus_settings':
+				self.sendXstatusSettingsForm(el, sessionid) # send form with x-status settings
+			elif settings_page == 'clist_settings':
+				self.sendContactListSettingsForm(el, sessionid) # send form with contact list settings
 		else:
-			self.sendSettingsForm(el, sessionid) # send form
+			self.sendSettingsClassForm(el, sessionid) # send form
+	
+	def sendSettingsClassForm(self, el, sessionid=None):
+		to = el.getAttribute('from')
+		to_jid = internJID(to)
+		ID = el.getAttribute('id')
+		ulang = utils.getLang(el)
+		
+		iq = Element((None, 'iq'))
+		iq.attributes['to'] = to
+		iq.attributes['from'] = config.jid
+		if ID:
+			iq.attributes['id'] = ID
+		iq.attributes['type'] = 'result'
+		
+		command = iq.addElement('command')
+		if sessionid:
+			command.attributes['sessionid'] = sessionid
+		else:
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()
+		command.attributes['node'] = 'settings'
+		command.attributes['xmlns'] = globals.COMMANDS
+		command.attributes['status'] = 'executing'
+		
+		actions = command.addElement('actions')
+		actions.attributes['execute'] = 'next'
+		actions.addElement('next')
+
+		x = command.addElement('x')
+		x.attributes['xmlns'] = 'jabber:x:data'
+		x.attributes['type'] = 'form'
+		
+		instructions = x.addElement('instructions')
+		instructions.addContent(lang.get('settings_instructions'))
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'settings_page'
+		field.attributes['type'] = 'list-single'
+		field.attributes['label'] = lang.get('settings_category')
+		
+		option = field.addElement('option')
+		option.attributes['label'] = lang.get('settings_category_clist')
+		value = option.addElement('value')
+		value.addContent('clist_settings')
+		
+		option = field.addElement('option')
+		option.attributes['label'] = lang.get('settings_category_xstatus')
+		value = option.addElement('value')
+		value.addContent('xstatus_settings')
+		
+		stage = x.addElement('field')
+		stage.attributes['type'] = 'hidden'
+		stage.attributes['var'] = 'stage'
+		value = stage.addElement('value')
+		value.addContent('1')
+
+		self.pytrans.send(iq)
+		
 			
-	def sendSettingsForm(self, el, sessionid=None):
+	def sendXstatusSettingsForm(self, el, sessionid=None):
 		to = el.getAttribute("from")
 		ID = el.getAttribute("id")
 		ulang = utils.getLang(el)
@@ -98,6 +173,7 @@ class Settings:
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
 		actions.addElement("complete")
 
 		x = command.addElement("x")
@@ -130,9 +206,66 @@ class Settings:
 		stage.attributes['type'] = 'hidden'
 		stage.attributes['var'] = 'stage'
 		value = stage.addElement('value')
-		value.addContent('1')
+		value.addContent('2')
 		
 		self.pytrans.send(iq)
+		
+	def sendContactListSettingsForm(self, el, sessionid=None):
+		to = el.getAttribute("from")
+		ID = el.getAttribute("id")
+		ulang = utils.getLang(el)
+		
+		toj = internJID(to)
+		jid = toj.userhost()
+		
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		
+		clist_show_phantombuddies = '0'
+		if jid in self.pytrans.sessions:
+			clist_show_phantombuddies = self.pytrans.xdb.getCSetting(jid, 'clist_show_phantombuddies')
+			if not clist_show_phantombuddies: # value not saved yet
+				clist_show_phantombuddies = '0' # disable by default
+		
+		iq = Element((None, "iq"))
+		iq.attributes["to"] = to
+		iq.attributes["from"] = config.jid
+		if ID:
+			iq.attributes["id"] = ID
+		iq.attributes["type"] = "result"
+
+		command = iq.addElement("command")
+		if sessionid:
+			command.attributes["sessionid"] = sessionid
+		else:
+			command.attributes["sessionid"] = self.pytrans.makeMessageID()
+		command.attributes["node"] = "settings"
+		command.attributes["xmlns"] = globals.COMMANDS
+		command.attributes["status"] = "executing"
+
+		actions = command.addElement("actions")
+		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
+		actions.addElement("complete")
+
+		x = command.addElement("x")
+		x.attributes["xmlns"] = "jabber:x:data"
+		x.attributes["type"] = "form"
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'clist_show_phantombuddies'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
+		value = field.addElement('value')
+		value.addContent(clist_show_phantombuddies)
+		
+		stage = x.addElement('field')
+		stage.attributes['type'] = 'hidden'
+		stage.attributes['var'] = 'stage'
+		value = stage.addElement('value')
+		value.addContent('2')
+		
+		self.pytrans.send(iq)
+		
 		
 	def sendCompletedForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
@@ -161,7 +294,7 @@ class Settings:
 		
 		self.pytrans.send(iq)
 		
-	def ApplySettings(self, to_jid, settings):
+	def ApplyXstatusSettings(self, to_jid, settings):
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
@@ -184,3 +317,11 @@ class Settings:
 								saved_snac = legacycon.getSavedSnac(str(contact))
 								if saved_snac != '':
 									legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
+	def ApplyContactListSettings(self, to_jid, settings):
+		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		bos.selfSettings = settings
+		if jid in self.pytrans.sessions:
+			for key in settings:
+				self.pytrans.xdb.setCSetting(jid, key, settings[key])
