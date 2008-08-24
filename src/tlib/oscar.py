@@ -2123,6 +2123,7 @@ class BOSConnection(SNACBased):
     def setBack(self, status=None):
         """
         set the extended status message
+	deprecated. Use setExtendedStatusRequest instead
         """
         # If our away message is set, clear it.
         #if self.awayMessage:
@@ -2519,20 +2520,32 @@ class BOSConnection(SNACBased):
         self.sendSNAC(0x02, 0x04, data)
 
 			 
-    def setExtendedStatusRequest(self):
+    def setExtendedStatusRequest(self, message = None):
 	"""
-        send self info in ICQ6 format (x-status mood + available message)
+        send self status info in ICQ6 format (x-status mood + available message + online status)
         """
-	moodTLV = ''
+	moodinfo = ''
+	msginfo = ''
 	mood_num = self.getSelfXstatusMoodIndex()
-	if mood_num > -1:
+	if mood_num > -1: # mood
 		mood_str = 'icqmood' + str(mood_num)
 		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-		moodTLV = TLV(0x001d, mood_prefix + mood_str) # available message TLV
-		# TODO: add available message
+		moodinfo = mood_prefix + mood_str
+	if message and message != '': # message
+		msginfo = struct.pack(
+		"!HbbH",
+		0x0002,         # H
+		0x04,           # b
+		len(message)+4,  # b
+		len(message)     # H
+		) + str(message) + struct.pack("H",0x0000)
+	if len(moodinfo) > 0 or len (msginfo) > 0:
+		msgmoodTLV = TLV(0x001d, msginfo + moodinfo) # available message TLV
+	else:
+		msgmoodTLV = ''
 	status = struct.pack('!L',self.icqStatus)
-	onlinestatusTLV = TLV(0x0006, status)
-	data = onlinestatusTLV + moodTLV
+	onlinestatusTLV = TLV(0x0006, status) # status
+	data = onlinestatusTLV + msgmoodTLV
 	self.sendSNAC(0x01, 0x1e, data)
 
     def sendSMS(self, phone, message, senderName = "Auto"):

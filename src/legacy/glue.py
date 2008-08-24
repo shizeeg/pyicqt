@@ -212,7 +212,7 @@ class LegacyConnection:
 		LogEvent(INFO, self.session.jabberID)
 		try:
 			self.bos.awayResponses = {}
-			self.bos.setBack(utils.utf8encode(backMessage))
+			self.bos.setExtendedStatusRequest(utils.utf8encode(backMessage))
 		except AttributeError:
 			#self.alertUser(lang.get("sessionnotactive", config.jid))
 			pass
