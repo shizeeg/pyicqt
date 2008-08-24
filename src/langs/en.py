@@ -133,8 +133,6 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_ru1 = u"Searching"
 	xstatus_ru2 = u"Flirt"
 	xstatus_ru3 = u"Blogging"
-	xstatus_bombus1 = u"Smoking"
-	xstatus_bombus2 = u"Sex" 
 	# these lines for adding to user's status
 	xstatus_append_status = u"Status"
 	xstatus_append_xstatus = u"X-status"

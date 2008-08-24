@@ -741,9 +741,7 @@ X_STATUS_MAP = dict([
 	('xstatus_de3', ['in_love', None, None]),
 	('xstatus_ru1', ['curious', None, None]),
 	('xstatus_ru2', ['flirtatious', None, None]),
-	('xstatus_ru3', ['impressed', None, None]),
-	('xstatus_bombus1', ['lonely', None, None]),
-	('xstatus_bombus2', ['playful', None, None])
+	('xstatus_ru3', ['impressed', None, None])
 ])
 
 AN_STATUS_MAP = dict([
