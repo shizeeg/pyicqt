@@ -306,7 +306,7 @@ class B(oscar.BOSConnection):
 		# status = status.encode(config.encoding, "replace")
 		
 		if config.xstatusessupport:
-			if self.settingsOptionEnabled('xstatus_receiving_enabled'):
+			if self.settingsOptionEnabled('xstatus_receiving_mode'):
 				
 				x_status_name = self.oscarcon.getXStatus(user.name)
 				x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)

@@ -143,7 +143,7 @@ class Settings:
 		settings = dict([])
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		if config.xstatusessupport:
-			settings = bos.addSelfSettingsByDefault()
+			settings = bos.selfSettings
 
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -171,20 +171,42 @@ class Settings:
 		x.attributes["type"] = "form"
 		
 		if config.xstatusessupport:
+			xstatus_sending = dict([
+			('xstatus_sendmode_none',0),
+			('xstatus_sendmode_ICQ5',1),
+			('xstatus_sendmode_ICQ6',2),
+			('xstatus_sendmode_ICQ5_6',3)
+			])
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_receiving_enabled'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('settings_xstatus_recv_support')
+			field.attributes['var'] = 'xstatus_sending_mode'
+			field.attributes['type'] =  'list-single'
+			field.attributes['label'] = lang.get('xstatus_sendmode')
+			for title in xstatus_sending:
+				option = field.addElement('option')
+				option.attributes['label'] = lang.get(title)
+				value = option.addElement('value')
+				value.addContent(str(xstatus_sending[title]))
 			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_receiving_enabled']))
-			
+			value.addContent(str(settings['xstatus_sending_mode']))
+				
+			xstatus_receiving = dict([
+			('xstatus_recvmode_none',0),
+			('xstatus_recvmode_ICQ5',1),
+			('xstatus_recvmode_ICQ6',2),
+			('xstatus_recvmode_ICQ5_6',3)
+			])
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_sending_enabled'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('settings_xstatus_send_support')
+			field.attributes['var'] = 'xstatus_receiving_mode'
+			field.attributes['type'] =  'list-single'
+			field.attributes['label'] = lang.get('xstatus_recvmode')
+			for title in xstatus_receiving:
+				option = field.addElement('option')
+				option.attributes['label'] = lang.get(title)
+				value = option.addElement('value')
+				value.addContent(str(xstatus_receiving[title]))
 			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_sending_enabled']))
-			
+			value.addContent(str(settings['xstatus_receiving_mode']))
+				
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
 			field.attributes['type'] = 'boolean'
@@ -286,14 +308,14 @@ class Settings:
 		bos.selfSettings = settings
 		if jid in self.pytrans.sessions:
 			for key in settings:
-				self.pytrans.xdb.setCSetting(jid, key, settings[key])
+				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
 				
 				if config.xstatusessupport:
-					if key == 'xstatus_sending_enabled' and str(settings[key]) == '0': # disable sending of x-statuses 
+					if key == 'xstatus_sending_mode' and str(settings[key]) == '0': # disable sending of x-statuses 
 						del bos.selfCustomStatus # erase CustomStatus struct
 						bos.selfCustomStatus = dict([]) # and create empty one
 						bos.updateSelfXstatus()
-					if key == 'xstatus_receiving_enabled' and str(settings[key]) == '0':
+					if key == 'xstatus_receiving_mode' and str(settings[key]) == '0':
 						# fast redrawing for all status messages (need exclude x-status information)
 						legacycon = self.pytrans.sessions[jid].legacycon
 						contacts = legacycon.legacyList.ssicontacts
@@ -309,4 +331,4 @@ class Settings:
 		bos.selfSettings = settings
 		if jid in self.pytrans.sessions:
 			for key in settings:
-				self.pytrans.xdb.setCSetting(jid, key, settings[key])
+				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))

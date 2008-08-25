@@ -37,7 +37,7 @@ class SetXStatus:
 			if jid in self.pytrans.sessions:
 				if not config.xstatusessupport:
 					self.sendXStatusCompleted(el, lang.get('xstatus_support_disabled'), sessionid)
-				if not self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_enabled'):
+				if int(self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_mode')) == 0:
 					self.sendXStatusCompleted(el, lang.get('xstatus_sending_disabled'), sessionid)
 			
 			if command.getAttribute('action') == 'execute':

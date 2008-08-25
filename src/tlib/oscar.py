@@ -1021,14 +1021,14 @@ class BOSConnection(SNACBased):
 					if int(latest_xstatus_number) > 0:
 						self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
 						self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
-					if self.settingsOptionEnabled('xstatus_sending_enabled'):
+					if self.settingsOptionEnabled('xstatus_sending_mode'):
 						self.updateSelfXstatusOnStart = True
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
 
     def addSelfSettingsByDefault(self, settings = None):
 	dsettings = dict([
-	('xstatus_receiving_enabled', 1),
-	('xstatus_sending_enabled', 1),
+	('xstatus_receiving_mode', 0),
+	('xstatus_sending_mode', 0),
 	('xstatus_saving_enabled', 1),
 	('clist_show_phantombuddies', 0)
 	])
@@ -1581,7 +1581,7 @@ class BOSConnection(SNACBased):
 				if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
 					log.msg('Request for x-status details from %s' % user.name)
 					if config.xstatusessupport:
-						if self.settingsOptionEnabled('xstatus_sending_enabled'):
+						if self.settingsOptionEnabled('xstatus_sending_mode'):
 							self.sendXstatusMessageResponse(user.name, cookie2)
 			except:
 				log.msg('Strange rendezvous')
