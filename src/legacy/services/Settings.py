@@ -140,20 +140,10 @@ class Settings:
 		toj = internJID(to)
 		jid = toj.userhost()
 		
+		settings = dict([])
+		bos = self.pytrans.sessions[jid].legacycon.bos
 		if config.xstatusessupport:
-			xstatus_receiving_enabled = '1'
-			xstatus_sending_enabled = '1'
-			xstatus_saving_enabled = '1'
-			if jid in self.pytrans.sessions:
-				xstatus_receiving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_receiving_enabled')
-				if not xstatus_receiving_enabled: # value not saved yet
-					xstatus_receiving_enabled = '1' # enable by default
-				xstatus_sending_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_sending_enabled')
-				if not xstatus_sending_enabled: # value not saved yet
-					xstatus_sending_enabled = '1' # enable by default
-				xstatus_saving_enabled = self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled')
-				if not xstatus_saving_enabled: # value not saved yet
-					xstatus_saving_enabled = '1' # enable by default
+			settings = bos.addSelfSettingsByDefault()
 
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -186,21 +176,21 @@ class Settings:
 			field.attributes['type'] = 'boolean'
 			field.attributes['label'] = lang.get('settings_xstatus_recv_support')
 			value = field.addElement('value')
-			value.addContent(xstatus_receiving_enabled)
+			value.addContent(str(settings['xstatus_receiving_enabled']))
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_sending_enabled'
 			field.attributes['type'] = 'boolean'
 			field.attributes['label'] = lang.get('settings_xstatus_send_support')
 			value = field.addElement('value')
-			value.addContent(xstatus_sending_enabled)
+			value.addContent(str(settings['xstatus_sending_enabled']))
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
 			field.attributes['type'] = 'boolean'
 			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
 			value = field.addElement('value')
-			value.addContent(xstatus_saving_enabled)
+			value.addContent(str(settings['xstatus_saving_enabled']))
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -219,12 +209,7 @@ class Settings:
 		jid = toj.userhost()
 		
 		bos = self.pytrans.sessions[jid].legacycon.bos
-		
-		clist_show_phantombuddies = '0'
-		if jid in self.pytrans.sessions:
-			clist_show_phantombuddies = self.pytrans.xdb.getCSetting(jid, 'clist_show_phantombuddies')
-			if not clist_show_phantombuddies: # value not saved yet
-				clist_show_phantombuddies = '0' # disable by default
+		clist_show_phantombuddies = bos.addSelfSettingsByDefault()['clist_show_phantombuddies']
 		
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -256,7 +241,7 @@ class Settings:
 		field.attributes['type'] = 'boolean'
 		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
 		value = field.addElement('value')
-		value.addContent(clist_show_phantombuddies)
+		value.addContent(str(clist_show_phantombuddies))
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'

@@ -1032,7 +1032,7 @@ class BOSConnection(SNACBased):
 	('xstatus_saving_enabled', 1),
 	('clist_show_phantombuddies', 0)
 	])
-	if len(settings) != 0:
+	if settings and len(settings) != 0:
 		for key in settings:
 			dsettings[key] = settings[key]
 	return dsettings
