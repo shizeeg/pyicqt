@@ -261,9 +261,6 @@ class SetXStatus:
 			# no x-status
 			del bos.selfCustomStatus # erase CustomStatus struct
 			bos.selfCustomStatus = dict([]) # and create empty one
-		elif xstatus_name == 'KeepCurrent':
-			# not do nothing
-			pass
 		else:
 			bos.selfCustomStatus['x-status name'] = xstatus_name
 			if xstatus_title:
@@ -279,5 +276,5 @@ class SetXStatus:
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
 		if jid in self.pytrans.sessions:
 			self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
-			if self.pytrans.xdb.getCSetting(jid, 'xstatus_saving_enabled'):
+			if bos.settingsOptionEnabled('xstatus_saving_enabled'):
 				self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
