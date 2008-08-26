@@ -162,34 +162,6 @@ class B(oscar.BOSConnection):
 			show = 'online'
 		return (show, anormal)
 	
-	def appendXStatus(self, username, anormal, status):
-		LogEvent(INFO, self.session.jabberID)
-		
-		x_status_name = self.oscarcon.getXStatus(username)
-		x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(username)
-		
-		if status == None:
-			status = ''
-		if anormal != None:
-			if status != '':
-				status += '\n'
-			status += '%s: %s' % (lang.get('xstatus_append_status'), anormal)
-
-		if x_status_name != '':
-			if status != '':
-				status += '\n'
-			status += '%s: %s' % (lang.get('xstatus_append_xstatus'), lang.get(x_status_name))
-		if x_status_title != '':
-			if x_status_name != x_status_title: # user changed standart title
-				status += ' (%s)' % x_status_title
-		if x_status_desc != '':
-			if status != '':
-				status += '\n'
-			status += '%s: %s' % (lang.get('xstatus_append_xmessage'), x_status_desc)
-		if status == '':
-			status = None
-		return status
-		
 	def parseAndSearchForActivity(self, title):
 		for key in ACTIVITIES:
 			subactivities = ACTIVITIES[key]
@@ -227,11 +199,7 @@ class B(oscar.BOSConnection):
 
 		ptype = None
 		
-		anormal = None
 		show, anstatus = self.detectAdditionalNormalStatus(user.icqStatus)
-		if anstatus:
-			anormal = lang.get(anstatus)
-	
 		status = user.status
 		encoding = user.statusencoding
 		url = user.url
@@ -377,7 +345,22 @@ class B(oscar.BOSConnection):
 				self.oscarcon.setPersonalEvents(user.name, mood, act, subact) # set personal events
 				
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
-					status = self.appendXStatus(user.name, anormal, status)
+					if status == None:
+						status = ''
+					if anstatus and anstatus != '':
+						if status != '':
+							status += '\n'
+						status += '%s' % lang.get(anstatus)
+					if x_status_title != '' or x_status_desc != '': # show title + desc
+						if status != '':
+							status += '\n'
+						status += '%s %s' % (x_status_title, x_status_desc)
+					elif x_status_name != '': # or name
+						if status != '':
+							status += '\n'
+						status += '%s' % lang.get(x_status_name)
+					if status == '':
+						status = None
 					
 				if selfcall == False:
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
