@@ -3620,9 +3620,9 @@ class OscarAuthenticator(OscarConnection):
 		TLV(TLV_CLIENTID,"\x01\x0a")+
 		TLV(TLV_CLIENTMAJOR,"\x00\x14")+
 		TLV(TLV_CLIENTMINOR,"\x00\x22")+
-		TLV(TLV_CLIENTLESSER,"\x00\x00")+
-		TLV(TLV_CLIENTSUB,"\x09\x11")+
-		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x04\x3d")+
+		TLV(TLV_CLIENTLESSER,"\x00\x01")+
+		TLV(TLV_CLIENTSUB,"\x06\x66")+
+		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x06\x66")+
 		TLV(TLV_LANG,"en")+
 		TLV(TLV_COUNTRY,"us"),0x01)
 	    self.state="Cookie"
@@ -3636,18 +3636,18 @@ class OscarAuthenticator(OscarConnection):
         key=snac[5][2:2+len]
         encpass=encryptPasswordMD5(self.password[:8],key)
         self.sendFLAP(SNAC(0x17,0x02,0,
-                           TLV(TLV_USERNAME,self.username)+
-                           TLV(TLV_PASSWORD,encpass)+
-                           TLV(0x004C)+ # unknown
-                           TLV(TLV_CLIENTNAME,"ICQ Client")+
-                           TLV(TLV_CLIENTID,"\x01\x0a")+
-                           TLV(TLV_CLIENTMAJOR,"\000\006")+
-                           TLV(TLV_CLIENTMINOR,"\000\000")+
-                           TLV(TLV_CLIENTLESSER,"\000\000")+
-                           TLV(TLV_CLIENTSUB,"\x17\x97")+
-                           TLV(TLV_CLIENTDISTNUM,"\x00\x00\x75\x35")+
-                           TLV(TLV_LANG,"en")+
-                           TLV(TLV_COUNTRY,"us")))
+		TLV(TLV_USERNAME,self.username)+
+		TLV(TLV_PASSWORD,encpass)+
+		TLV(0x004C)+
+		TLV(TLV_CLIENTNAME,'ICQBasic')+
+		TLV(TLV_CLIENTID,"\x01\x0a")+
+		TLV(TLV_CLIENTMAJOR,"\x00\x14")+
+		TLV(TLV_CLIENTMINOR,"\x00\x22")+
+		TLV(TLV_CLIENTLESSER,"\x00\x01")+
+		TLV(TLV_CLIENTSUB,"\x06\x66")+
+		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x06\x66")+
+		TLV(TLV_LANG,"en")+
+		TLV(TLV_COUNTRY,"us")))
         return "Cookie"
 
     def oscar_Cookie(self,data):
