@@ -306,10 +306,13 @@ class B(oscar.BOSConnection):
 		# status = status.encode(config.encoding, "replace")
 		
 		if config.xstatusessupport:
-			if self.settingsOptionEnabled('xstatus_receiving_mode'):
-				
-				x_status_name = self.oscarcon.getXStatus(user.name)
-				x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
+			if int(self.settingsOptionValue('xstatus_receiving_mode')) != 0:
+				x_status_name = None
+				x_status_title = None
+				x_status_desc = None
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
+					x_status_name = self.oscarcon.getXStatus(user.name)
+					x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
 				
 				mood = None
 				act = None
@@ -328,7 +331,10 @@ class B(oscar.BOSConnection):
 					mood_p = None
 					act_p = None
 					subact_p = None
-					if x_status_title != '':
+					if user.status != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (2,3):
+						mood_p = self.parseAndSearchForMood(user.status)
+						act_p, subact_p = self.parseAndSearchForActivity(user.status)
+					if x_status_title != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
 						mood_p = self.parseAndSearchForMood(x_status_title)
 						act_p, subact_p = self.parseAndSearchForActivity(x_status_title)
 						
@@ -367,13 +373,15 @@ class B(oscar.BOSConnection):
 				else: # no x-status and additional normal status
 					self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
 					self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
-					
+				
 				self.oscarcon.setPersonalEvents(user.name, mood, act, subact) # set personal events
 				
-				status = self.appendXStatus(user.name, anormal, status)
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
+					status = self.appendXStatus(user.name, anormal, status)
 					
 				if selfcall == False:
-					self.sendXstatusMessageRequest(user.name) # request Xstatus message
+					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
+						self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
 		if user.flags.count("away"):
 			self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)

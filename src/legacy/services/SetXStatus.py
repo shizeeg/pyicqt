@@ -37,7 +37,7 @@ class SetXStatus:
 			if jid in self.pytrans.sessions:
 				if not config.xstatusessupport:
 					self.sendXStatusCompleted(el, lang.get('xstatus_support_disabled'), sessionid)
-				if int(self.pytrans.sessions[jid].legacycon.bos.settingsOptionEnabled('xstatus_sending_mode')) == 0:
+				if int(self.pytrans.sessions[jid].legacycon.bos.settingsOptionValue('xstatus_sending_mode')) == 0:
 					self.sendXStatusCompleted(el, lang.get('xstatus_sending_disabled'), sessionid)
 			
 			if command.getAttribute('action') == 'execute':
@@ -271,6 +271,7 @@ class SetXStatus:
 				bos.selfCustomStatus['x-status desc'] = xstatus_desc
 			else:
 				bos.selfCustomStatus['x-status desc'] = ''
+			bos.selfCustomStatus['avail.message'] = bos.selfCustomStatus['x-status title'] + ' ' + bos.selfCustomStatus['x-status desc']
 		bos.updateSelfXstatus()
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)

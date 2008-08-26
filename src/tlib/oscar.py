@@ -1021,7 +1021,7 @@ class BOSConnection(SNACBased):
 					if int(latest_xstatus_number) > 0:
 						self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
 						self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
-					if self.settingsOptionEnabled('xstatus_sending_mode'):
+					if int(self.settingsOptionValue('xstatus_sending_mode')) != 0:
 						self.updateSelfXstatusOnStart = True
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))
 
@@ -1581,7 +1581,7 @@ class BOSConnection(SNACBased):
 				if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
 					log.msg('Request for x-status details from %s' % user.name)
 					if config.xstatusessupport:
-						if self.settingsOptionEnabled('xstatus_sending_mode'):
+						if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
 							self.sendXstatusMessageResponse(user.name, cookie2)
 			except:
 				log.msg('Strange rendezvous')
@@ -2472,16 +2472,22 @@ class BOSConnection(SNACBased):
 	"""
 	notify server about changes in caps
         """
-	self.removeSelfXstatusNoUpdate()
-	self.setUserInfo()
-	self.setExtendedStatusRequest()
+	if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
+		self.removeSelfXstatusNoUpdate()
+		self.setUserInfo()
+	if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
+		self.setExtendedStatusRequest()
 	
     def updateSelfXstatus(self):
 	"""
 	update x-status
         """
 	if 'x-status name' in self.selfCustomStatus: # self x-status exists
-		self.setSelfXstatusName(self.selfCustomStatus['x-status name'])
+		if 'avail.message' in self.selfCustomStatus:
+			availmsg = self.selfCustomStatus['avail.message']
+		else:
+			availmsg = None
+		self.setSelfXstatusName(self.selfCustomStatus['x-status name'], availmsg)
 	else: # no self x-status
 		self.removeSelfXstatus() # tell to server about it
 	log.msg('updateSelfXstatus: %s' % self.selfCustomStatus)
@@ -2495,7 +2501,15 @@ class BOSConnection(SNACBased):
 			return True
 	return False
 	
-    def	setSelfXstatusName(self, xstatus_name):
+    def settingsOptionValue(self, option):
+	"""
+	return setting value
+        """
+	if option in self.selfSettings:
+		return str(self.selfSettings[option])
+	return str(0)
+	
+    def	setSelfXstatusName(self, xstatus_name, availmsg):
 	"""
 	set x-status name, notify server about change and update internal x-status number
         """
@@ -2504,11 +2518,17 @@ class BOSConnection(SNACBased):
 			index_in_list = X_STATUS_NAME.index(xstatus_name)
 			for key in X_STATUS_CAPS:
 				if X_STATUS_CAPS[key] == index_in_list:
+					setmood = False
+					if index_in_list in X_STATUS_MOODS:
+						mood_num = X_STATUS_MOODS[index_in_list]
+						setmood = True
 					self.selfCustomStatus['x-status number'] = index_in_list
 					self.removeSelfXstatusNoUpdate()
-	    				self.capabilities.append(key)
-					self.setUserInfo()
-					self.setExtendedStatusRequest()
+					if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
+	    					self.capabilities.append(key)
+						self.setUserInfo()
+					if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
+						self.setExtendedStatusRequest(message=availmsg, mood=mood_num, setmood=setmood)
 	
     def setUserInfo(self):
         """
@@ -2522,17 +2542,18 @@ class BOSConnection(SNACBased):
         self.sendSNAC(0x02, 0x04, data)
 
 			 
-    def setExtendedStatusRequest(self, message = None):
+    def setExtendedStatusRequest(self, message = None, setmood = False, mood=None):
 	"""
         send self status info in ICQ6 format (x-status mood + available message + online status)
         """
 	moodinfo = ''
 	msginfo = ''
-	mood_num = self.getSelfXstatusMoodIndex()
-	if mood_num > -1: # mood
-		mood_str = 'icqmood' + str(mood_num)
-		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-		moodinfo = mood_prefix + mood_str
+	if setmood == True and mood:
+		mood_num = int(mood)
+		if mood_num > -1: # mood
+			mood_str = 'icqmood' + str(mood_num)
+			mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+			moodinfo = mood_prefix + mood_str
 	if message and message != '': # message
 		msginfo = struct.pack(
 		"!HbbH",
