@@ -88,6 +88,13 @@ class BuddyList:
 		lo_contact = contact.lower()
 		if lo_contact in self.usercustomstatuses: # if custom status for user exists
 			del self.usercustomstatuses[lo_contact]
+	
+	def delCustomStatusKey(self, contact, key):
+		LogEvent(INFO, self.session.jabberID)
+		lo_contact = contact.lower()
+		if lo_contact in self.usercustomstatuses: # if custom status for user exists
+			if key in self.usercustomstatuses[lo_contact]: # and key too
+				del self.usercustomstatuses[lo_contact][key]
 
 	def setCapabilities(self, contact, caplist):
 		LogEvent(INFO, self.session.jabberID)

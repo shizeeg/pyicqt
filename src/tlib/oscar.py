@@ -870,24 +870,38 @@ class SNACBased(OscarConnection):
 	buddylen = struct.unpack('!B',snacdata[10:11])[0]
 	buddy_end = 11+buddylen
 	buddy = snacdata[11:buddy_end] # buddy uin
-	log.msg("Received x-status message response from %s" % buddy)
 	
 	extdata = snacdata[buddy_end+2:]
-	UnSafe_Notification = self.extractXStatusNotification(extdata)
-				
-	title_begin_pos = UnSafe_Notification.find('<title>')
-	title_end_pos = UnSafe_Notification.find('</title>')
-	if title_begin_pos !=-1 and title_end_pos !=-1:
-		title = UnSafe_Notification[title_begin_pos+len('<title>'):title_end_pos]
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
+	if msgtype in (0xe7, 0xe8): # auto away message
+		log.msg("Received status message response from %s" % buddy)
+		msgflags = struct.unpack('!B',extdata[msg_features_pos+1:msg_features_pos+2])[0]
+		msgstatus = struct.unpack('!H',extdata[msg_features_pos+2:msg_features_pos+4])[0]
+		msgpriority = struct.unpack('!H',extdata[msg_features_pos+4:msg_features_pos+6])[0]	
+		msglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
+		msg = extdata[msg_features_pos+8:msg_features_pos+8+msglen]
+		CustomStatus = {}
+		CustomStatus['autoaway message'] = msg
+	else:
+		log.msg("Received x-status message response from %s" % buddy)
+		UnSafe_Notification = self.extractXStatusNotification(extdata)
 					
-	desc_begin_pos = UnSafe_Notification.find('<desc>')
-	desc_end_pos = UnSafe_Notification.find('</desc>')
-	if desc_begin_pos !=-1 and desc_end_pos !=-1:
-		desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
-	
-	CustomStatus = {}
-	CustomStatus['x-status title'] = title
-	CustomStatus['x-status desc'] = desc
+		title_begin_pos = UnSafe_Notification.find('<title>')
+		title_end_pos = UnSafe_Notification.find('</title>')
+		if title_begin_pos !=-1 and title_end_pos !=-1:
+			title = UnSafe_Notification[title_begin_pos+len('<title>'):title_end_pos]
+						
+		desc_begin_pos = UnSafe_Notification.find('<desc>')
+		desc_end_pos = UnSafe_Notification.find('</desc>')
+		if desc_begin_pos !=-1 and desc_end_pos !=-1:
+			desc = UnSafe_Notification[desc_begin_pos+len('<desc>'):desc_end_pos]
+		
+		CustomStatus = {}
+		CustomStatus['x-status title'] = title
+		CustomStatus['x-status desc'] = desc
 	self.oscarcon.legacyList.setCustomStatus(buddy, CustomStatus)
 	saved_snac = self.oscarcon.getSavedSnac(buddy)
 	if saved_snac != '':
@@ -1592,18 +1606,28 @@ class BOSConnection(SNACBased):
                 if 0x2711 in moreTLVs:
 			# Extended data
 			extdata = moreTLVs[0x2711]
-			try:
-				UnSafe_Notification = self.extractXStatusNotification(extdata)
-				request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
-				request_pos_end = UnSafe_Notification.find('</req>')
-				if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
-					log.msg('Request for x-status details from %s' % user.name)
-					if config.xstatusessupport:
-						if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
-							self.sendXstatusMessageResponse(user.name, cookie2)
-			except:
-				log.msg('Strange rendezvous')
-				log.msg(repr(moreTLVs))
+			headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+			headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+			msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+			msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
+			if msgtype in (0xe7, 0xe8): # auto away message
+				log.msg('Request for status details from %s' % user.name)
+				if config.xstatusessupport:
+					if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
+						self.sendStatusMessageResponse(user.name, cookie2)
+			else:
+				try:
+					UnSafe_Notification = self.extractXStatusNotification(extdata)
+					request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
+					request_pos_end = UnSafe_Notification.find('</req>')
+					if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
+						log.msg('Request for x-status details from %s' % user.name)
+						if config.xstatusessupport:
+							if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
+								self.sendXstatusMessageResponse(user.name, cookie2)
+				except:
+					log.msg('Strange rendezvous')
+					log.msg(repr(moreTLVs))
 		else:
 			log.msg('more TLVs for serv_relay: %s' % moreTLVs)
             else:
@@ -2371,6 +2395,52 @@ class BOSConnection(SNACBased):
 	data = header + self.prepareExtendedDataBody(query) # data for response formed
 
 	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
+	
+    def sendStatusMessageRequest(self, user):
+	"""
+	send request for status message to user
+        """
+	if user in self.oscarcon.legacyList.usercaps:
+		log.msg("Sending status details request to %s" % user)
+		# AIM messaging header
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+		header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
+		# request TLV
+		extdataTLV = TLV(0x2711, self.prepareClientAutoResponseBody('\0')) # make TLV with empty body
+		# Render Vous Data body
+		rvdataTLV = struct.pack('!H',0x0000) # request
+		rvdataTLV = rvdataTLV + cookie # ICBM cookie
+		rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
+		# additional TLVs
+		addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
+		addTLV2 = TLV(0x0f) # empty TLV
+		# concat TLVs
+		rvdataTLV = rvdataTLV + addTLV1 + addTLV2 + extdataTLV
+		# make Render Vous Data TLV
+		rvdataTLV = TLV(0x0005, rvdataTLV)
+		# server Ack requested
+		TLVask = TLV(3)
+		# result data
+		data = header + rvdataTLV + TLVask
+				
+		self.sendSNAC(0x04, 0x06, data).addCallback(self._sendStatusMessageRequest) # send request
+		
+    def _sendStatusMessageRequest(self, snac):
+	"""
+	callback for sending of status request
+        """
+	log.msg("Request for status details sent")
+
+    def sendStatusMessageResponse(self, user, cookie):
+	"""
+	send status message response to user
+        """
+	log.msg("Sending status details response to %s" % user)
+	# AIM messaging header
+	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # cookie from request, channel 2, user UIN
+	header = header + struct.pack('!H',0x3) # reason: channel-specific
+	data = header + self.prepareClientAutoResponseBody(utils.utf8encode(self.oscarcon.savedFriendly))
+	self.sendSNACnr(0x04, 0x0b, data) # send as Client Auto Response
 
     def packPluginTypeId(self):
     	"""
@@ -2383,6 +2453,28 @@ class BOSConnection(SNACBased):
 	dt += 'Script Plug-in: Remote Notification Arrive'
 	dt += struct.pack('!LLLHB',0x00000100, 0x00000000, 0x00000000, 0x0000, 0x00) # unknown
 	return dt
+
+    def prepareClientAutoResponseBody(self, query):
+	"""
+	auto-away message
+        """
+	# extended data body
+	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
+	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
+	extended_data = extended_data + CAP_EMPTY # Plugin Version
+	extended_data = extended_data + struct.pack("!L", 0x3) # client features
+	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	extended_data = extended_data + msgcookie # message cookie
+	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
+	extended_data = extended_data + msgcookie # message cookie again
+	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
+	extended_data = extended_data + struct.pack('!B', 0xe8) # msg type: auto-away message
+	extended_data = extended_data + struct.pack('!B', 0x03) # msg flags: auto message
+	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('!H',0x0100) # priority
+	extended_data = extended_data + struct.pack('<H',len(query)) + query # message
+	return extended_data
 
     def prepareExtendedDataBody(self, query):
 	"""
@@ -2538,6 +2630,7 @@ class BOSConnection(SNACBased):
 			index_in_list = X_STATUS_NAME.index(xstatus_name)
 			for key in X_STATUS_CAPS:
 				if X_STATUS_CAPS[key] == index_in_list:
+					mood_num = -1
 					setmood = False
 					for everymood in X_STATUS_MOODS:
 						if X_STATUS_MOODS[everymood] == index_in_list:
@@ -2575,7 +2668,7 @@ class BOSConnection(SNACBased):
 			mood_str = 'icqmood' + str(mood_num)
 			mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
 			moodinfo = mood_prefix + mood_str
-	if setmsg == True and message: # message
+	if setmsg == True and message != None: # message
 		if len(message) > 240:
 			message = message[:237] + '...'
 		msginfo = struct.pack(

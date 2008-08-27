@@ -480,6 +480,14 @@ class LegacyConnection:
 		desc.addContent(utils.xmlify(cutprofile))
 
 		d.callback(vcard)
+		
+	def getAutoAwayMessage(self, userHandle):
+		LogEvent(INFO, self.session.jabberID)
+		if userHandle in self.legacyList.usercustomstatuses:
+			customStatus = self.legacyList.usercustomstatuses[userHandle]
+			if 'autoaway message' in customStatus:
+				return customStatus['autoaway message']
+		return ''
 
 	def getXStatus(self, userHandle):
 	# returns text of x-status icon

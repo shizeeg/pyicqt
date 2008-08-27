@@ -15,6 +15,8 @@ import binascii
 import md5
 import locale
 
+from twisted.python import log
+
 
 
 #############################################################################
@@ -263,6 +265,14 @@ class B(oscar.BOSConnection):
 			else:
 				LogEvent(INFO, self.session.jabberID, "Buddy icon is the same, using what we have for %s" % user.name)
 
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 1:
+			if 'icqmood' in user.customStatus:
+				del user.customStatus['icqmood']
+			#self.oscarcon.legacyList.delCustomStatusKey(user.name, 'icqmood')
+			status = ''
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2:
+			if 'x-status' in user.customStatus:
+				del user.customStatus['x-status']
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
 		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
@@ -346,7 +356,8 @@ class B(oscar.BOSConnection):
 				self.oscarcon.setPersonalEvents(user.name, mood, act, subact) # set personal events
 				
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
-					status = ''
+					if status == None:
+						status = ''
 					if anstatus and anstatus != '':
 						if status != '':
 							status += '\n'
@@ -376,7 +387,12 @@ class B(oscar.BOSConnection):
 						self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
 		if user.flags.count("away"):
-			self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)
+		#	This feature takes a lot of a traffic
+		#	if selfcall == False:
+		#		if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3): 
+		#			self.sendStatusMessageRequest(user.name) # request status message
+			if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3): 
+				self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)
 		else:
 			c.updatePresence(show=show, status=status, ptype=ptype, url=url)
 			self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
@@ -649,6 +665,8 @@ class B(oscar.BOSConnection):
 			self.oscarcon.setAway() # reset away message
 		else:
 			self.oscarcon.setAway(self.oscarcon.savedFriendly) # set away message
+		if int(self.settingsOptionValue('xstatus_sending_mode')) == 1: # in ICQ5.1 mode
+			self.setExtendedStatusRequest(message='', setmsg=True) # reset ICQ6 status
 		if hasattr(self.oscarcon, "myavatar") and not config.disableAvatars:
 			self.oscarcon.changeAvatar(self.oscarcon.myavatar)
 		self.oscarcon.setICQStatus(self.oscarcon.savedShow)
