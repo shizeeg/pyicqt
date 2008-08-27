@@ -407,7 +407,7 @@ class OSCARUser:
 							if icq_mood_iconstr.find('icqmood') != -1:
 								icq_mood_num = int(icq_mood_iconstr.replace('icqmood',''))
 								self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
-								log.msg('	ICQ 6 mood #:',icq_mood_num)
+								log.msg('    icqmood #:',icq_mood_num)
 					else:
 						log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
 					#v=v[ord(v[3])+4:]
@@ -1343,7 +1343,7 @@ class BOSConnection(SNACBased):
         Receive extended status info
         """
         v = snac[5]
-        log.msg('Received extended status info for %s: %s' % (self.username, str(snac)))
+        log.msg('Received self extended status info for %s: %s' % (self.username, str(snac)))
 
         while len(v)>4 and ord(v[0]) == 0 and ord(v[3]) != 0:
             exttype = (struct.unpack('!H',v[0:2]))[0]
@@ -1359,10 +1359,28 @@ class BOSConnection(SNACBased):
 		status=v[6:6+statlen]
 		log.msg("   extracted status message: %s"%(status))
 		self.status = status
+	    elif exttype == 0x06: # online status
+		st_len = int((struct.unpack('!H', v[2:4]))[0])
+		if st_len == 4:
+			st_ind = int((struct.unpack('!H', v[4:6]))[0])
+			st_cod = int((struct.unpack('!H', v[6:8]))[0])
+			if st_cod == 0x00:
+				status = 'online'
+		        elif st_cod == 0x01:
+            			status = 'away'
+			elif st_cod == 0x02:
+            			status = 'dnd'
+			elif st_cod == 0x04:
+            			status = 'xa'
+			elif st_cod == 0x20:
+            			status = 'chat'
+			else:
+				status = 'unknown: %s' % st_cod
+			log.msg("   extracted online status: %s"%(status))
 	    elif exttype == 0x0e: # ICQ6 mood only or mood + available message?
 		mood_str_len = int((struct.unpack('!H', v[2:4]))[0])
 		mood_str = v[4:4+mood_str_len]
-		log.msg("   extracted mood: %s" % (mood_str))
+		log.msg("   extracted icqmood: %s" % (mood_str))
             else:
                 log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
             v=v[ord(v[3])+4:]
@@ -2212,7 +2230,9 @@ class BOSConnection(SNACBased):
         else:
             icqStatus = 0x00
 	self.icqStatus = icqStatus
-        self.sendSNACnr(0x01, 0x1e, TLV(0x06, struct.pack(">HH", self.statusindicators, icqStatus)))
+	status = struct.pack('>HH', self.statusindicators, self.icqStatus)
+	onlinestatusTLV = TLV(0x0006, status) # status
+        self.sendSNACnr(0x01, 0x1e, onlinestatusTLV)
 
     def setIdleTime(self, idleTime):
         """
@@ -2476,7 +2496,7 @@ class BOSConnection(SNACBased):
 		self.removeSelfXstatusNoUpdate()
 		self.setUserInfo()
 	if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
-		self.setExtendedStatusRequest()
+		self.setExtendedStatusRequest(message='', setmsg=True)
 	
     def updateSelfXstatus(self):
 	"""
@@ -2519,16 +2539,17 @@ class BOSConnection(SNACBased):
 			for key in X_STATUS_CAPS:
 				if X_STATUS_CAPS[key] == index_in_list:
 					setmood = False
-					if index_in_list in X_STATUS_MOODS:
-						mood_num = X_STATUS_MOODS[index_in_list]
-						setmood = True
+					for everymood in X_STATUS_MOODS:
+						if X_STATUS_MOODS[everymood] == index_in_list:
+							mood_num = everymood
+							setmood = True
 					self.selfCustomStatus['x-status number'] = index_in_list
 					self.removeSelfXstatusNoUpdate()
 					if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
 	    					self.capabilities.append(key)
 						self.setUserInfo()
 					if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
-						self.setExtendedStatusRequest(message=availmsg, mood=mood_num, setmood=setmood)
+						self.setExtendedStatusRequest(message=availmsg, mood=mood_num, setmood=setmood, setmsg=True)
 	
     def setUserInfo(self):
         """
@@ -2542,7 +2563,7 @@ class BOSConnection(SNACBased):
         self.sendSNAC(0x02, 0x04, data)
 
 			 
-    def setExtendedStatusRequest(self, message = None, setmood = False, mood=None):
+    def setExtendedStatusRequest(self, message=None, mood=None, setmsg=False, setmood=False):
 	"""
         send self status info in ICQ6 format (x-status mood + available message + online status)
         """
@@ -2554,7 +2575,9 @@ class BOSConnection(SNACBased):
 			mood_str = 'icqmood' + str(mood_num)
 			mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
 			moodinfo = mood_prefix + mood_str
-	if message and message != '': # message
+	if setmsg == True and message: # message
+		if len(message) > 240:
+			message = message[:237] + '...'
 		msginfo = struct.pack(
 		"!HbbH",
 		0x0002,         # H
@@ -2566,7 +2589,7 @@ class BOSConnection(SNACBased):
 		msgmoodTLV = TLV(0x001d, msginfo + moodinfo) # available message TLV
 	else:
 		msgmoodTLV = ''
-	status = struct.pack('!L',self.icqStatus)
+	status = struct.pack('>HH', self.statusindicators, self.icqStatus)
 	onlinestatusTLV = TLV(0x0006, status) # status
 	data = onlinestatusTLV + msgmoodTLV
 	self.sendSNAC(0x01, 0x1e, data)

@@ -278,8 +278,9 @@ class B(oscar.BOSConnection):
 				x_status_name = None
 				x_status_title = None
 				x_status_desc = None
-				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3):
 					x_status_name = self.oscarcon.getXStatus(user.name)
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
 					x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
 				
 				mood = None
@@ -345,8 +346,7 @@ class B(oscar.BOSConnection):
 				self.oscarcon.setPersonalEvents(user.name, mood, act, subact) # set personal events
 				
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
-					if status == None:
-						status = ''
+					status = ''
 					if anstatus and anstatus != '':
 						if status != '':
 							status += '\n'
@@ -361,6 +361,15 @@ class B(oscar.BOSConnection):
 						status += '%s' % lang.get(x_status_name)
 					if status == '':
 						status = None
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2:
+					if status == '' and x_status_name != '': # need write name
+						if status != '':
+							status += '\n'
+						status += '%s' % lang.get(x_status_name)
+					if anstatus and anstatus != '':
+						if status != '':
+							status = '\n' + status
+						status = '%s%s' % (lang.get(anstatus),status)
 					
 				if selfcall == False:
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
@@ -635,11 +644,11 @@ class B(oscar.BOSConnection):
 			tmpjid=config.jid+"/registered"
 		if self.session.pytrans:
 			self.session.sendPresence(to=self.session.jabberID, fro=tmpjid, show=self.oscarcon.savedShow, status=self.oscarcon.savedFriendly, url=self.oscarcon.savedURL)
-		#if not self.oscarcon.savedShow or self.oscarcon.savedShow == "online":
-		#	self.oscarcon.setBack(self.oscarcon.savedFriendly)
-		#else:
-		self.oscarcon.setBack(self.oscarcon.savedFriendly)
-		self.oscarcon.setAway(self.oscarcon.savedFriendly)
+		if not self.oscarcon.savedShow or self.oscarcon.savedShow == "online":
+			#self.oscarcon.setBack(self.oscarcon.savedFriendly)
+			self.oscarcon.setAway() # reset away message
+		else:
+			self.oscarcon.setAway(self.oscarcon.savedFriendly) # set away message
 		if hasattr(self.oscarcon, "myavatar") and not config.disableAvatars:
 			self.oscarcon.changeAvatar(self.oscarcon.myavatar)
 		self.oscarcon.setICQStatus(self.oscarcon.savedShow)

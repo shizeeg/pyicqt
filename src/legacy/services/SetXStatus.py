@@ -93,6 +93,7 @@ class SetXStatus:
 	def sendXStatusNameSelectionForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
 		to_jid = internJID(to)
+		jid = to_jid.userhost()
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
 		
@@ -136,14 +137,27 @@ class SetXStatus:
 		value = option.addElement('value')
 		value.addContent('None')
 		
+		counter = 0
+		limit = False
+		if int(self.pytrans.sessions[jid].legacycon.bos.settingsOptionValue('xstatus_sending_mode')) == 2:
+			limit = True
+			counter = 24
 		for xstatus_title in oscar.X_STATUS_NAME:
-			option = field.addElement('option')
-			option.attributes['label'] = lang.get(xstatus_title)
-			value = option.addElement('value')
-			value.addContent(xstatus_title)
+			if limit:
+				if counter > 0:
+					option = field.addElement('option')
+					option.attributes['label'] = lang.get(xstatus_title)
+					value = option.addElement('value')
+					value.addContent(xstatus_title)
+					counter -= 1
+			else:
+				option = field.addElement('option')
+				option.attributes['label'] = lang.get(xstatus_title)
+				value = option.addElement('value')
+				value.addContent(xstatus_title)
 			
 		value = field.addElement('value')
-		current_xstatus_name = self.pytrans.sessions[to_jid.userhost()].legacycon.bos.getSelfXstatusName()
+		current_xstatus_name = self.pytrans.sessions[jid].legacycon.bos.getSelfXstatusName()
 		if current_xstatus_name != '':
 			value.addContent(current_xstatus_name)
 		else:
