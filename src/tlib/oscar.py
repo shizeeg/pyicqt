@@ -1044,6 +1044,7 @@ class BOSConnection(SNACBased):
 	('xstatus_receiving_mode', 0),
 	('xstatus_sending_mode', 0),
 	('xstatus_saving_enabled', 1),
+	('xstatus_option_smooth', 1),
 	('clist_show_phantombuddies', 0)
 	])
 	if settings and len(settings) != 0:

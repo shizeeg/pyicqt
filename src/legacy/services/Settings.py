@@ -213,6 +213,13 @@ class Settings:
 			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_saving_enabled']))
+			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_option_smooth'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('xstatus_option_smooth')
+			value = field.addElement('value')
+			value.addContent(str(settings['xstatus_option_smooth']))
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'

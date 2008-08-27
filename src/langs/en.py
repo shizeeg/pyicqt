@@ -99,6 +99,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_recvmode_ICQ5 = u"ICQ 5.1 (most popular)"
 	xstatus_recvmode_ICQ6 = u"ICQ 6 (less traffic)"
 	xstatus_recvmode_ICQ5_6 = u"ICQ 5.1+6 (max compatibility)"
+	xstatus_option_smooth = "Allow status icons between 5.1 and 6"
 	# additional "normal" statuses
 	anstatus_out_to_lunch = u"Out to lunch"
 	anstatus_on_the_phone = u"On the phone"

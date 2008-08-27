@@ -265,12 +265,12 @@ class B(oscar.BOSConnection):
 			else:
 				LogEvent(INFO, self.session.jabberID, "Buddy icon is the same, using what we have for %s" % user.name)
 
-		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 1:
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 1 and int(self.settingsOptionEnabled('xstatus_option_smooth')) == 0:
 			if 'icqmood' in user.customStatus:
 				del user.customStatus['icqmood']
 			#self.oscarcon.legacyList.delCustomStatusKey(user.name, 'icqmood')
 			status = ''
-		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2:
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2 and int(self.settingsOptionEnabled('xstatus_option_smooth')) == 0:
 			if 'x-status' in user.customStatus:
 				del user.customStatus['x-status']
 		if user.caps:
