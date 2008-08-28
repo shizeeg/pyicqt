@@ -406,7 +406,8 @@ class OSCARUser:
 							icq_mood_iconstr=v[4:(4+extlen)]
 							if icq_mood_iconstr.find('icqmood') != -1:
 								icq_mood_num = int(icq_mood_iconstr.replace('icqmood',''))
-								self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
+								if icq_mood_num in X_STATUS_MOODS:
+									self.customStatus['icqmood'] = X_STATUS_NAME[X_STATUS_MOODS[icq_mood_num]]
 								log.msg('    icqmood #:',icq_mood_num)
 					else:
 						log.msg("   unknown extended status type: %d\ndata: %s"%(ord(v[1]), repr(v[:ord(v[3])+4])))
@@ -2459,6 +2460,8 @@ class BOSConnection(SNACBased):
 	"""
 	auto-away message
         """
+	if query == None:
+		query = ''
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version

@@ -269,10 +269,11 @@ class B(oscar.BOSConnection):
 			if 'icqmood' in user.customStatus:
 				del user.customStatus['icqmood']
 			#self.oscarcon.legacyList.delCustomStatusKey(user.name, 'icqmood')
-			status = ''
 		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2 and int(self.settingsOptionEnabled('xstatus_option_smooth')) == 0:
 			if 'x-status' in user.customStatus:
 				del user.customStatus['x-status']
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) in (0,1):
+			status = ''
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
 		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
