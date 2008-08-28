@@ -85,7 +85,7 @@ class PublishSubscribe:
 			if text:
 				t = m.addElement("text")
 				t.addContent(text)
-		
+
 		self.pytrans.send(el)
 	
 	def sendActivity(self, to=None, fro=None, act=None, subact=None, text=None, subact_xmlns=None, action=None,  extend_subact_xmlns=None):

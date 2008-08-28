@@ -242,21 +242,6 @@ class B(oscar.BOSConnection):
 			status = status.decode('utf-8', 'replace')
 			LogEvent(WARN, self.session.jabberID, "Unknown status message encoding for %s" % user.name)
 		status = oscar.dehtml(status) # Removes any HTML tags
-		if status == "Away" or status=="I am currently away from the computer." or status=="I am away from my computer right now.":
-			status = ""
-		if user.idleTime:
-			if user.idleTime>60*24:
-				idle_time = "Idle %d days"%(user.idleTime/(60*24))
-				if not show: show = "xa"
-			elif user.idleTime>60:
-				idle_time = "Idle %d hours"%(user.idleTime/(60))
-				if not show: show = "away"
-			else:
-				idle_time = "Idle %d minutes"%(user.idleTime)
-			if status:
-				status="%s - %s"%(idle_time,status)
-			else:
-				status=idle_time
 
 		if user.iconmd5sum != None and not config.disableAvatars and not config.avatarsOnlyOnChat:
 			if self.oscarcon.legacyList.diffAvatar(user.name, md5Hash=binascii.hexlify(user.iconmd5sum)):
@@ -274,6 +259,13 @@ class B(oscar.BOSConnection):
 				del user.customStatus['x-status']
 		if int(self.settingsOptionValue('xstatus_receiving_mode')) in (0,1):
 			status = ''
+		requestForXStatus = True
+		if int(self.settingsOptionValue('xstatus_receiving_mode')) == 3:
+			if 'icqmood' in user.customStatus and status != '': # already have icon and text of a status
+				requestForXStatus = False
+			if selfcall == True:
+				status = ''
+			
 		if user.caps:
 			self.oscarcon.legacyList.setCapabilities(user.name, user.caps)
 		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
@@ -287,12 +279,24 @@ class B(oscar.BOSConnection):
 		if config.xstatusessupport:
 			if int(self.settingsOptionValue('xstatus_receiving_mode')) != 0:
 				x_status_name = None
-				x_status_title = None
-				x_status_desc = None
+				x_status = None
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3):
 					x_status_name = self.oscarcon.getXStatus(user.name)
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
 					x_status_title, x_status_desc = self.oscarcon.getXStatusDetails(user.name)
+					if x_status_title != '' and x_status_desc != '':
+						if x_status_title == ' ':
+							x_status = x_status_desc
+						elif x_status_desc == ' ':
+							x_status = x_status_title
+						else:
+							x_status = x_status_title + ' ' + x_status_desc
+					elif x_status_title == '' and x_status_desc != '':
+						x_status = x_status_desc
+					elif x_status_title != '' and x_status_desc == '':
+						x_status = x_status_title
+					else:
+						x_status = ''
 				
 				mood = None
 				act = None
@@ -311,12 +315,12 @@ class B(oscar.BOSConnection):
 					mood_p = None
 					act_p = None
 					subact_p = None
-					if user.status != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (2,3):
-						mood_p = self.parseAndSearchForMood(user.status)
-						act_p, subact_p = self.parseAndSearchForActivity(user.status)
-					if x_status_title != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
-						mood_p = self.parseAndSearchForMood(x_status_title)
-						act_p, subact_p = self.parseAndSearchForActivity(x_status_title)
+					if status != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (2,3):
+						mood_p = self.parseAndSearchForMood(status)
+						act_p, subact_p = self.parseAndSearchForActivity(status)
+					if x_status != '' and int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
+						mood_p = self.parseAndSearchForMood(x_status)
+						act_p, subact_p = self.parseAndSearchForActivity(x_status)
 						
 					if mood_p: # mood found in x-status title
 						mood = mood_p # use it
@@ -335,20 +339,20 @@ class B(oscar.BOSConnection):
 							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
 						else: # set mood now
 							if mood != s_mood: # if need set other mood
-								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc)
+								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status)
 					else: # if this attempt - first
 						if mood: # set it!
-							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status_desc) # just send new mood
+							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=x_status) # just send new mood
 							
 					if s_act: # if activity was set
 						if not act: # if don't set activity now
 							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
 						else: # set activity now
 							if not (act == s_act and subact == s_subact): # if need set other activity/subactivity pair
-								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc)
+								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status)
 					else: # if this attempt - first
 						if act: # set it!
-							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status_desc) # just send new activity
+							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=x_status) # just send new activity
 							
 				else: # no x-status and additional normal status
 					self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
@@ -359,18 +363,16 @@ class B(oscar.BOSConnection):
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
 					if status == None:
 						status = ''
+					if x_status != '': # show title + desc
+						if status != '':
+							status += '\n'
+						status += x_status
+					elif x_status_name != '' and user.status == '': # or name
+						status += '%s' % lang.get(x_status_name)
 					if anstatus and anstatus != '':
 						if status != '':
-							status += '\n'
-						status += '%s' % lang.get(anstatus)
-					if x_status_title != '' or x_status_desc != '': # show title + desc
-						if status != '':
-							status += '\n'
-						status += '%s %s' % (x_status_title, x_status_desc)
-					elif x_status_name != '': # or name
-						if status != '':
-							status += '\n'
-						status += '%s' % lang.get(x_status_name)
+							status = '\n' + status
+						status = '%s%s' % (lang.get(anstatus),status)
 					if status == '':
 						status = None
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2:
@@ -383,7 +385,7 @@ class B(oscar.BOSConnection):
 							status = '\n' + status
 						status = '%s%s' % (lang.get(anstatus),status)
 					
-				if selfcall == False:
+				if selfcall == False and requestForXStatus == True:
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
 						self.sendXstatusMessageRequest(user.name) # request Xstatus message
 			
@@ -395,6 +397,19 @@ class B(oscar.BOSConnection):
 			if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3): 
 				self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)
 		else:
+			if user.idleTime:
+				if user.idleTime>60*24:
+					idle_time = "Idle %d days"%(user.idleTime/(60*24))
+					if not show: show = "xa"
+				elif user.idleTime>60:
+					idle_time = "Idle %d hours"%(user.idleTime/(60))
+					if not show: show = "away"
+				else:
+					idle_time = "Idle %d minutes"%(user.idleTime)
+				if status:
+					status="%s - %s"%(idle_time,status)
+				else:
+					status=idle_time
 			c.updatePresence(show=show, status=status, ptype=ptype, url=url)
 			self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status, ipaddr=user.icqIPaddy, lanipaddr=user.icqLANIPaddy, lanipport=user.icqLANIPport, icqprotocol=user.icqProtocolVersion, url=url)
 
