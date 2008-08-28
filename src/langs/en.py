@@ -100,6 +100,8 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_recvmode_ICQ6 = u"ICQ 6 (less traffic)"
 	xstatus_recvmode_ICQ5_6 = u"ICQ 5.1+6 (max compatibility)"
 	xstatus_option_smooth = "Allow status icons between 5.1 and 6"
+	xstatus_display_icon_as_PEP = "Display status icon as mood/activity"
+	xstatus_display_text_as_PEP = "Try display status text as mood/activity"
 	# additional "normal" statuses
 	anstatus_out_to_lunch = u"Out to lunch"
 	anstatus_on_the_phone = u"On the phone"

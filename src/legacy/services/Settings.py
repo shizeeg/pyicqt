@@ -189,6 +189,13 @@ class Settings:
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_sending_mode']))
 				
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_saving_enabled'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
+			value = field.addElement('value')
+			value.addContent(str(settings['xstatus_saving_enabled']))	
+			
 			xstatus_receiving = dict([
 			('xstatus_recvmode_none',0),
 			('xstatus_recvmode_ICQ5',1),
@@ -206,13 +213,6 @@ class Settings:
 				value.addContent(str(xstatus_receiving[title]))
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_receiving_mode']))
-				
-			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_saving_enabled'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_saving_enabled']))
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_option_smooth'
@@ -220,6 +220,20 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_option_smooth')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_option_smooth']))
+			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_display_icon_as_PEP'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('xstatus_display_icon_as_PEP')
+			value = field.addElement('value')
+			value.addContent(str(settings['xstatus_display_icon_as_PEP']))
+			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_display_text_as_PEP'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('xstatus_display_text_as_PEP')
+			value = field.addElement('value')
+			value.addContent(str(settings['xstatus_display_text_as_PEP']))
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
