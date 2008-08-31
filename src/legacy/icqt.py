@@ -398,10 +398,14 @@ class B(oscar.BOSConnection):
 			else:
 				# x-status support disabled
 				status = ''
-			
+				
+		requestForAwayMsg = False
 		if user.flags.count("away"):
-			if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3): 
-				self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)
+			if int(self.settingsOptionEnabled('away_messages_receiving')):
+				requestForAwayMsg = True
+				
+		if requestForAwayMsg == True:
+			self.getAway(user.name).addCallback(self.sendAwayPresence, user, show, status)	
 		else:
 			if user.idleTime:
 				if user.idleTime>60*24:

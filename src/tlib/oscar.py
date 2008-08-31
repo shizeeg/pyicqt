@@ -1048,6 +1048,7 @@ class BOSConnection(SNACBased):
 	('xstatus_option_smooth', 1),
 	('xstatus_display_icon_as_PEP', 1),
 	('xstatus_display_text_as_PEP', 1),
+	('away_messages_receiving', 1),
 	('clist_show_phantombuddies', 0)
 	])
 	if settings and len(settings) != 0:

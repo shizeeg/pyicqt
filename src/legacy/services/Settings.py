@@ -171,6 +171,13 @@ class Settings:
 		x.attributes["type"] = "form"
 		
 		if config.xstatusessupport:
+			field = x.addElement('field')
+			field.attributes['var'] = 'away_messages_receiving'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('away_messages_receiving')
+			value = field.addElement('value')
+			value.addContent(str(settings['away_messages_receiving']))
+			
 			xstatus_sending = dict([
 			('xstatus_sendmode_none',0),
 			('xstatus_sendmode_ICQ5',1),
