@@ -66,12 +66,16 @@ class Settings:
 				self.ApplyXstatusSettings(toj, settings_dict) # apply x-status settings
 			elif settings_page == 'clist_settings':
 				self.ApplyContactListSettings(toj, settings_dict) # apply contact list settings
+			elif settings_page == 'message_settings':
+				self.ApplyMessageSettings(toj, settings_dict) # apply message settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif stage == '1':
 			if settings_page == 'xstatus_settings':
 				self.sendXstatusSettingsForm(el, sessionid) # send form with x-status settings
 			elif settings_page == 'clist_settings':
 				self.sendContactListSettingsForm(el, sessionid) # send form with contact list settings
+			elif settings_page == 'message_settings':
+				self.sendMessageSettingsForm(el, sessionid) # send form with message settings
 		else:
 			self.sendSettingsClassForm(el, sessionid) # send form
 	
@@ -122,6 +126,11 @@ class Settings:
 		option.attributes['label'] = lang.get('settings_category_xstatus')
 		value = option.addElement('value')
 		value.addContent('xstatus_settings')
+		
+		option = field.addElement('option')
+		option.attributes['label'] = lang.get('settings_category_message')
+		value = option.addElement('value')
+		value.addContent('message_settings')
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -301,6 +310,72 @@ class Settings:
 		
 		self.pytrans.send(iq)
 		
+	def sendMessageSettingsForm(self, el, sessionid=None):
+		to = el.getAttribute("from")
+		ID = el.getAttribute("id")
+		ulang = utils.getLang(el)
+		
+		toj = internJID(to)
+		jid = toj.userhost()
+		
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		settings = bos.selfSettings
+		
+		iq = Element((None, "iq"))
+		iq.attributes["to"] = to
+		iq.attributes["from"] = config.jid
+		if ID:
+			iq.attributes["id"] = ID
+		iq.attributes["type"] = "result"
+
+		command = iq.addElement("command")
+		if sessionid:
+			command.attributes["sessionid"] = sessionid
+		else:
+			command.attributes["sessionid"] = self.pytrans.makeMessageID()
+		command.attributes["node"] = "settings"
+		command.attributes["xmlns"] = globals.COMMANDS
+		command.attributes["status"] = "executing"
+
+		actions = command.addElement("actions")
+		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
+		actions.addElement("complete")
+
+		x = command.addElement("x")
+		x.attributes["xmlns"] = "jabber:x:data"
+		x.attributes["type"] = "form"
+		
+		utf8_messages_sendmode = dict([
+			('utf8_messages_sendmode_none',0),
+			('utf8_messages_sendmode_as_reply',1),
+			('utf8_messages_sendmode_always',2)
+			])
+		field = x.addElement('field')
+		field.attributes['var'] = 'utf8_messages_sendmode'
+		field.attributes['type'] =  'list-single'
+		field.attributes['label'] = lang.get('utf8_messages_sendmode')
+		for title in utf8_messages_sendmode:
+			option = field.addElement('option')
+			option.attributes['label'] = lang.get(title)
+			value = option.addElement('value')
+			value.addContent(str(utf8_messages_sendmode[title]))
+		value = field.addElement('value')
+		value.addContent(str(settings['utf8_messages_sendmode']))
+		
+		field = x.addElement('field')
+		field.attributes['type'] = 'hidden'
+		field.attributes['var'] = 'settings_page'
+		value = field.addElement('value')
+		value.addContent('message_settings')
+		
+		stage = x.addElement('field')
+		stage.attributes['type'] = 'hidden'
+		stage.attributes['var'] = 'stage'
+		value = stage.addElement('value')
+		value.addContent('2')
+		
+		self.pytrans.send(iq)
 		
 	def sendCompletedForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
@@ -353,6 +428,15 @@ class Settings:
 								if saved_snac != '':
 									legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
 	def ApplyContactListSettings(self, to_jid, settings):
+		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		bos.selfSettings = settings
+		if jid in self.pytrans.sessions:
+			for key in settings:
+				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
+				
+	def ApplyMessageSettings(self, to_jid, settings):
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
