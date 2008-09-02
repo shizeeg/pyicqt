@@ -1614,6 +1614,10 @@ class BOSConnection(SNACBased):
                     #  t: 29
                     #  v: '\x00\x00\x00\x05\x02\x01\xd2\x04r\x00\x01\x01\x10/\x8c\x8b\x8a\x1e\x94*\xbc\x80}\x8d\xc4;\x1dEM'
                     # XXX what is this?
+		    
+	    uvars = {}
+	    uvars['utf8_msg_using'] = 0 # is not utf8 message
+	    self.oscarcon.legacyList.setUserVars(user.name, uvars)
 
             self.receiveMessage(user, multiparts, flags, delay)
         elif channel == 2: # rendezvous
@@ -1675,6 +1679,9 @@ class BOSConnection(SNACBased):
 						self.sendStatusMessageResponse(user.name, cookie2)
 			elif msgtype == 0x01: # plain text message
 				log.msg('Plain text message from %s' % user.name)
+				uvars = {}
+				uvars['utf8_msg_using'] = 1 # is utf8 message
+				self.oscarcon.legacyList.setUserVars(user.name, uvars)
 				self.processIncomingMessageType2(user, extdata)
 			else:
 				try:

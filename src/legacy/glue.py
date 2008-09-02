@@ -169,7 +169,10 @@ class LegacyConnection:
 					encoding = "utf-16be"
 					charset = "unicode"
 				LogEvent(INFO, self.session.jabberID, "Encoding %r" % encoding)
-				self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp)
+				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2):
+					self.bos.sendMessageType2(uin, message)
+				else:
+					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp)
 				self.session.sendArchive(target, self.session.jabberID, message)
 			else:
 				if xhtml and not config.disableXHTML:
@@ -571,6 +574,14 @@ class LegacyConnection:
 			return self.legacyList.saved_snacs[userHandle]
 		else:
 			return ''
+				
+	def getUserVarValue(self, userHandle, key):
+		LogEvent(INFO, self.session.jabberID)
+		if userHandle in self.legacyList.uservars:
+			uvars = self.legacyList.uservars[userHandle]
+			if key in uvars:
+				return uvars[key]
+		return ''
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid

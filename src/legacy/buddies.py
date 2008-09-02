@@ -23,6 +23,7 @@ class BuddyList:
 		self.usercaps = { }
 		self.usercustomstatuses = { }
 		self.saved_snacs = dict ([])
+		self.uservars = { }
 		self.xdbcontacts = self.getBuddyList()
 		for c in self.xdbcontacts:
 			from glue import icq2jid
@@ -95,6 +96,15 @@ class BuddyList:
 		if lo_contact in self.usercustomstatuses: # if custom status for user exists
 			if key in self.usercustomstatuses[lo_contact]: # and key too
 				del self.usercustomstatuses[lo_contact][key]
+				
+	def setUserVars(self, contact, uvars):
+		LogEvent(INFO, self.session.jabberID)
+		lo_contact = contact.lower()
+		if lo_contact in self.uservars and len(self.uservars[lo_contact]) > 0: # if vars for user exists
+			for key in uvars: # for all keys
+				self.uservars[lo_contact][key] = uvars[key] # update it!
+		else: 
+			self.uservars[lo_contact] = uvars # copy full customStatus
 
 	def setCapabilities(self, contact, caplist):
 		LogEvent(INFO, self.session.jabberID)
