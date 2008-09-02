@@ -250,6 +250,12 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_display_text_as_PEP')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_display_text_as_PEP']))
+			
+		field = x.addElement('field')
+		field.attributes['type'] = 'hidden'
+		field.attributes['var'] = 'settings_page'
+		value = field.addElement('value')
+		value.addContent('xstatus_settings')
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -301,6 +307,12 @@ class Settings:
 		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
 		value = field.addElement('value')
 		value.addContent(str(clist_show_phantombuddies))
+		
+		field = x.addElement('field')
+		field.attributes['type'] = 'hidden'
+		field.attributes['var'] = 'settings_page'
+		value = field.addElement('value')
+		value.addContent('clist_settings')
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -408,7 +420,7 @@ class Settings:
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
-		bos.selfSettings = settings
+		bos.addToSelfSettings(settings)
 		if jid in self.pytrans.sessions:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
@@ -431,7 +443,7 @@ class Settings:
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
-		bos.selfSettings = settings
+		bos.addToSelfSettings(settings)
 		if jid in self.pytrans.sessions:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
@@ -440,7 +452,7 @@ class Settings:
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
-		bos.selfSettings = settings
+		bos.addToSelfSettings(settings)
 		if jid in self.pytrans.sessions:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))

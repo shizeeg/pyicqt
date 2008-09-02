@@ -1108,6 +1108,11 @@ class BOSConnection(SNACBased):
 		for key in settings:
 			dsettings[key] = settings[key]
 	return dsettings
+		
+    def addToSelfSettings(self, settings = None):
+	if settings:
+		for key in settings:
+			self.selfSettings[key] = settings[key]
 
     def parseUser(self,data,wantRest=0):
         l=ord(data[0])
