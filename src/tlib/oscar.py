@@ -960,6 +960,51 @@ class SNACBased(OscarConnection):
 					# TODO: parse as XML
 					UnSafe_Notification = utils.getUnSafeXML(Notification)
 	return UnSafe_Notification
+				
+    def processIncomingMessageType2(self, user, extdata):
+	"""
+	process data in incoming type-2 message
+	"""
+	encoding = 'unknown'
+	
+	# skip 'first header' 
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
+	# skip 'second header' 	
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+	# message type, flags, status and priority. It don't matter usually
+	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
+	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
+	msgflags = struct.unpack('!B',extdata[msg_features_pos+1:msg_features_pos+2])[0]
+	msgstatus = struct.unpack('!H',extdata[msg_features_pos+2:msg_features_pos+4])[0]
+	msgpriority = struct.unpack('!H',extdata[msg_features_pos+4:msg_features_pos+6])[0]	
+	msglen = struct.unpack('<H',extdata[msg_features_pos+6:msg_features_pos+8])[0]
+	msg = extdata[msg_features_pos+8:msg_features_pos+8+msglen]
+
+	msgcontent_pos = msg_features_pos + 8 + msglen
+	msgcontent = extdata[msgcontent_pos:]
+	# check encoding
+	if len(msgcontent) >= 0x2E:
+		foreground_color = struct.unpack('<L', msgcontent[0:4])[0] # TODO: use this stuff
+		background_color = struct.unpack('<L', msgcontent[4:8])[0] # TODO: use this stuff
+		cap_len = struct.unpack('<L', msgcontent[8:12])[0]
+		if cap_len == 0x26:
+			cap = msgcontent[12:12+cap_len]
+			if cap == MSGTYPE_TEXT_ID_UTF8MSGS:
+				encoding = "utf8"
+	# do actions			
+	if msglen == 1 and msg == '\x00': # is message ack
+		pass # TODO: add XEP-0184: Message Receipts support
+	elif user: # usual message
+		# prepare message
+		delay = None
+		flags = []
+		multiparts = []
+		message = [msg]
+		message.append(encoding)
+		if msglen > 0:
+			multiparts.append(tuple(message))
+		# send it to user's jabber client
+		self.receiveMessage(user, multiparts, flags, delay)
 
 
 class BOSConnection(SNACBased):
@@ -1620,6 +1665,9 @@ class BOSConnection(SNACBased):
 				if config.xstatusessupport:
 					if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
 						self.sendStatusMessageResponse(user.name, cookie2)
+			elif msgtype == 0x01: # plain text message
+				log.msg('Plain text message from %s' % user.name)
+				self.processIncomingMessageType2(user, extdata)
 			else:
 				try:
 					UnSafe_Notification = self.extractXStatusNotification(extdata)
@@ -4191,6 +4239,11 @@ AIM_SSI_PERMDENY_PERMIT_BUDDIES = 0x05
 ###
 AIM_SSI_VISIBILITY_ALL = '\xff\xff\xff\xff'
 AIM_SSI_VISIBILITY_NOTAIM = '\x00\x00\x00\x04'
+
+###
+# Capabilities as text
+###
+MSGTYPE_TEXT_ID_UTF8MSGS = '{0946134E-4C7F-11D1-8222-444553540000}'
 
 ###
 # Xtraz stuff

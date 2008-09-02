@@ -455,6 +455,8 @@ class B(oscar.BOSConnection):
 		if len(multiparts[0]) > 1:
 			if multiparts[0][1] == 'unicode':
 				encoding = "utf-16be"
+			elif multiparts[0][1] == 'utf8':
+				encoding = "utf-8"
 			else:
 				encoding = config.encoding
 		else:
