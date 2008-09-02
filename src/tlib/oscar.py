@@ -861,11 +861,9 @@ class SNACBased(OscarConnection):
 
     def oscar_04_0B(self, snac):
 	"""
-	Xstatus message response received
+	client autoresponse received
 	"""
-	buddy = ''
-	title = ''
-	desc = ''
+	CustomStatus = {}
 	
 	snacdata = snac[5]
 	buddylen = struct.unpack('!B',snacdata[10:11])[0]
@@ -886,8 +884,15 @@ class SNACBased(OscarConnection):
 		msg = extdata[msg_features_pos+8:msg_features_pos+8+msglen]
 		CustomStatus = {}
 		CustomStatus['autoaway message'] = msg
+	elif msgtype == 0x01: # plain text message
+		log.msg("Received plain text message from %s" % buddy)
+		self.processIncomingMessageType2(None, extdata)
+		# empty msg - seems ask
 	else:
 		log.msg("Received x-status message response from %s" % buddy)
+		buddy = ''
+		title = ''
+		desc = ''
 		UnSafe_Notification = self.extractXStatusNotification(extdata)
 					
 		title_begin_pos = UnSafe_Notification.find('<title>')
@@ -903,11 +908,13 @@ class SNACBased(OscarConnection):
 		CustomStatus = {}
 		CustomStatus['x-status title'] = title
 		CustomStatus['x-status desc'] = desc
-	self.oscarcon.legacyList.setCustomStatus(buddy, CustomStatus)
-	saved_snac = self.oscarcon.getSavedSnac(buddy)
-	if saved_snac != '':
-		self.updateBuddy(self.parseUser(saved_snac), True)
-		log.msg('Buddy %s updated from saved snac' % buddy)	
+		
+	if len(CustomStatus) > 0:
+		self.oscarcon.legacyList.setCustomStatus(buddy, CustomStatus)
+		saved_snac = self.oscarcon.getSavedSnac(buddy)
+		if saved_snac != '':
+			self.updateBuddy(self.parseUser(saved_snac), True)
+			log.msg('Buddy %s updated from saved snac' % buddy)	
 
     def clientReady(self):
         """
@@ -2561,6 +2568,75 @@ class BOSConnection(SNACBased):
 	callback for sending of x-status request
         """
 	log.msg("Request for x-status details sent")
+	
+    def sendMessageType2(self, user, message):
+	"""
+	send UTF-8 message via serv_relay
+	"""
+	log.msg("Sending type-2 message to %s" % user) 
+	# AIM messaging header
+	cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
+	header = str(header)
+	extended_data = str(self.prepareMessageType2Body(message))
+	
+	foreground_color = 0x000000
+	background_color = 0xffffff
+	cap_len = len(MSGTYPE_TEXT_ID_UTF8MSGS)
+	more = struct.pack("<LLL", foreground_color, background_color, cap_len)
+	more = more + MSGTYPE_TEXT_ID_UTF8MSGS # UTF-8 cap
+	
+	extended_data = extended_data + more 
+	# TLV
+	extdataTLV = TLV(0x2711, extended_data)
+	# Render Vous Data body
+	rvdataTLV = struct.pack('!H',0x0000) # request
+	rvdataTLV = rvdataTLV + cookie # ICBM cookie
+	rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
+	# additional TLVs
+	addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
+	addTLV2 = TLV(0x0f) # empty TLV
+	# concat TLVs
+	rvdataTLV = rvdataTLV + addTLV1 + addTLV2 + extdataTLV
+	# make Render Vous Data TLV
+	rvdataTLV = TLV(0x0005, rvdataTLV)
+	# server Ack requested
+	TLVask = TLV(3)
+	# result data
+	data = header + rvdataTLV + TLVask
+	
+	self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2) # send message
+	
+    def _sendMessageType2(self, snac):
+	"""
+	callback for sending of type-2 message
+        """
+	log.msg("Type-2 message sent")
+	
+    def prepareMessageType2Body(self, query):
+	"""
+	plain text message
+	"""
+	if query == None:
+		query = ''
+	query = query.encode('utf-8') + '\x00'
+	# extended data body
+	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
+	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
+	extended_data = extended_data + CAP_EMPTY # Plugin Version
+	extended_data = extended_data + struct.pack("!L", 0x3) # client features
+	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	extended_data = extended_data + msgcookie # message cookie
+	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
+	extended_data = extended_data + msgcookie # message cookie again
+	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
+	extended_data = extended_data + struct.pack('!B', 0x01) # msg type: plain text message
+	extended_data = extended_data + struct.pack('!B', 0x00) # msg flags: none
+	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('!H',0x0100) # priority
+	extended_data = extended_data + struct.pack('<H',len(query)) + query # message
+	return extended_data
 	
     def getSelfXstatusName(self):
 	"""
