@@ -84,11 +84,21 @@ class BuddyList:
 		else: 
 			self.usercustomstatuses[lo_contact] = customStatus # copy full customStatus
 			
-	def delCustomStatus(self, contact):
+	def delCustomStatus(self, contact, delmask=None, savemask=None):
 		LogEvent(INFO, self.session.jabberID)
 		lo_contact = contact.lower()
 		if lo_contact in self.usercustomstatuses: # if custom status for user exists
-			del self.usercustomstatuses[lo_contact]
+			if savemask == None: # erase all
+				del self.usercustomstatuses[lo_contact]
+			else: # save only some keys
+				delmask = list()
+				for key in self.usercustomstatuses[lo_contact]:
+					if key not in savemask:
+						delmask.append(key) # need erase this key 
+			if delmask != None: # erase only some keys
+				for key in delmask:
+					if key in self.usercustomstatuses[lo_contact]:
+						del self.usercustomstatuses[lo_contact][key]
 	
 	def delCustomStatusKey(self, contact, key):
 		LogEvent(INFO, self.session.jabberID)

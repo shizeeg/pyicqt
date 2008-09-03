@@ -255,7 +255,8 @@ class B(oscar.BOSConnection):
 		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
 			self.oscarcon.legacyList.setCustomStatus(user.name, user.customStatus)
 		else:
-			self.oscarcon.legacyList.delCustomStatus(user.name)
+			mask = ('mood', 'activity', 'subactivity', 'text') # keep values for mood/activity
+			self.oscarcon.legacyList.delCustomStatus(user.name, savemask=mask)
 			
 		LogEvent(WARN, self.session.jabberID, "Status message: %s" % status)
 		status = status.encode("utf-8", "replace")
@@ -374,9 +375,10 @@ class B(oscar.BOSConnection):
 						if act: # set it!
 							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=text) # just send new activity
 							
-				else: # no x-status and additional normal status
-					self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
-					self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
+				else:  # no x-status and additional normal status
+					if s_mood or s_act or s_subact or s_text: # ...but it was before
+						self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
+						self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
 				# no icon in roster. Impossible recognize or displaying disabled 
 				if not mood and not act and not subact: 
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3):
