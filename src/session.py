@@ -291,7 +291,7 @@ class Session(jabw.JabberConnection):
 		self.legacycon.setStatus(self.nickname, show, status, url)
 	
 	def sendNotReadyError(self, source, resource, dest, body):
-		self.sendErrorMessage(source + '/' + resource, dest, "wait", "not-allowed", lang.get("waitforlogin", self.lang), body)
+		self.sendErrorMessage(self.pytrans, source + '/' + resource, dest, "wait", "not-allowed", lang.get("waitforlogin", self.lang), body)
 	
 	def nicknameReceived(self, source, dest, nickname):
 		if dest.find('@') > 0: return # Ignore presence packets sent to users
