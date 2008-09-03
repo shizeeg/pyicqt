@@ -968,7 +968,7 @@ class SNACBased(OscarConnection):
 					UnSafe_Notification = utils.getUnSafeXML(Notification)
 	return UnSafe_Notification
 				
-    def processIncomingMessageType2(self, user, extdata):
+    def processIncomingMessageType2(self, user, extdata, cookie=None):
 	"""
 	process data in incoming type-2 message
 	"""
@@ -1012,6 +1012,8 @@ class SNACBased(OscarConnection):
 			multiparts.append(tuple(message))
 		# send it to user's jabber client
 		self.receiveMessage(user, multiparts, flags, delay)
+		# send confirmation
+		self.sendMessageType2Confirmation(user.name, cookie)
 
 
 class BOSConnection(SNACBased):
@@ -1686,8 +1688,8 @@ class BOSConnection(SNACBased):
 				log.msg('Plain text message from %s' % user.name)
 				uvars = {}
 				uvars['utf8_msg_using'] = 1 # is utf8 message
-				self.oscarcon.legacyList.setUserVars(user.name, uvars)
-				self.processIncomingMessageType2(user, extdata)
+				self.oscarcon.legacyList.setUserVars(user.name, uvars) # set vars
+				self.processIncomingMessageType2(user, extdata, cookie2) # send message to jabber-client
 			else:
 				try:
 					UnSafe_Notification = self.extractXStatusNotification(extdata)
@@ -2620,11 +2622,48 @@ class BOSConnection(SNACBased):
 	
 	self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2) # send message
 	
+    def sendMessageType2Confirmation(self, user, cookie=None):
+	"""
+	send confirmation for UTF-8 message
+	"""
+	log.msg("Sending confirmation for type-2 message to %s" % user) 
+	# AIM messaging header
+	if not cookie:
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
+	header = str(header)
+	extended_data = str(self.prepareMessageType2Body(None))
+	# TLV
+	extdataTLV = TLV(0x2711, extended_data)
+	# Render Vous Data body
+	rvdataTLV = struct.pack('!H',0x0000) # request
+	rvdataTLV = rvdataTLV + cookie # ICBM cookie
+	rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
+	# additional TLVs
+	addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
+	addTLV2 = TLV(0x0f) # empty TLV
+	# concat TLVs
+	rvdataTLV = rvdataTLV + addTLV1 + addTLV2 + extdataTLV
+	# make Render Vous Data TLV
+	rvdataTLV = TLV(0x0005, rvdataTLV)
+	# server Ack requested
+	TLVask = TLV(3)
+	# result data
+	data = header + rvdataTLV + TLVask
+	
+	self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2Confirmation) # send message
+	
     def _sendMessageType2(self, snac):
 	"""
 	callback for sending of type-2 message
         """
 	log.msg("Type-2 message sent")
+	
+    def _sendMessageType2Confirmation(self, snac):
+	"""
+	callback for sending of type-2 message confirmation
+        """
+	log.msg("Confirmation for type-2 message sent")
 	
     def prepareMessageType2Body(self, query):
 	"""
