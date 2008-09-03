@@ -1013,7 +1013,8 @@ class SNACBased(OscarConnection):
 		# send it to user's jabber client
 		self.receiveMessage(user, multiparts, flags, delay)
 		# send confirmation
-		self.sendMessageType2Confirmation(user.name, cookie)
+		if self.settingsOptionEnabled('send_confirm_for_ut8_msg'):
+			self.sendMessageType2Confirmation(user.name, cookie)
 
 
 class BOSConnection(SNACBased):
@@ -1104,7 +1105,8 @@ class BOSConnection(SNACBased):
 	('xstatus_display_text_as_PEP', 1),
 	('away_messages_receiving', 1),
 	('clist_show_phantombuddies', 0),
-	('utf8_messages_sendmode', 1)
+	('utf8_messages_sendmode', 1),
+	('send_confirm_for_ut8_msg', 1)
 	])
 	if settings and len(settings) != 0:
 		for key in settings:

@@ -376,6 +376,13 @@ class Settings:
 		value.addContent(str(settings['utf8_messages_sendmode']))
 		
 		field = x.addElement('field')
+		field.attributes['var'] = 'send_confirm_for_ut8_msg'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('send_confirm_for_ut8_msg')
+		value = field.addElement('value')
+		value.addContent(str(settings['send_confirm_for_ut8_msg']))
+		
+		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
 		field.attributes['var'] = 'settings_page'
 		value = field.addElement('value')
