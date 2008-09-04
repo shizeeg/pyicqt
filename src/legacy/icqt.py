@@ -715,6 +715,76 @@ class B(oscar.BOSConnection):
 
 	def warnedUser(self, oldLevel, newLevel, username):
 		LogEvent(INFO, self.session.jabberID)
+		
+	def setStatusIconForTransport(self, reset=False):
+		# it's undocumented feature of Gajim seems. In any case it's looks fine
+		LogEvent(INFO, self.session.jabberID)
+		
+		if config.xstatusessupport and int(self.settingsOptionValue('xstatus_sending_mode')) != 0 and self.settingsOptionEnabled('xstatus_icon_for_transport'): # possible show it
+			x_status_name = ''
+			if 'x-status name' in self.selfCustomStatus:
+				x_status_name = self.selfCustomStatus['x-status name']
+			status = ''
+			if int(self.settingsOptionValue('xstatus_sending_mode')) == 1:
+				x_status_title = ''
+				x_status_desc = ''
+				if 'x-status title' in self.selfCustomStatus:
+					x_status_title = self.selfCustomStatus['x-status title']
+				if 'x-status desc' in self.selfCustomStatus:
+					x_status_desc = self.selfCustomStatus['x-status desc']
+				if x_status_title != '' and x_status_desc != '':
+					if x_status_title == ' ':
+						status = x_status_desc
+					elif x_status_desc == ' ':
+						status = x_status_title
+					else:
+						status = x_status_title + ' ' + x_status_desc
+				elif x_status_title == '' and x_status_desc != '':
+					status = x_status_desc
+				elif x_status_title != '' and x_status_desc == '':
+					status = x_status_title
+			if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
+				if 'avail.message' in self.selfCustomStatus:
+					status = self.selfCustomStatus['avail.message']
+
+			mood = None
+			act = None
+			subact = None
+			text = None
+	
+			mood_p = None
+			act_p = None
+			subact_p = None
+	
+			if x_status_name in X_STATUS_MAP:	
+				mood, act, subact = X_STATUS_MAP[x_status_name]
+			mood_p = self.parseAndSearchForMood(status)
+			act_p, subact_p = self.parseAndSearchForActivity(status)
+			if status != '':
+				text = status
+				
+			if mood_p: # mood found in status text
+				mood = mood_p # use mood from text
+			if act_p: # activity found in status text
+				act = act_p # use activity from text
+				subact = subact_p # and subactivity from text too
+	
+			if mood and not reset:
+				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, mood=mood, text=text) # just send new mood
+			elif self.xstatus_icon_for_transport:
+				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
+			if act and not reset:
+				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, act=act, subact=subact, text=text) # just send new activity
+			elif self.xstatus_icon_for_transport:
+				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
+			if (not mood and not act) or reset:
+				self.xstatus_icon_for_transport = False
+			else:
+				self.xstatus_icon_for_transport = True
+		elif self.xstatus_icon_for_transport: # need erase last icon
+			self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
+			self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
+			self.xstatus_icon_for_transport = False
 
 
 

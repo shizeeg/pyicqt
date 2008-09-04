@@ -251,6 +251,13 @@ class Settings:
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_display_text_as_PEP']))
 			
+			field = x.addElement('field')
+			field.attributes['var'] = 'xstatus_icon_for_transport'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('xstatus_icon_for_transport')
+			value = field.addElement('value')
+			value.addContent(str(settings['xstatus_icon_for_transport']))
+			
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
 		field.attributes['var'] = 'settings_page'
@@ -446,6 +453,11 @@ class Settings:
 								saved_snac = legacycon.getSavedSnac(str(contact))
 								if saved_snac != '':
 									legacycon.bos.updateBuddy(legacycon.bos.parseUser(saved_snac), True)
+					if key == 'xstatus_icon_for_transport':
+						if str(settings[key]) == '1':
+							bos.setStatusIconForTransport() # show icon for transport
+						else:
+							bos.setStatusIconForTransport(reset=True) # hide icon for transport
 	def ApplyContactListSettings(self, to_jid, settings):
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)

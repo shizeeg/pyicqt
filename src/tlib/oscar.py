@@ -1078,6 +1078,7 @@ class BOSConnection(SNACBased):
 	self.selfSettings = dict([])
 	self.icqStatus = 0x0000
 	self.updateSelfXstatusOnStart = False
+	self.xstatus_icon_for_transport = False
 	
 	if hasattr(self.session,'pytrans'):
 		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
@@ -1103,6 +1104,7 @@ class BOSConnection(SNACBased):
 	('xstatus_option_smooth', 1),
 	('xstatus_display_icon_as_PEP', 1),
 	('xstatus_display_text_as_PEP', 1),
+	('xstatus_icon_for_transport', 0),
 	('away_messages_receiving', 1),
 	('clist_show_phantombuddies', 0),
 	('utf8_messages_sendmode', 1),
@@ -2774,6 +2776,7 @@ class BOSConnection(SNACBased):
 		self.setUserInfo()
 	if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
 		self.setExtendedStatusRequest(message='', setmsg=True)
+	self.setStatusIconForTransport(reset=True)
 	
     def updateSelfXstatus(self):
 	"""
@@ -2828,6 +2831,7 @@ class BOSConnection(SNACBased):
 						self.setUserInfo()
 					if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
 						self.setExtendedStatusRequest(message=availmsg, mood=mood_num, setmood=setmood, setmsg=True)
+					self.setStatusIconForTransport()
 	
     def setUserInfo(self):
         """

@@ -105,6 +105,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_option_smooth = u"Allow status icons between 5.1 and 6"
 	xstatus_display_icon_as_PEP = u"Display status icon as mood/activity"
 	xstatus_display_text_as_PEP = u"Try display status text as mood/activity"
+	xstatus_icon_for_transport = u"Display status icon for transport (some clients only)"
 	# message settings
 	utf8_messages_sendmode = u"utf-8 messages sending mode"
 	utf8_messages_sendmode_none = u"Sending disabled"
