@@ -40,6 +40,8 @@ conffile = "config.xml"
 profilelog = None
 options = {}
 daemonizeme = False
+debugLevel = 0
+debugFile = ""
 opts, args = getopt.getopt(sys.argv[1:], "bc:o:dDgtl:p:h", ["background", "config=", "option=", "debug", "Debug", "garbage", "traceback", "log=", "profile=", "help"])
 for o, v in opts:
 	if o in ("-c", "--config"):
@@ -49,16 +51,16 @@ for o, v in opts:
 	elif o in ("-b", "--background"):
                 daemonizeme = True
 	elif o in ("-d", "--debug"):
-		config.debugLevel = 2
+		debugLevel = 2
 	elif o in ("-D", "--Debug"):
-		config.debugLevel = 3
+		debugLevel = 3
 	elif o in ("-g", "--garbage"):
 		import gc
 		gc.set_debug(gc.DEBUG_LEAK|gc.DEBUG_STATS)
 	elif o in ("-t", "--traceback"):
-		config.debugLevel = 1
+		debugLevel = 1
 	elif o in ("-l", "--log"):
-		config.debugFile = v
+		debugFile = v
 	elif o in ("-o", "--option"):
 		var, setting = v.split("=", 2)
 		options[var] = setting
@@ -74,14 +76,22 @@ for o, v in opts:
 		print "   -l <file>           write debugging output to file"
 		print "   -o <var>=<setting>  set config var to setting"
 		sys.exit(0)
+config.debugLevel = debugLevel
+config.debugFile = debugFile
 debug.reloadConfig()
 
 xmlconfig.Import(conffile, options)
 
 def reloadConfig(a, b):
+	LogEvent(INFO)
 	# Reload default config and then process conf file
 	reload(config)
-	xmlconfig.Import(conffile, None)
+	config.debugLevel = debugLevel
+	config.debugFile = debugFile
+	if len(options) > 0:
+		xmlconfig.Import(conffile, options)
+	else:
+		xmlconfig.Import(conffile, None)
 	debug.reloadConfig()
 
 # Set SIGHUP to reload the config file
