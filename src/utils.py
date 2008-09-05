@@ -353,3 +353,37 @@ def getUnSafeXML(safexml):
 	unsafexml = unsafexml.replace('&lt;','<')
 	unsafexml = unsafexml.replace('&gt;','>')
 	return unsafexml
+
+def getTimeZoneOffset():
+	# (+|-)hh:mm, as specified in XEP-0082
+	import time
+	if time.daylight: # DST
+		offset_s = -int(time.altzone)
+	else: # no DST
+		offset_s = -int(time.timezone)
+	
+	if offset_s > 0: # sign
+		sign = '+'
+	else:
+		sign = '-'
+		offset_s = -offset_s # absulute value
+	
+	if offset_s < 60: # 00:00
+		tzo = 'Z'
+	else:
+		if offset_s >= 60*60: # hours
+			offset_h = offset_s / (60*60)
+			offset_s = offset_s % (60*60)
+		else:
+			offset_h = 0
+		if offset_s >= 60: # minutes
+			offset_m = offset_s / 60
+		else:
+			offset_m = 0
+		tzo = '%s%02d:%02d' % (sign, offset_h, offset_m)
+	return str(tzo)
+
+def getUTCTime():
+	# CCYY-MM-DDThh:mm:ss[.sss]TZD, as specified in XEP-0082
+	import time
+	return str(time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()))

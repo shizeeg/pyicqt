@@ -6,7 +6,6 @@ from twisted.words.xish.domish import Element
 import config
 from debug import LogEvent, INFO, WARN, ERROR
 import globals
-import time
 
 class EntityTime:
 	def __init__(self, pytrans):
@@ -31,10 +30,8 @@ class EntityTime:
 		query = iq.addElement("query")
 		query.attributes["xmlns"] = globals.IQTIME
 		utc = query.addElement("utc")
-		utc.addContent(str(time.strftime("%Y%m%dT%H:%M:%S")))
-		tz = query.addElement("tz")
-		tz.addContent(str(time.tzname[1]))
-		display = query.addElement("display")
-		display.addContent(str(time.ctime()))
+		utc.addContent(utils.getUTCTime())
+		tz = query.addElement("tzo")
+		tz.addContent(utils.getTimeZoneOffset())
 
 		self.pytrans.send(iq)
