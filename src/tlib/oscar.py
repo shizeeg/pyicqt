@@ -2239,8 +2239,9 @@ class BOSConnection(SNACBased):
         set the away message, or return (if away == None)
         """
         self.awayMessage = away
-        tlvs = TLV(3,'text/aolrtf; charset="us-ascii"') + \
-               TLV(4,away or '')
+	encoded_away = away.encode('utf-8', 'strict')
+        tlvs = TLV(3,'text/x-aolrtf; charset="utf-8"') + \
+               TLV(4, encoded_away or '')
         self.sendSNACnr(0x02, 0x04, tlvs)
 
     def setBack(self, status=None):
