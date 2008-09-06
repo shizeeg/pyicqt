@@ -890,7 +890,6 @@ class SNACBased(OscarConnection):
 		# empty msg - seems ask
 	else:
 		log.msg("Received x-status message response from %s" % buddy)
-		buddy = ''
 		title = ''
 		desc = ''
 		UnSafe_Notification = self.extractXStatusNotification(extdata)
@@ -1694,19 +1693,18 @@ class BOSConnection(SNACBased):
 				uvars['utf8_msg_using'] = 1 # is utf8 message
 				self.oscarcon.legacyList.setUserVars(user.name, uvars) # set vars
 				self.processIncomingMessageType2(user, extdata, cookie2) # send message to jabber-client
+			elif msgtype == 0x1a: # plugin message
+				UnSafe_Notification = self.extractXStatusNotification(extdata)
+				request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
+				request_pos_end = UnSafe_Notification.find('</req>')
+				if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
+					log.msg('Request for x-status details from %s' % user.name)
+					if config.xstatusessupport:
+						if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
+							self.sendXstatusMessageResponse(user.name, cookie2)
 			else:
-				try:
-					UnSafe_Notification = self.extractXStatusNotification(extdata)
-					request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
-					request_pos_end = UnSafe_Notification.find('</req>')
-					if request_pos_begin != -1 and request_pos_end != -1 and request_pos_begin < request_pos_end:
-						log.msg('Request for x-status details from %s' % user.name)
-						if config.xstatusessupport:
-							if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
-								self.sendXstatusMessageResponse(user.name, cookie2)
-				except:
-					log.msg('Strange rendezvous')
-					log.msg(repr(moreTLVs))
+				log.msg('Strange rendezvous')
+				log.msg(repr(moreTLVs))
 		else:
 			log.msg('more TLVs for serv_relay: %s' % moreTLVs)
             else:
@@ -2460,6 +2458,8 @@ class BOSConnection(SNACBased):
 
 	index = self.getSelfXstatusIndex()
 	title, desc = self.getSelfXstatusDetails()
+	title = utils.tryDecode(str(title))[0].encode('utf-8','strict')
+	desc = utils.tryDecode(str(desc))[0].encode('utf-8','strict')
 
 	# message content
 	content = """\
@@ -2470,7 +2470,7 @@ class BOSConnection(SNACBased):
 <uin>%s</uin>\
 <index>%s</index>\
 <title>%s</title>\
-<desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(index), str(title), str(desc))
+<desc>%s</desc></Root></val></srv></ret>""" % (str(self.username), str(index), title, desc)
 	query = '<NR><RES>%s</RES></NR>' % utils.getSafeXML(content)
 	data = header + self.prepareExtendedDataBody(query) # data for response formed
 
@@ -2859,8 +2859,9 @@ class BOSConnection(SNACBased):
 			mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
 			moodinfo = mood_prefix + mood_str
 	if setmsg == True and message != None: # message
+		message = message.encode('utf-8','strict')
 		if len(message) > 240:
-			message = message[:237] + '...'
+			message = message[:236] + '...'
 		msginfo = struct.pack(
 		"!HbbH",
 		0x0002,         # H

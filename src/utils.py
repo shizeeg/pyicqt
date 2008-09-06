@@ -387,3 +387,20 @@ def getUTCTime():
 	# CCYY-MM-DDThh:mm:ss[.sss]TZD, as specified in XEP-0082
 	import time
 	return str(time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()))
+
+def tryDecode(string):
+	try:
+		string_d = string.decode('utf-8','strict')
+		enc = 'utf-8'
+	except:
+		try:
+			string_d = string.decode(config.encoding,'strict')
+			enc = config.encoding
+		except:
+			enc = 'iso-8859-1'
+			try:
+				string_d = string.decode('iso-8859-1','strict')
+			except:
+				string_d = string.decode('iso-8859-1','replace')
+	return [string_d, enc]
+
