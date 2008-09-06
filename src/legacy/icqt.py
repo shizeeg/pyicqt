@@ -11,9 +11,11 @@ from debug import LogEvent, INFO, WARN, ERROR
 import lang
 import re
 import time
+import datetime
 import binascii
 import md5
 import locale
+import struct
 
 from twisted.python import log
 
@@ -546,63 +548,76 @@ class B(oscar.BOSConnection):
 
 		c = self.session.contactList.findContact(buddyjid)
 		if not c: return
-
+		
 		ptype = None
+		idleTime = 0
+		status = None
+		url = None
+		
+		if len(msg[0]) == 4 and len(msg[1]) == 2: # online since time and idle time
+			onlineSince = datetime.datetime.utcfromtimestamp(struct.unpack('!I',msg[0])[0])
+			log.msg('User %s online since %sZ' % (user.name, onlineSince.isoformat()))
+			idleTime = struct.unpack('!H',msg[1])[0]
+			log.msg('User %s idle %s minutes' % (user.name, idleTime))
+		else:
+			status = msg[1]
+			url = user.url
 
-		status = msg[1]
-		url = user.url
-
-		if status != None:
-			charset = "iso-8859-1"
-			m = None
-			if msg[0]:
-				m = re.search('charset="(.+)"', msg[0])
-			if m != None:
-				charset = m.group(1)
-				if charset == 'unicode-2-0':
-					charset = 'utf-16be'
-				elif charset == 'utf-8': pass
-				elif charset == "us-ascii":
-					charset = "iso-8859-1"
-				elif charset == "iso-8859-1": pass
-				else:
-					LogEvent(INFO, self.session.jabberID, "Unknown charset (%s) of buddy's away message" % msg[0]);
-					charset = config.encoding
-					status = msg[0] + ": " + status
-
-			try:
-				status = status.decode(charset, 'strict')
-			except:
-				pass
-			try:
-				status1 = status.encode(config.encoding, 'strict')
-				status = status1.decode('utf-8', 'strict')
-			except:
-				if ord(status[0]) == 0 and ord(status[len(status)-1]) == 0:
-                                	status = str(status[1:len(status)-1])
-				try :
-					status = str(status).decode('utf-8', 'strict')
+			if status != None:
+				charset = "iso-8859-1"
+				m = None
+				if msg[0]:
+					m = re.search('charset="(.+)"', msg[0])
+				if m != None:
+					charset = m.group(1)
+					if charset == 'unicode-2-0':
+						charset = 'utf-16be'
+					elif charset == 'utf-8': pass
+					elif charset == "us-ascii":
+						charset = "iso-8859-1"
+					elif charset == "iso-8859-1": pass
+					else:
+						LogEvent(INFO, self.session.jabberID, "Unknown charset (%s) of buddy's away message" % msg[0]);
+						charset = config.encoding
+						status = msg[0] + ": " + status
+	
+				try:
+					status = status.decode(charset, 'strict')
 				except:
-					try:
-						status = str(status).decode(config.encoding, 'strict')
+					pass
+				try:
+					status1 = status.encode(config.encoding, 'strict')
+					status = status1.decode('utf-8', 'strict')
+				except:
+					if ord(status[0]) == 0 and ord(status[len(status)-1]) == 0:
+						status = str(status[1:len(status)-1])
+					try :
+						status = str(status).decode('utf-8', 'strict')
 					except:
-						status = "Status decoding failed: " + status
-			try:
-				utfmsg = unicode(msg[0], errors='replace')
-			except:
-				utfmsg = msg[0]
-			status = oscar.dehtml(status)
-			LogEvent(INFO, self.session.jabberID, "Away (%s, %s) message %s" % (charset, utfmsg, status))
-
-		if status == "Away" or status=="I am currently away from the computer." or status=="I am away from my computer right now.":
-			status = ""
-		if user.idleTime:
-			if user.idleTime>60*24:
-				idle_time = "Idle %d days"%(user.idleTime/(60*24))
-			elif user.idleTime>60:
-				idle_time = "Idle %d hours"%(user.idleTime/(60))
+						try:
+							status = str(status).decode(config.encoding, 'strict')
+						except:
+							status = "Status decoding failed: " + status
+				try:
+					utfmsg = unicode(msg[0], errors='replace')
+				except:
+					utfmsg = msg[0]
+				status = oscar.dehtml(status)
+				LogEvent(INFO, self.session.jabberID, "Away (%s, %s) message %s" % (charset, utfmsg, status))
+	
+			if status == "Away" or status=="I am currently away from the computer." or status=="I am away from my computer right now.":
+				status = ""
+				
+			if user.idleTime:
+				idleTime = user.idleTime
+				
+		if idleTime:
+			if idleTime>60*24:
+				idle_time = "Idle %d days"%(idleTime/(60*24))
+			elif idleTime>60:
+				idle_time = "Idle %d hours"%(idleTime/(60))
 			else:
-				idle_time = "Idle %d minutes"%(user.idleTime)
+				idle_time = "Idle %d minutes"%(idleTime)
 			if status and status != '' and status != ' ':
 				status="%s\n%s"%(idle_time,status)
 			else:
