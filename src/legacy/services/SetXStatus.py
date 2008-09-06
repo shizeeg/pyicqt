@@ -67,10 +67,15 @@ class SetXStatus:
 								for value in field.elements():
 									if value.name == 'value':
 										xstatus_title = value.__str__()
-							elif field.getAttribute('var') == 'xstatus_desc': 
+							elif field.getAttribute('var') == 'xstatus_desc':
+								multiline = '' 
 								for value in field.elements():
 									if value.name == 'value':
-										xstatus_desc = value.__str__()
+										if multiline != '':
+											multiline = multiline + '\n' + value.__str__()
+										else:
+											multiline = value.__str__()
+								xstatus_desc = multiline
 			
 		if jid not in self.pytrans.sessions: # if user not logined
 			self.pytrans.adhoc.sendError('setxstatus', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
