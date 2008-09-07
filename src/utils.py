@@ -404,3 +404,33 @@ def tryDecode(string):
 				string_d = string.decode('iso-8859-1','replace')
 	return [string_d, enc]
 
+def parseTune(string=None):
+	# WATrack (plugin for Miranda) defaults:
+	# title:
+	# Now listening to
+	# desc:
+	# %artist% - %title%
+		
+	musicinfo = {}
+		
+	if string == None:
+		string = ''
+	l = re.search('Now listening to', string)
+	if l:
+		l_beg = int(l.span()[0]) # begin of title
+		l_end = int(l.span()[1]) # end of title
+		tstring = string[l_end:] # need desc only
+		m = re.search('\w - \w', tstring)
+		if m:
+			info = tstring.split('-')
+			author = info[0].strip()
+			title = info[1].strip()
+			musicinfo['artist'] = author
+			musicinfo['title'] = title
+		else:
+			musicinfo['title'] = string
+	else:
+		musicinfo['title'] = string
+			
+	return musicinfo
+

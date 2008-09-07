@@ -381,8 +381,7 @@ class B(oscar.BOSConnection):
 						if act: # set it!
 							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=text) # just send new activity
 					# sending tune
-					musicinfo = {}
-					musicinfo['title'] = text # TODO: parse status for author and other info
+					musicinfo = utils.parseTune(text)
 					if s_usetune: # if tune was set
 						if not usetune: # if don't set tune now 
 							self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, stop=True) # stop tune
@@ -806,20 +805,17 @@ class B(oscar.BOSConnection):
 				
 			if mood and not reset:
 				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, mood=mood, text=text) # just send new mood
-			elif not mood:
+			elif not mood and self.xstatus_icon_for_transport:
 				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
 			if act and not reset:
 				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, act=act, subact=subact, text=text) # just send new activity
-			elif not act:
+			elif not act and self.xstatus_icon_for_transport:
 				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
 			if usetune and not reset:
-				musicinfo = {}
-				musicinfo['title'] = text # TODO: parse status for author and other info
+				musicinfo = utils.parseTune(text)
 				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, musicinfo=musicinfo) # send tune
-			elif not usetune:
+			elif not usetune and self.xstatus_icon_for_transport:
 				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, stop=True) # stop tune
-			elif self.xstatus_icon_for_transport:
-				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
 			if (not mood and not act and not usetune) or reset:
 				self.xstatus_icon_for_transport = False
 			else:
