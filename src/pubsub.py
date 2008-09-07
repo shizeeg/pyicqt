@@ -132,6 +132,43 @@ class PublishSubscribe:
 				t.addContent(text)
 		
 		self.pytrans.send(el)
+		
+	def sendTune(self, to=None, fro=None, musicinfo=None, stop=False):
+		"""
+		send tune to user
+		"""
+		LogEvent(INFO)
+		el = Element((None, "message"))
+		el.attributes["id"] = self.pytrans.makeMessageID()
+		if to:
+			el.attributes["to"] = to
+		if fro:
+			el.attributes["from"] = fro
+	
+		e = el.addElement("event")
+		e.attributes["xmlns"] = globals.PUBSUBEVENT
+		
+		items = e.addElement("items")
+		items.attributes["node"] = globals.TUNE
+		
+		item = items.addElement("item")
+		item.attributes["id"] = self.pytrans.makeMessageID()
+			
+		t = item.addElement("tune")
+		t.attributes["xmlns"] = globals.TUNE
+			
+		if not stop:
+			if musicinfo and len(musicinfo) > 0:
+				for key in musicinfo:
+					if key in ('artist', 'length', 'rating', 'source', 'title', 'track', 'uri'):
+						value = musicinfo[key]
+						if value:
+							t_key = t.addElement(key)
+							t_key.addContent(value)
+		
+		self.pytrans.send(el)
+#		for res in self.pytrans.sessions[to].resourceList: # send to every resource
+#			el.attributes["to"] = to + '/' + res
 
 class PubSubStorage:
 	""" Manages pubsub nodes on disk. Nodes are stored according to
