@@ -524,6 +524,7 @@ class LegacyConnection:
 		activity = None
 		subactivity = None
 		text = None
+		usetune = False
 		if userHandle in self.legacyList.usercustomstatuses:
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
 			if 'mood' in customStatus:
@@ -533,10 +534,12 @@ class LegacyConnection:
 			if 'subactivity' in customStatus:
 				subactivity = customStatus['subactivity']
 			if 'text' in customStatus:
-				subactivity = customStatus['text']
-		return mood, activity, subactivity, text
+				text = customStatus['text']
+			if 'usetune' in customStatus:
+				usetune = customStatus['usetune']
+		return mood, activity, subactivity, text, usetune
 			
-	def setPersonalEvents(self, userHandle, mood=None, activity=None, subactivity=None, text=None):
+	def setPersonalEvents(self, userHandle, mood=None, activity=None, subactivity=None, text=None, usetune=False):
 	# sets mood and activity
 		LogEvent(INFO, self.session.jabberID)
 		if userHandle not in self.legacyList.usercustomstatuses:
@@ -563,6 +566,11 @@ class LegacyConnection:
 			else:
 				if 'text' in customStatus:
 					del customStatus['text']
+			if usetune:
+				customStatus['usetune'] = usetune
+			else:
+				if 'usetune' in customStatus:
+					del customStatus['usetune']
 	
 	def setSavedSnac(self, userHandle, snac):
 		LogEvent(INFO, self.session.jabberID)

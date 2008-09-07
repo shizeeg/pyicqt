@@ -257,7 +257,7 @@ class B(oscar.BOSConnection):
 		if (user.customStatus and len(user.customStatus) > 0) or anstatus:
 			self.oscarcon.legacyList.setCustomStatus(user.name, user.customStatus)
 		else:
-			mask = ('mood', 'activity', 'subactivity', 'text') # keep values for mood/activity
+			mask = ('mood', 'activity', 'subactivity', 'text', 'usetune') # keep values for mood/activity
 			self.oscarcon.legacyList.delCustomStatus(user.name, savemask=mask)
 			
 		LogEvent(WARN, self.session.jabberID, "Status message: %s" % status)
@@ -316,8 +316,9 @@ class B(oscar.BOSConnection):
 				act = None
 				subact = None
 				text = None
+				usetune = False
 				
-				s_mood, s_act, s_subact, s_text = self.oscarcon.getPersonalEvents(user.name) # get Personal Events
+				s_mood, s_act, s_subact, s_text, s_usetune = self.oscarcon.getPersonalEvents(user.name) # get Personal Events
 				# ok. displaying via PEP enabled
 				if self.settingsOptionEnabled('xstatus_display_text_as_PEP') or self.settingsOptionEnabled('xstatus_display_icon_as_PEP'):
 					# mapping x-status -> mood/activity
@@ -328,8 +329,10 @@ class B(oscar.BOSConnection):
 							subact_a = None
 							if anstatus in AN_STATUS_MAP:
 								mood_a, act_a, subact_a = AN_STATUS_MAP[anstatus]
-							if x_status_name in X_STATUS_MAP:	
+							if x_status_name in X_STATUS_MAP and x_status_name != 'xstatus_listening_to_music':	
 								mood, act, subact = X_STATUS_MAP[x_status_name]
+							elif x_status_name == 'xstatus_listening_to_music':
+								usetune = True
 						
 							if not mood and mood_a: # if no mood from x-status
 								mood = mood_a # get mood from additional normal status
@@ -356,6 +359,7 @@ class B(oscar.BOSConnection):
 						text = status6
 					elif status5 != '':
 						text = status5
+					
 					# sending mood	
 					if s_mood: # if mood was set
 						if not mood: # if don't set mood now
@@ -376,13 +380,26 @@ class B(oscar.BOSConnection):
 					else: # if this attempt - first
 						if act: # set it!
 							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=text) # just send new activity
+					# sending tune
+					musicinfo = {}
+					musicinfo['title'] = text # TODO: parse status for author and other info
+					if s_usetune: # if tune was set
+						if not usetune: # if don't set tune now 
+							self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, stop=True) # stop tune
+						else: # set tune now
+							if text != s_text: # need set other text
+								self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, musicinfo=musicinfo)
+					else: # if this attempt - first
+						if usetune: # set it!
+							self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, musicinfo=musicinfo) # just send new tune
 							
 				else:  # no x-status and additional normal status
-					if s_mood or s_act or s_subact or s_text: # ...but it was before
+					if s_mood or s_act or s_subact or s_text or s_usetune: # ...but it was before
 						self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
 						self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
+						self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, stop=True) # stop tune
 				# no icon in roster. Impossible recognize or displaying disabled 
-				if not mood and not act and not subact: 
+				if not mood and not act and not subact and not usetune: 
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3):
 						if status == '' and x_status_name != '':
 							status = lang.get(x_status_name) # write standart name
@@ -394,7 +411,7 @@ class B(oscar.BOSConnection):
 								status = '\n' + status
 							status = lang.get(anstatus) + status
 				
-				self.oscarcon.setPersonalEvents(user.name, mood, act, subact, text) # set personal events
+				self.oscarcon.setPersonalEvents(user.name, mood, act, subact, text, usetune) # set personal events
 				# need send request for x-status details	
 				if selfcall == False and requestForXStatus == True:
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
