@@ -783,13 +783,16 @@ class B(oscar.BOSConnection):
 			act = None
 			subact = None
 			text = None
+			usetune = False
 	
 			mood_p = None
 			act_p = None
 			subact_p = None
 	
-			if x_status_name in X_STATUS_MAP:	
+			if x_status_name in X_STATUS_MAP and x_status_name != 'xstatus_listening_to_music':	
 				mood, act, subact = X_STATUS_MAP[x_status_name]
+			elif x_status_name == 'xstatus_listening_to_music':
+				usetune = True
 			mood_p = self.parseAndSearchForMood(status)
 			act_p, subact_p = self.parseAndSearchForActivity(status)
 			if status != '':
@@ -800,22 +803,31 @@ class B(oscar.BOSConnection):
 			if act_p: # activity found in status text
 				act = act_p # use activity from text
 				subact = subact_p # and subactivity from text too
-	
+				
 			if mood and not reset:
 				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, mood=mood, text=text) # just send new mood
-			elif self.xstatus_icon_for_transport:
+			elif not mood:
 				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
 			if act and not reset:
 				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, act=act, subact=subact, text=text) # just send new activity
+			elif not act:
+				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
+			if usetune and not reset:
+				musicinfo = {}
+				musicinfo['title'] = text # TODO: parse status for author and other info
+				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, musicinfo=musicinfo) # send tune
+			elif not usetune:
+				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, stop=True) # stop tune
 			elif self.xstatus_icon_for_transport:
 				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
-			if (not mood and not act) or reset:
+			if (not mood and not act and not usetune) or reset:
 				self.xstatus_icon_for_transport = False
 			else:
 				self.xstatus_icon_for_transport = True
 		elif self.xstatus_icon_for_transport: # need erase last icon
 			self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
 			self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
+			self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, stop=True) # stop tune
 			self.xstatus_icon_for_transport = False
 
 
