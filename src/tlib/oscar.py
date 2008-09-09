@@ -1106,7 +1106,10 @@ class BOSConnection(SNACBased):
 	('away_messages_receiving', 1),
 	('clist_show_phantombuddies', 0),
 	('utf8_messages_sendmode', 1),
-	('send_confirm_for_ut8_msg', 1)
+	('send_confirm_for_ut8_msg', 1),
+	('user_mood_receiving', 1),
+	('user_activity_receiving', 1),
+	('user_tune_receiving', 1)
 	])
 	if settings and len(settings) != 0:
 		for key in settings:

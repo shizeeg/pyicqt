@@ -86,6 +86,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_category_xstatus = u"Status settings"
 	settings_category_clist = u"Contact list settings"
 	settings_category_message = u"Message settings"
+	settings_category_personal_events = u"Personal events settings"
 	settings_instructions = u"Options marked with asterisk required\n re-login for applying changes"
 	settings_xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
 	# contact list settings
@@ -103,8 +104,8 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_recvmode_ICQ6 = u"ICQ 6 (less traffic)"
 	xstatus_recvmode_ICQ5_6 = u"ICQ 5.1+6 (max compatibility)"
 	xstatus_option_smooth = u"Allow status icons between 5.1 and 6"
-	xstatus_display_icon_as_PEP = u"Display status icon as mood/activity"
-	xstatus_display_text_as_PEP = u"Try display status text as mood/activity"
+	xstatus_display_icon_as_PEP = u"Display status icon as personal event"
+	xstatus_display_text_as_PEP = u"Try display status text as personal event"
 	xstatus_icon_for_transport = u"Display status icon for transport (some clients only)"
 	# message settings
 	utf8_messages_sendmode = u"utf-8 messages sending mode"
@@ -112,6 +113,10 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	utf8_messages_sendmode_as_reply = u"As reply on incoming utf-8 message"
 	utf8_messages_sendmode_always = u"Always when it's possible"
 	send_confirm_for_ut8_msg = u"Send confirmations for incoming utf-8 messages"
+	# personal events settings
+	user_mood_receiving = u"User mood receiving"
+	user_activity_receiving = u"User activity receiving"
+	user_tune_receiving = u"User tune receiving"
 	# additional "normal" statuses
 	anstatus_out_to_lunch = u"Out to lunch"
 	anstatus_on_the_phone = u"On the phone"

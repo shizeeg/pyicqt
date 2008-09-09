@@ -203,22 +203,25 @@ class B(oscar.BOSConnection):
 		else: # for transport
 			to = self.session.jabberID
 			fro = config.jid	
-		# sending mood	
-		if mood and (mood != s_mood or (s_mood and text != s_text)): # if need set other mood or other text
-			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, mood=mood, text=text) # send mood
-		elif s_mood and not mood: # mood was set and not set now
-			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
+		# sending mood
+		if int(self.settingsOptionEnabled('user_mood_receiving')):
+			if mood and (mood != s_mood or (s_mood and text != s_text)): # if need set other mood or other text
+				self.session.pytrans.pubsub.sendMood(to=to, fro=fro, mood=mood, text=text) # send mood
+			elif s_mood and not mood: # mood was set and not set now
+				self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
 		# sending activity
-		if act and (not (act == s_act and subact == s_subact) or (s_act and text != s_text)): # if need set other act/subact or other text
-			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, act=act, subact=subact, text=text) # send act
-		elif s_act and not act or s_subact and not subact: # act or subact was set and not set now
-			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
+		if int(self.settingsOptionEnabled('user_activity_receiving')):
+			if act and (not (act == s_act and subact == s_subact) or (s_act and text != s_text)): # if need set other act/subact or other text
+				self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, act=act, subact=subact, text=text) # send act
+			elif s_act and not act or s_subact and not subact: # act or subact was set and not set now
+				self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
 		# sending tune
-		musicinfo = utils.parseTune(text)
-		if usetune and ((s_usetune and text != s_text) or not s_usetune):
-			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, musicinfo=musicinfo) # send tune
-		elif s_usetune and not usetune: # tune was set and not set now
-			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
+		if int(self.settingsOptionEnabled('user_tune_receiving')):
+			musicinfo = utils.parseTune(text)
+			if usetune and ((s_usetune and text != s_text) or not s_usetune):
+				self.session.pytrans.pubsub.sendTune(to=to, fro=fro, musicinfo=musicinfo) # send tune
+			elif s_usetune and not usetune: # tune was set and not set now
+				self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
 					
 	def sendPersonalEventsStop(self, buddyjid, s_mood, s_act, s_subact, s_usetune):
 		LogEvent(INFO, self.session.jabberID)
@@ -229,11 +232,11 @@ class B(oscar.BOSConnection):
 			to = self.session.jabberID
 			fro = config.jid
 		# send retract or stop
-		if s_mood:
+		if s_mood and int(self.settingsOptionEnabled('user_mood_receiving')):
 			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
-		if s_act or s_subact:
+		if (s_act or s_subact) and int(self.settingsOptionEnabled('user_activity_receiving')):
 			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
-		if s_usetune:
+		if s_usetune and int(self.settingsOptionEnabled('user_tune_receiving')):
 			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
 
 	def updateBuddy(self, user, selfcall = False):

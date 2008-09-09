@@ -68,6 +68,8 @@ class Settings:
 				self.ApplyContactListSettings(toj, settings_dict) # apply contact list settings
 			elif settings_page == 'message_settings':
 				self.ApplyMessageSettings(toj, settings_dict) # apply message settings
+			elif settings_page == 'personal_events_settings':
+				self.ApplyPersonalEventsSettings(toj, settings_dict) # apply personal events settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif stage == '1':
 			if settings_page == 'xstatus_settings':
@@ -76,6 +78,8 @@ class Settings:
 				self.sendContactListSettingsForm(el, sessionid) # send form with contact list settings
 			elif settings_page == 'message_settings':
 				self.sendMessageSettingsForm(el, sessionid) # send form with message settings
+			elif settings_page == 'personal_events_settings':
+				self.sendPersonalEventsSettingsForm(el, sessionid) # send form with personal events settings
 		else:
 			self.sendSettingsClassForm(el, sessionid) # send form
 	
@@ -131,6 +135,11 @@ class Settings:
 		option.attributes['label'] = lang.get('settings_category_message')
 		value = option.addElement('value')
 		value.addContent('message_settings')
+		
+		option = field.addElement('option')
+		option.attributes['label'] = lang.get('settings_category_personal_events')
+		value = option.addElement('value')
+		value.addContent('personal_events_settings')
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -403,6 +412,77 @@ class Settings:
 		
 		self.pytrans.send(iq)
 		
+	def sendPersonalEventsSettingsForm(self, el, sessionid=None):
+		to = el.getAttribute("from")
+		ID = el.getAttribute("id")
+		ulang = utils.getLang(el)
+		
+		toj = internJID(to)
+		jid = toj.userhost()
+		
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		settings = bos.selfSettings
+		
+		iq = Element((None, "iq"))
+		iq.attributes["to"] = to
+		iq.attributes["from"] = config.jid
+		if ID:
+			iq.attributes["id"] = ID
+		iq.attributes["type"] = "result"
+
+		command = iq.addElement("command")
+		if sessionid:
+			command.attributes["sessionid"] = sessionid
+		else:
+			command.attributes["sessionid"] = self.pytrans.makeMessageID()
+		command.attributes["node"] = "settings"
+		command.attributes["xmlns"] = globals.COMMANDS
+		command.attributes["status"] = "executing"
+
+		actions = command.addElement("actions")
+		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
+		actions.addElement("complete")
+
+		x = command.addElement("x")
+		x.attributes["xmlns"] = "jabber:x:data"
+		x.attributes["type"] = "form"
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'user_mood_receiving'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('user_mood_receiving')
+		value = field.addElement('value')
+		value.addContent(str(settings['user_mood_receiving']))
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'user_activity_receiving'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('user_activity_receiving')
+		value = field.addElement('value')
+		value.addContent(str(settings['user_activity_receiving']))
+		
+		field = x.addElement('field')
+		field.attributes['var'] = 'user_tune_receiving'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('user_tune_receiving')
+		value = field.addElement('value')
+		value.addContent(str(settings['user_tune_receiving']))
+		
+		field = x.addElement('field')
+		field.attributes['type'] = 'hidden'
+		field.attributes['var'] = 'settings_page'
+		value = field.addElement('value')
+		value.addContent('personal_events_settings')
+		
+		stage = x.addElement('field')
+		stage.attributes['type'] = 'hidden'
+		stage.attributes['var'] = 'stage'
+		value = stage.addElement('value')
+		value.addContent('2')
+		
+		self.pytrans.send(iq)
+		
 	def sendCompletedForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
 		ID = el.getAttribute('id')
@@ -468,6 +548,15 @@ class Settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
 				
 	def ApplyMessageSettings(self, to_jid, settings):
+		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		bos.addToSelfSettings(settings)
+		if jid in self.pytrans.sessions:
+			for key in settings:
+				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
+				
+	def ApplyPersonalEventsSettings(self, to_jid, settings):
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
