@@ -278,8 +278,8 @@ class SetXStatus:
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		if xstatus_name == 'None':
 			# no x-status
-			del bos.selfCustomStatus # erase CustomStatus struct
-			bos.selfCustomStatus = dict([]) # and create empty one
+			mask = ('mood', 'activity', 'subactivity', 'text', 'usetune') # keep values for mood/activity
+			bos.oscarcon.delSelfCustomStatus(savemask=mask)
 		else:
 			bos.selfCustomStatus['x-status name'] = xstatus_name
 			if xstatus_title:

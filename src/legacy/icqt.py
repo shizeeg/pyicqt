@@ -167,6 +167,7 @@ class B(oscar.BOSConnection):
 		return (show, anormal)
 	
 	def parseAndSearchForActivity(self, title):
+		LogEvent(INFO, self.session.jabberID)
 		for key in ACTIVITIES:
 			subactivities = ACTIVITIES[key]
 			for subkey in subactivities:
@@ -185,6 +186,7 @@ class B(oscar.BOSConnection):
 		return [None, None]
 	
 	def parseAndSearchForMood(self, title):
+		LogEvent(INFO, self.session.jabberID)
 		for key in MOODS:
 			title_lo = title.lower().replace('_', ' ')
 			native_lo = lang.get(key).lower().replace('_', ' ')
@@ -192,6 +194,47 @@ class B(oscar.BOSConnection):
 			if title_lo.find(intern_lo) != -1 or title_lo.find(native_lo) != -1:
 				return MOODS[key]
 		return None
+		
+	def sendPersonalEvents(self, buddyjid, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune):
+		LogEvent(INFO, self.session.jabberID)
+		if buddyjid: # for user
+			to = self.session.jabberID
+			fro = buddyjid
+		else: # for transport
+			to = self.session.jabberID
+			fro = config.jid	
+		# sending mood	
+		if mood and (mood != s_mood or (s_mood and text != s_text)): # if need set other mood or other text
+			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, mood=mood, text=text) # send mood
+		elif s_mood and not mood: # mood was set and not set now
+			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
+		# sending activity
+		if act and (not (act == s_act and subact == s_subact) or (s_act and text != s_text)): # if need set other act/subact or other text
+			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, act=act, subact=subact, text=text) # send act
+		elif s_act and not act or s_subact and not subact: # act or subact was set and not set now
+			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
+		# sending tune
+		musicinfo = utils.parseTune(text)
+		if usetune and ((s_usetune and text != s_text) or not s_usetune):
+			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, musicinfo=musicinfo) # send tune
+		elif s_usetune and not usetune: # tune was set and not set now
+			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
+					
+	def sendPersonalEventsStop(self, buddyjid, s_mood, s_act, s_subact, s_usetune):
+		LogEvent(INFO, self.session.jabberID)
+		if buddyjid: # for user
+			to = self.session.jabberID
+			fro = buddyjid
+		else: # for transport
+			to = self.session.jabberID
+			fro = config.jid
+		# send retract or stop
+		if s_mood:
+			self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
+		if s_act or s_subact:
+			self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
+		if s_usetune:
+			self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
 
 	def updateBuddy(self, user, selfcall = False):
 		from glue import icq2jid
@@ -278,7 +321,10 @@ class B(oscar.BOSConnection):
 					if 'x-status' in user.customStatus: # ICQ5.1 x-status icon
 						del user.customStatus['x-status'] # don't needed
 				# get x-status name
-				x_status_name = self.oscarcon.getXStatus(user.name)
+				if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2: # in ICQ 6 mode
+					x_status_name = self.oscarcon.getXStatus(user.name, True)
+				else:
+					x_status_name = self.oscarcon.getXStatus(user.name)
 				# text	
 				if int(self.settingsOptionValue('xstatus_receiving_mode')) == 2:
 					status6 = status
@@ -359,44 +405,11 @@ class B(oscar.BOSConnection):
 						text = status6
 					elif status5 != '':
 						text = status5
+					# send personal events	
+					self.sendPersonalEvents(buddyjid, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)	
+				else:  # displaying disabled
+					self.sendPersonalEventsStop(buddyjid, s_mood, s_act, s_subact, s_usetune)
 					
-					# sending mood	
-					if s_mood: # if mood was set
-						if not mood: # if don't set mood now
-							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
-						else: # set mood now
-							if mood != s_mood or text != s_text: # if need set other mood or other text
-								self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=text)
-					else: # if this attempt - first
-						if mood: # set it!
-							self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, mood=mood, text=text) # just send new mood
-					# sending activity		
-					if s_act: # if activity was set
-						if not act: # if don't set activity now
-							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
-						else: # set activity now
-							if not (act == s_act and subact == s_subact) or text != s_text: # if need set other activity/subactivity pair or other text
-								self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=text)
-					else: # if this attempt - first
-						if act: # set it!
-							self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, act=act, subact=subact, text=text) # just send new activity
-					# sending tune
-					musicinfo = utils.parseTune(text)
-					if s_usetune: # if tune was set
-						if not usetune: # if don't set tune now 
-							self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, stop=True) # stop tune
-						else: # set tune now
-							if text != s_text: # need set other text
-								self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, musicinfo=musicinfo)
-					else: # if this attempt - first
-						if usetune: # set it!
-							self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, musicinfo=musicinfo) # just send new tune
-							
-				else:  # no x-status and additional normal status
-					if s_mood or s_act or s_subact or s_text or s_usetune: # ...but it was before
-						self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
-						self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
-						self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=buddyjid, stop=True) # stop tune
 				# no icon in roster. Impossible recognize or displaying disabled 
 				if not mood and not act and not subact and not usetune: 
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,2,3):
@@ -461,10 +474,11 @@ class B(oscar.BOSConnection):
 		ptype = "unavailable"
 		c.updatePresence(show=show, status=status, ptype=ptype)
 		self.oscarcon.legacyList.updateSSIContact(user.name, presence=ptype, show=show, status=status)
-		self.oscarcon.legacyList.delCustomStatus(user.name) # reset custom status struct for user
+		
+		s_mood, s_act, s_subact, s_text, s_usetune = self.oscarcon.getPersonalEvents(user.name) # get Personal Events
+		self.sendPersonalEventsStop(buddyjid, s_mood, s_act, s_subact, s_usetune) # stop them
+		self.oscarcon.legacyList.delCustomStatus(user.name) # del custom status struct for user
 		self.oscarcon.setPersonalEvents(user.name, None, None, None) # reset personal events struct
-		self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=buddyjid, action='retract') # retract mood
-		self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=buddyjid, action='retract') # retract activity
 
 	def receiveMessage(self, user, multiparts, flags, delay=None):
 		from glue import icq2jid
@@ -570,7 +584,7 @@ class B(oscar.BOSConnection):
 		status = None
 		url = None
 		
-		if len(msg[0]) == 4 and len(msg[1]) == 2: # online since time and idle time
+		if msg[0] and msg[1] and len(msg[0]) == 4 and len(msg[1]) == 2: # online since time and idle time
 			onlineSince = datetime.datetime.utcfromtimestamp(struct.unpack('!I',msg[0])[0])
 			log.msg('User %s online since %sZ' % (user.name, onlineSince.isoformat()))
 			idleTime = struct.unpack('!H',msg[1])[0]
@@ -751,6 +765,14 @@ class B(oscar.BOSConnection):
 		# it's undocumented feature of Gajim seems. In any case it's looks fine
 		LogEvent(INFO, self.session.jabberID)
 		
+		mood = None
+		act = None
+		subact = None
+		text = None
+		usetune = False
+		
+		s_mood, s_act, s_subact, s_text, s_usetune = self.oscarcon.getSelfPersonalEvents() # get Personal Events
+		
 		if config.xstatusessupport and int(self.settingsOptionValue('xstatus_sending_mode')) != 0 and self.settingsOptionEnabled('xstatus_icon_for_transport'): # possible show it
 			x_status_name = ''
 			if 'x-status name' in self.selfCustomStatus:
@@ -777,12 +799,6 @@ class B(oscar.BOSConnection):
 			if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
 				if 'avail.message' in self.selfCustomStatus:
 					status = self.selfCustomStatus['avail.message']
-
-			mood = None
-			act = None
-			subact = None
-			text = None
-			usetune = False
 	
 			mood_p = None
 			act_p = None
@@ -803,28 +819,11 @@ class B(oscar.BOSConnection):
 				act = act_p # use activity from text
 				subact = subact_p # and subactivity from text too
 				
-			if mood and not reset:
-				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, mood=mood, text=text) # just send new mood
-			elif not mood and self.xstatus_icon_for_transport:
-				self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
-			if act and not reset:
-				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, act=act, subact=subact, text=text) # just send new activity
-			elif not act and self.xstatus_icon_for_transport:
-				self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
-			if usetune and not reset:
-				musicinfo = utils.parseTune(text)
-				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, musicinfo=musicinfo) # send tune
-			elif not usetune and self.xstatus_icon_for_transport:
-				self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, stop=True) # stop tune
-			if (not mood and not act and not usetune) or reset:
-				self.xstatus_icon_for_transport = False
-			else:
-				self.xstatus_icon_for_transport = True
-		elif self.xstatus_icon_for_transport: # need erase last icon
-			self.session.pytrans.pubsub.sendMood(to=self.session.jabberID, fro=config.jid, action='retract') # retract mood
-			self.session.pytrans.pubsub.sendActivity(to=self.session.jabberID, fro=config.jid, action='retract') # retract activity
-			self.session.pytrans.pubsub.sendTune(to=self.session.jabberID, fro=config.jid, stop=True) # stop tune
-			self.xstatus_icon_for_transport = False
+			self.sendPersonalEvents(None, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)
+		else:
+			self.sendPersonalEventsStop(None, s_mood, s_act, s_subact, s_usetune)
+			
+		self.oscarcon.setSelfPersonalEvents(mood, act, subact, text, usetune) # set personal events
 
 
 

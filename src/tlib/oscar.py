@@ -1077,7 +1077,6 @@ class BOSConnection(SNACBased):
 	self.selfSettings = dict([])
 	self.icqStatus = 0x0000
 	self.updateSelfXstatusOnStart = False
-	self.xstatus_icon_for_transport = False
 	
 	if hasattr(self.session,'pytrans'):
 		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
@@ -2776,7 +2775,7 @@ class BOSConnection(SNACBased):
 		self.removeSelfXstatusNoUpdate()
 		self.setUserInfo()
 	if int(self.settingsOptionValue('xstatus_sending_mode')) in (2,3):
-		self.setExtendedStatusRequest(message='', setmsg=True)
+		self.setExtendedStatusRequest(message='', setmsg=True, setmood=True)
 	self.setStatusIconForTransport(reset=True)
 	
     def updateSelfXstatus(self):
@@ -2852,12 +2851,14 @@ class BOSConnection(SNACBased):
         """
 	moodinfo = ''
 	msginfo = ''
-	if setmood == True and mood:
-		mood_num = int(mood)
-		if mood_num > -1: # mood
-			mood_str = 'icqmood' + str(mood_num)
-			mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
-			moodinfo = mood_prefix + mood_str
+	if setmood == True:
+		mood_str = ''
+		if mood:
+			mood_num = int(mood)
+			if mood_num > -1: # mood
+				mood_str = 'icqmood' + str(mood_num)
+		mood_prefix = struct.pack('!HH',0x0e,len(mood_str))
+		moodinfo = mood_prefix + mood_str
 	if setmsg == True and message != None: # message
 		message = message.encode('utf-8','strict')
 		if len(message) > 240:

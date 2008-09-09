@@ -441,8 +441,8 @@ class Settings:
 				
 				if config.xstatusessupport:
 					if key == 'xstatus_sending_mode' and str(settings[key]) == '0': # disable sending of x-statuses 
-						del bos.selfCustomStatus # erase CustomStatus struct
-						bos.selfCustomStatus = dict([]) # and create empty one
+						mask = ('mood', 'activity', 'subactivity', 'text', 'usetune') # keep values for mood/activity
+						bos.oscarcon.delSelfCustomStatus(savemask=mask)
 						bos.updateSelfXstatus()
 					if key == 'xstatus_receiving_mode' and str(settings[key]) == '0':
 						# fast redrawing for all status messages (need exclude x-status information)

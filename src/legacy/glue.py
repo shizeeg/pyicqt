@@ -492,16 +492,22 @@ class LegacyConnection:
 				return customStatus['autoaway message']
 		return ''
 
-	def getXStatus(self, userHandle):
+	def getXStatus(self, userHandle, mood_pref=False):
 	# returns text of x-status icon
 	# sample: 'Working','Typing', ''
 		LogEvent(INFO, self.session.jabberID)
 		if userHandle in self.legacyList.usercustomstatuses:
 			customStatus = self.legacyList.usercustomstatuses[userHandle]
-			if 'x-status' in customStatus:
-				return customStatus['x-status']
-			elif 'icqmood' in customStatus:
-				return customStatus['icqmood']
+			if not mood_pref: # 'x-status' field preferred
+				if 'x-status' in customStatus:
+					return customStatus['x-status']
+				elif 'icqmood' in customStatus:
+					return customStatus['icqmood']
+			else: # 'icqmood' field preferred
+				if 'icqmood' in customStatus:
+					return customStatus['icqmood']
+				elif 'x-status' in customStatus:
+					return customStatus['x-status']
 		return ''
 		
 	def getXStatusDetails(self, userHandle):
@@ -590,6 +596,74 @@ class LegacyConnection:
 			if key in uvars:
 				return uvars[key]
 		return ''
+		
+	def getSelfPersonalEvents(self):
+	# returns mood and activity
+		LogEvent(INFO, self.session.jabberID)
+		mood = None
+		activity = None
+		subactivity = None
+		text = None
+		usetune = False
+		if self.bos.selfCustomStatus:
+			customStatus = self.bos.selfCustomStatus
+			if 'mood' in customStatus:
+				mood = customStatus['mood']
+			if 'activity' in customStatus:
+				activity = customStatus['activity']
+			if 'subactivity' in customStatus:
+				subactivity = customStatus['subactivity']
+			if 'text' in customStatus:
+				text = customStatus['text']
+			if 'usetune' in customStatus:
+				usetune = customStatus['usetune']
+		return mood, activity, subactivity, text, usetune
+			
+	def setSelfPersonalEvents(self, mood=None, activity=None, subactivity=None, text=None, usetune=False):
+	# sets mood and activity
+		LogEvent(INFO, self.session.jabberID)
+		if self.bos.selfCustomStatus:
+			customStatus = self.bos.selfCustomStatus
+			if mood:
+				customStatus['mood'] = mood
+			else:
+				if 'mood' in customStatus:
+					del customStatus['mood']
+			if activity:
+				customStatus['activity'] = activity
+			else:
+				if 'activity' in customStatus:
+					del customStatus['activity']
+			if subactivity:
+				customStatus['subactivity'] = subactivity
+			else:
+				if 'subactivity' in customStatus:
+					del customStatus['subactivity']
+			if text:
+				customStatus['text'] = text
+			else:
+				if 'text' in customStatus:
+					del customStatus['text']
+			if usetune:
+				customStatus['usetune'] = usetune
+			else:
+				if 'usetune' in customStatus:
+					del customStatus['usetune']
+					
+	def delSelfCustomStatus(self, delmask=None, savemask=None):
+		LogEvent(INFO, self.session.jabberID)
+		if self.bos.selfCustomStatus: # if custom status exists
+			if savemask == None: # erase all
+				del self.bos.selfCustomStatus
+			else: # save only some keys
+				delmask = list()
+				for key in self.bos.selfCustomStatus:
+					if key not in savemask:
+						delmask.append(key) # need erase this key 
+			if delmask != None: # erase only some keys
+				for key in delmask:
+					if key in self.bos.selfCustomStatus:
+						del self.bos.selfCustomStatus[key]
 
 	def gotvCard(self, usercol):
 		from glue import icq2jid
