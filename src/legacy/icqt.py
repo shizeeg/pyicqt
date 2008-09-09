@@ -197,6 +197,10 @@ class B(oscar.BOSConnection):
 		
 	def sendPersonalEvents(self, buddyjid, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune):
 		LogEvent(INFO, self.session.jabberID)
+		a_mood = None 
+		a_act = None
+		a_subact = None
+		a_usetune =None
 		if buddyjid: # for user
 			to = self.session.jabberID
 			fro = buddyjid
@@ -207,12 +211,15 @@ class B(oscar.BOSConnection):
 		if int(self.settingsOptionEnabled('user_mood_receiving')):
 			if mood and (mood != s_mood or (s_mood and text != s_text)): # if need set other mood or other text
 				self.session.pytrans.pubsub.sendMood(to=to, fro=fro, mood=mood, text=text) # send mood
+				a_mood = mood
 			elif s_mood and not mood: # mood was set and not set now
 				self.session.pytrans.pubsub.sendMood(to=to, fro=fro, action='retract') # retract mood
 		# sending activity
 		if int(self.settingsOptionEnabled('user_activity_receiving')):
 			if act and (not (act == s_act and subact == s_subact) or (s_act and text != s_text)): # if need set other act/subact or other text
 				self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, act=act, subact=subact, text=text) # send act
+				a_act = act
+				a_subact = subact
 			elif s_act and not act or s_subact and not subact: # act or subact was set and not set now
 				self.session.pytrans.pubsub.sendActivity(to=to, fro=fro, action='retract') # retract activity
 		# sending tune
@@ -220,8 +227,11 @@ class B(oscar.BOSConnection):
 			musicinfo = utils.parseTune(text)
 			if usetune and ((s_usetune and text != s_text) or not s_usetune):
 				self.session.pytrans.pubsub.sendTune(to=to, fro=fro, musicinfo=musicinfo) # send tune
+				a_usetune = usetune
 			elif s_usetune and not usetune: # tune was set and not set now
 				self.session.pytrans.pubsub.sendTune(to=to, fro=fro, stop=True) # stop tune
+		# returns info about personal events, which were really sent
+		return a_mood, a_act, a_subact, a_usetune
 					
 	def sendPersonalEventsStop(self, buddyjid, s_mood, s_act, s_subact, s_usetune):
 		LogEvent(INFO, self.session.jabberID)
@@ -409,7 +419,7 @@ class B(oscar.BOSConnection):
 					elif status5 != '':
 						text = status5
 					# send personal events	
-					self.sendPersonalEvents(buddyjid, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)	
+					mood, act, subact, usetune = self.sendPersonalEvents(buddyjid, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)	
 				else:  # displaying disabled
 					self.sendPersonalEventsStop(buddyjid, s_mood, s_act, s_subact, s_usetune)
 					
@@ -822,7 +832,7 @@ class B(oscar.BOSConnection):
 				act = act_p # use activity from text
 				subact = subact_p # and subactivity from text too
 				
-			self.sendPersonalEvents(None, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)
+			mood, act, subact, usetune = self.sendPersonalEvents(None, mood, s_mood, act, s_act, subact, s_subact, text, s_text, usetune, s_usetune)
 		else:
 			self.sendPersonalEventsStop(None, s_mood, s_act, s_subact, s_usetune)
 			
