@@ -306,9 +306,6 @@ class OSCARUser:
 					(0x0010,'busy'),
 					(0x0020,'chat'),
 					(0x0100,'invisible'),
-					# Miranda
-					(0x0005,'lunch'),
-					(0x0011,'phone'),
 					# QutIM
 					(0x3000,'evil'),
 					(0x4000,'depression'),

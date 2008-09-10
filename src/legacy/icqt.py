@@ -145,7 +145,7 @@ class B(oscar.BOSConnection):
 			show = 'away'
 		# additional "normal" statuses
 		elif icqStatus.count('lunch'):
-			show = 'xa'
+			show = 'away'
 			anormal = 'anstatus_out_to_lunch'
 		elif icqStatus.count('phone'):
 			show = 'dnd'
