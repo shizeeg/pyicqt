@@ -1086,7 +1086,11 @@ class BOSConnection(SNACBased):
 					latest_xstatus_number = self.selfSettings['latest_xstatus_number']
 					if int(latest_xstatus_number) > 0:
 						self.selfCustomStatus['x-status name'] = X_STATUS_NAME[int(latest_xstatus_number)]
-						self.selfCustomStatus['x-status title'], self.selfCustomStatus['x-status desc'] = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
+						title, desc = self.session.pytrans.xdb.getXstatusText(self.session.jabberID, latest_xstatus_number)
+						if config.xdbDriver == 'xmlfiles':
+							title = utils.fixCharactersInDeXML(title)
+						self.selfCustomStatus['x-status title'] = title
+						self.selfCustomStatus['x-status desc'] = desc
 					if int(self.settingsOptionValue('xstatus_sending_mode')) != 0:
 						self.updateSelfXstatusOnStart = True
 		log.msg("CustomStatus for user %s is %s" % (self.session.jabberID, self.selfCustomStatus))

@@ -215,7 +215,10 @@ class SetXStatus:
 		xstatus_number = self.pytrans.sessions[jid].legacycon.bos.getXstatusNumberByName(xstatus_name)
 		title, desc = self.pytrans.xdb.getXstatusText(jid, xstatus_number)
 		if title == '':
-			title = lang.get(xstatus_name)	
+			title = lang.get(xstatus_name)
+		else:
+			if config.xdbDriver == 'xmlfiles': # fix problem with & character
+				title = utils.fixCharactersInDeXML(title)	
 			
 		xstatus_title = x.addElement('field')
 		xstatus_title.attributes['type'] = 'text-single'

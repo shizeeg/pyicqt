@@ -433,4 +433,9 @@ def parseTune(string=None):
 		musicinfo['title'] = string
 			
 	return musicinfo
+	
+def fixCharactersInDeXML(string):
+	string = string.replace('&amp;apos;','\'')
+	string = string.replace('&amp;amp;','&')
+	return string
 
