@@ -3989,23 +3989,16 @@ class OscarAuthenticator(OscarConnection):
             self.disconnect()
         elif tlvs.has_key(8):
             errorcode=tlvs[8]
+	    if len(errorcode) == 2:
+		    errorcode = struct.unpack('!H',errorcode)[0]
             if tlvs.has_key(4):
                 errorurl=tlvs[4]
             else:
                 errorurl=None
-            if errorcode=='\x00\x02':
-                error="The instant messenger server is temporarily unavailable"
-            elif errorcode=='\x00\x05':
-                error="Incorrect username or password."
-            elif errorcode=='\x00\x11':
-                error="Your account is currently suspended."
-            elif errorcode=='\x00\x14':
-                error="The instant messenger server is temporarily unavailable"
-            elif errorcode=='\x00\x18':
-                error="You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer."
-            elif errorcode=='\x00\x1c':
-                error="The client version you are using is too old.  Please contact the maintainer of this software if you see this message so that the problem can be resolved."
-            else: error=repr(errorcode)
+	    if errorcode in SIGNON_ERROR_CODES:
+		error = SIGNON_ERROR_CODES[errorcode]
+            else:
+		error= 'Unknown sign-on error (%s)' % (errorcode)
             self.error(error,errorurl)
         else:
             log.msg('hmm, weird tlvs for %s cookie packet' % str(self))
@@ -4022,6 +4015,7 @@ class OscarAuthenticator(OscarConnection):
 
     def error(self,error,url):
         log.msg("ERROR! %s %s" % (error,url))
+	self.oscarcon.alertUser('Connection error: %s' % error)
         if self.deferred: self.deferred.errback((error,url))
         self.transport.loseConnection()
 	
@@ -4121,6 +4115,23 @@ ERROR_CODES = dict([
 	(0x20, 'Remote restricted by parental controls')	
 	])
 	
+###
+# Sign-on error codes
+###
+SIGNON_ERROR_CODES = dict([
+	(0x01, 'Username don\'t registered'),
+	(0x02, 'The instant messenger server is temporarily unavailable'),
+	(0x05, 'Incorrect username or password'),
+	(0x07, 'Your username or password was rejected'),
+	(0x08, 'Your account deleted'),
+	(0x09, 'Your account expired'),
+	(0x11, 'Your account is currently suspended'),
+	(0x14, 'The instant messenger server is temporarily unavailable'),
+	(0x17, 'Too many connections from one IP.'),
+	(0x18, 'You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer.'),
+	(0x1c, 'The client version you are using is too old.  Please contact the maintainer of this software if you see this message so that the problem can be resolved.'),
+	(0x1e, 'Can\'t register in network. You have already connection from other resource?')
+	])
 	
 ###
 # Capabilities
