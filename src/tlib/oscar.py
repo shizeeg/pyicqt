@@ -683,7 +683,20 @@ class OscarConnection(protocol.Protocol):
         while flap:
             if flap[0] == 0x04:
                 # We failed to connect properly
-                self.connectionLost("Connection rejected.")
+		error = None
+		tlvs = readTLVs(flap[1])
+		if 0x09 in tlvs:
+			tlv_data = tlvs[0x09]
+			if len(tlv_data) == 2:
+				errorcode = struct.unpack('!H', tlv_data)[0]
+				if errorcode in DISCONNECT_ERROR_CODES:
+					error = DISCONNECT_ERROR_CODES[errorcode]
+				else:
+					error = 'Connection rejected (%s)' % repr(errorcode)
+		else:
+			error = 'Connection rejected'
+			log.msg('%s (%s)' % (error, repr(flap)))
+		self.connectionLost(error)
             func=getattr(self,"oscar_%s"%self.state,None)
             if not func:
                 log.msg("no func for state: %s" % self.state)
@@ -4130,7 +4143,14 @@ SIGNON_ERROR_CODES = dict([
 	(0x17, 'Too many connections from one IP.'),
 	(0x18, 'You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer.'),
 	(0x1c, 'The client version you are using is too old.  Please contact the maintainer of this software if you see this message so that the problem can be resolved.'),
-	(0x1e, 'Can\'t register in network. You have already connection from other resource?')
+	(0x1e, 'Can\'t register in network. You already logged on from other location?')
+	])
+	
+###
+# Reasons of disconnection
+###
+DISCONNECT_ERROR_CODES = dict([
+	(0x01, 'You have been disconnected from the network because you logged on from another location using the same username')
 	])
 	
 ###
