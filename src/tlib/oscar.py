@@ -750,9 +750,15 @@ class SNACBased(OscarConnection):
         return d
 
     def _ebDeferredError(self, error, fam, sub, data):
-        log.msg('ERROR IN DEFERRED %s' % error)
-        log.msg('on sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
-        log.msg('data: %s' % repr(data))
+	log.msg('ERROR IN DEFERRED %s' % error)
+	log.msg('On sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
+	if error.value[5] and len(error.value[5]) == 2:
+		error_code = struct.unpack('!H',error.value[5])[0]
+		if error_code in ERROR_CODES:
+			log.msg('Reason: %s' % ERROR_CODES[error_code])
+		else:
+			log.msg('Reason: unknown (0x%02x)' % error_code)
+	log.msg('data not sent: %s' % repr(data))
 
     def sendSNACnr(self,fam,sub,data,flags=[0,0]):
         """
@@ -4078,6 +4084,44 @@ TLV_CLIENTSUB = 0x001A
 TLV_PASSWORD = 0x0025
 TLV_USESSI = 0x004A
 
+###
+# Error codes. Descriptions in Miranda-like style
+###
+ERROR_CODES = dict([
+	(0x01, 'Invalid SNAC header'),
+	(0x02, 'Server rate limit exceeded'),
+	(0x03, 'Client rate limit exceeded'),
+	(0x04, 'Recipient is not logged in'),
+	(0x05, 'Requested service unavailable'),
+	(0x06, 'Requested service not defined'),
+	(0x07, 'You sent obsolete SNAC'),
+	(0x08, 'Not supported by server'),
+	(0x09, 'Not supported by client'),
+	(0x0a, 'Refused by client'),
+	(0x0b, 'Reply too big'),
+	(0x0c, 'Responses lost'),
+	(0x0d, 'Request denied'),
+	(0x0e, 'Incorrect SNAC format'),
+	(0x0f, 'Insufficient rights'),
+	(0x10, 'In local permit/deny (recipient blocked)'),
+	(0x11, 'Sender is too evil'),
+	(0x12, 'Receiver is too evil'),
+	(0x13, 'User temporarily unavailable'),
+	(0x14, 'No match'),
+	(0x15, 'List overflow'),
+	(0x16, 'Request ambiguous'),
+	(0x17, 'Server queue full'),
+	(0x18,  'Not while on AOL'),
+	(0x19, 'Query failed'),
+	(0x1a, 'Timeout'),
+	(0x1c, 'General failure'),
+	(0x1d, 'Progress'),
+	(0x1e, 'In free area'),
+	(0x1f, 'Restricted by parental controls'),
+	(0x20, 'Remote restricted by parental controls')	
+	])
+	
+	
 ###
 # Capabilities
 ###
