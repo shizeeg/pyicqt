@@ -763,15 +763,22 @@ class SNACBased(OscarConnection):
         return d
 
     def _ebDeferredError(self, error, fam, sub, data):
+	showdata = True
 	log.msg('ERROR IN DEFERRED %s' % error)
 	log.msg('On sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
 	if error.value[5] and len(error.value[5]) == 2:
 		error_code = struct.unpack('!H',error.value[5])[0]
 		if error_code in ERROR_CODES:
 			log.msg('Reason: %s' % ERROR_CODES[error_code])
+			if error_code == 0x03: # client rate limit exceeded
+				delay = random.randrange(0, 5) # send after some time
+				reactor.callLater(delay, self.sendSNAC, fam, sub, data)
+				log.msg('Will resend after %d seconds', delay)
+				showdata = False
 		else:
 			log.msg('Reason: unknown (0x%02x)' % error_code)
-	log.msg('data not sent: %s' % repr(data))
+	if showdata:
+		log.msg('data not sent: %s' % repr(data))
 
     def sendSNACnr(self,fam,sub,data,flags=[0,0]):
         """
