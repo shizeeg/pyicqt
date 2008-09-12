@@ -2487,8 +2487,8 @@ class BOSConnection(SNACBased):
 
 	index = self.getSelfXstatusIndex()
 	title, desc = self.getSelfXstatusDetails()
-	title = utils.tryDecode(str(title))[0].encode('utf-8','strict')
-	desc = utils.tryDecode(str(desc))[0].encode('utf-8','strict')
+	title = str(title).encode('utf-8','strict')
+	desc = str(desc).encode('utf-8','strict')
 
 	# message content
 	content = """\
