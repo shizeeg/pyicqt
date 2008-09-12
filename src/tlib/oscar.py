@@ -773,7 +773,7 @@ class SNACBased(OscarConnection):
 			if error_code == 0x03: # client rate limit exceeded
 				delay = random.randrange(0, 5) # send after some time
 				reactor.callLater(delay, self.sendSNAC, fam, sub, data)
-				log.msg('Will resend after %d seconds', delay)
+				log.msg('Will resend after %s seconds' % delay)
 				showdata = False
 		else:
 			log.msg('Reason: unknown (0x%02x)' % error_code)
@@ -1533,19 +1533,12 @@ class BOSConnection(SNACBased):
         data = snac[5]
         errorcode = struct.unpack('!H',data[:2])[0]
         data = data[2:]
-        if errorcode==0x04:
-            errortxt="client is offline"
-        elif errorcode==0x09:
-            errortxt="this message not supported by client"
-        elif errorcode==0x0e:
-            errortxt="invalid (incorrectly formatted) message"
-        elif errorcode==0x10:
-            errortxt="the receiver or sender is blocked"
+        if errorcode in ICBM_ERROR_CODES:
+		errortxt = ICBM_ERROR_CODES[errorcode]
         else:
-            errortxt="an unknown error has occured. (0x%02x)"%(errorcode)
-        
+        	errortxt = 'Unknown error (0x%02x)' % errorcode
         log.msg('ICBM Error: %s' % (errortxt))
-        self.errorMessage('Unable to deliver message because %s' % (errortxt))
+        self.errorMessage('Unable to deliver message. %s' % (errortxt))
         log.msg(snac)
 
     def oscar_04_05(self, snac):
@@ -2434,9 +2427,13 @@ class BOSConnection(SNACBased):
         if wantIcon:
             log.msg("sendMessage: Sending request for their icon")
             data = data + TLV(9)
-        if wantAck:
-            return self.sendSNAC(0x04, 0x06, data).addCallback(self._cbSendMessageAck, user, message)
-        self.sendSNACnr(0x04, 0x06, data)
+
+	if len(data) > MAX_MESSAGESIZE:
+		self.errorMessage('Unable to deliver message. Message too long for sending')
+	else:
+		if wantAck:
+			return self.sendSNAC(0x04, 0x06, data).addCallback(self._cbSendMessageAck, user, message)
+		self.sendSNACnr(0x04, 0x06, data)
 
     def _cbSendMessageAck(self, snac, user, message):
         return user, message
@@ -2654,7 +2651,10 @@ class BOSConnection(SNACBased):
 	# result data
 	data = header + rvdataTLV + TLVask
 	
-	self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2) # send message
+	if len(data) > MAX_MESSAGESIZE:
+		self.errorMessage('Unable to deliver message. Message too long for sending')
+	else:
+		self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2) # send message
 	
     def sendMessageType2Confirmation(self, user, cookie=None):
 	"""
@@ -4160,6 +4160,28 @@ DISCONNECT_ERROR_CODES = dict([
 	(0x01, 'You have been disconnected from the network because you logged on from another location using the same username')
 	])
 	
+###
+# ICBM Error codes
+###
+ICBM_ERROR_CODES = dict([
+	(0x02, 'You are sending too fast'),# server rate limit exceeded
+	(0x03, 'You are sending too fast'),# client rate limit exceeded
+	(0x04, 'Contact is offline'),
+	(0x05, 'Messaging service temporary unavailable'),
+	(0x08, 'This type of message don\'t supported by server'),
+	(0x09, 'This type of message don\'t supported by client'),
+	(0x0a, 'Message too long. Receiving client does not support it'),
+	(0x0b, 'Reply too big'),
+	(0x0d, 'Request denied'),
+	(0x0e, 'Invalid (incorrectly formatted) message'),
+	(0x10, 'In local permit/deny (recipient blocked)')
+	])
+
+###
+# Constants
+###
+MAX_MESSAGESIZE = 8000
+
 ###
 # Capabilities
 ###
