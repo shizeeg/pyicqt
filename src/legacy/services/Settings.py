@@ -290,7 +290,7 @@ class Settings:
 		jid = toj.userhost()
 		
 		bos = self.pytrans.sessions[jid].legacycon.bos
-		clist_show_phantombuddies = bos.addSelfSettingsByDefault()['clist_show_phantombuddies']
+		settings = bos.selfSettings
 		
 		iq = Element((None, "iq"))
 		iq.attributes["to"] = to
@@ -322,7 +322,7 @@ class Settings:
 		field.attributes['type'] = 'boolean'
 		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
 		value = field.addElement('value')
-		value.addContent(str(clist_show_phantombuddies))
+		value.addContent(str(settings['clist_show_phantombuddies']))
 		
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
