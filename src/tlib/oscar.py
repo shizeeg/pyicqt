@@ -693,6 +693,9 @@ class OscarConnection(protocol.Protocol):
 					error = DISCONNECT_ERROR_CODES[errorcode]
 				else:
 					error = 'Connection rejected (%s)' % repr(errorcode)
+		elif len(flap[1]) == 0:
+			error = 'Connection closed'
+			log.msg(error)
 		else:
 			error = 'Connection rejected'
 			log.msg('%s (%s)' % (error, repr(flap)))
