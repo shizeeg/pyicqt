@@ -764,9 +764,8 @@ class SNACBased(OscarConnection):
 
     def _ebDeferredError(self, error, fam, sub, data):
 	showdata = True
-	log.msg('ERROR IN DEFERRED %s' % error)
-	log.msg('On sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
 	if error.value[5] and len(error.value[5]) == 2:
+		log.msg('Error occurred on sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
 		error_code = struct.unpack('!H',error.value[5])[0]
 		if error_code in ERROR_CODES:
 			log.msg('Reason: %s' % ERROR_CODES[error_code])
@@ -777,6 +776,9 @@ class SNACBased(OscarConnection):
 				showdata = False
 		else:
 			log.msg('Reason: unknown (0x%02x)' % error_code)
+	else:
+		log.msg('ERROR IN DEFERRED %s' % error)
+		log.msg('On sending of message, family 0x%02x, subtype 0x%02x' % (fam, sub))
 	if showdata:
 		log.msg('data not sent: %s' % repr(data))
 
