@@ -92,6 +92,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	# contact list settings
 	settings_clist_show_phantombuddies = u"* Show temporary ICQ contacts in roster (%s found)"
 	# status settings
+	away_messages_sending = u"Away messages sending"
 	away_messages_receiving = u"Away messages receiving"
 	xstatus_sendmode = u"X-statuses sending mode"
 	xstatus_sendmode_none = u"None"

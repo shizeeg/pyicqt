@@ -190,6 +190,13 @@ class Settings:
 		
 		if config.xstatusessupport:
 			field = x.addElement('field')
+			field.attributes['var'] = 'away_messages_sending'
+			field.attributes['type'] = 'boolean'
+			field.attributes['label'] = lang.get('away_messages_sending')
+			value = field.addElement('value')
+			value.addContent(str(settings['away_messages_sending']))
+			
+			field = x.addElement('field')
 			field.attributes['var'] = 'away_messages_receiving'
 			field.attributes['type'] = 'boolean'
 			field.attributes['label'] = lang.get('away_messages_receiving')

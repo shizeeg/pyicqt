@@ -1136,6 +1136,7 @@ class BOSConnection(SNACBased):
 	('xstatus_display_text_as_PEP', 1),
 	('xstatus_icon_for_transport', 0),
 	('away_messages_receiving', 1),
+	('away_messages_sending', 1),
 	('clist_show_phantombuddies', 0),
 	('utf8_messages_sendmode', 1),
 	('send_confirm_for_ut8_msg', 1),
@@ -1713,7 +1714,8 @@ class BOSConnection(SNACBased):
 				log.msg('Request for status details from %s' % user.name)
 				if config.xstatusessupport:
 					if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
-						self.sendStatusMessageResponse(user.name, cookie2)
+						if self.settingsOptionEnabled('away_messages_sending'):
+							self.sendStatusMessageResponse(user.name, cookie2)
 			elif msgtype == 0x01: # plain text message
 				log.msg('Plain text message from %s' % user.name)
 				uvars = {}
@@ -2263,11 +2265,12 @@ class BOSConnection(SNACBased):
         """
         set the away message, or return (if away == None)
         """
-        self.awayMessage = away
-	encoded_away = away.encode('utf-8', 'strict')
-        tlvs = TLV(3,'text/x-aolrtf; charset="utf-8"') + \
-               TLV(4, encoded_away or '')
-        self.sendSNACnr(0x02, 0x04, tlvs)
+	if self.settingsOptionEnabled('away_messages_sending'):
+		self.awayMessage = away
+		encoded_away = away.encode('utf-8', 'strict')
+		tlvs = TLV(3,'text/x-aolrtf; charset="utf-8"') + \
+		TLV(4, encoded_away or '')
+		self.sendSNACnr(0x02, 0x04, tlvs)
 
     def setBack(self, status=None):
         """
