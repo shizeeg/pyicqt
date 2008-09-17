@@ -440,7 +440,7 @@ class B(oscar.BOSConnection):
 				# need send request for x-status details	
 				if selfcall == False and requestForXStatus == True:
 					if int(self.settingsOptionValue('xstatus_receiving_mode')) in (1,3):
-						self.sendXstatusMessageRequest(user.name) # request Xstatus message
+						self.sendXstatusMessageRequestWithDelay(user.name) # request Xstatus message
 			else:
 				# x-status support disabled
 				status = ''

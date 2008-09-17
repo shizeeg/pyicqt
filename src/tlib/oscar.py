@@ -1730,7 +1730,7 @@ class BOSConnection(SNACBased):
 					log.msg('Request for x-status details from %s' % user.name)
 					if config.xstatusessupport:
 						if int(self.settingsOptionValue('xstatus_sending_mode')) in (1,3):
-							self.sendXstatusMessageResponse(user.name, cookie2)
+							self.sendXstatusMessageResponseWithDelay(user.name, cookie2)
 			else:
 				log.msg('Strange rendezvous')
 				log.msg(repr(moreTLVs))
@@ -2445,7 +2445,11 @@ class BOSConnection(SNACBased):
 
     def _cbSendMessageAck(self, snac, user, message):
         return user, message
- 
+
+    def sendXstatusMessageRequestWithDelay(self, username):
+	delay = random.randrange(1,9) # send after some time
+	reactor.callLater(delay, self.sendXstatusMessageRequest, username)	
+
     def sendXstatusMessageRequest(self, user):
 	"""
 	send request for x-status message to user
@@ -2481,6 +2485,10 @@ class BOSConnection(SNACBased):
 				
 				self.sendSNAC(0x04, 0x06, data).addCallback(self._sendXstatusMessageRequest) # send request
 					
+    def sendXstatusMessageResponseWithDelay(self, username, cookie):
+    	delay = random.randrange(2,18) # send after some time
+	reactor.callLater(delay, self.sendXstatusMessageResponse, username, cookie)	
+
     def sendXstatusMessageResponse(self, user, cookie):
 	"""
 	send x-status message response to user
