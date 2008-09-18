@@ -398,12 +398,22 @@ class Settings:
 		value = field.addElement('value')
 		value.addContent(str(settings['utf8_messages_sendmode']))
 		
+		msgconfirm_sendmode = dict([
+			('msgconfirm_sendmode_none',0),
+			('msgconfirm_sendmode_for_utf8',1),
+			('msgconfirm_sendmode_always',2)
+			])
 		field = x.addElement('field')
-		field.attributes['var'] = 'send_confirm_for_ut8_msg'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('send_confirm_for_ut8_msg')
+		field.attributes['var'] = 'msgconfirm_sendmode'
+		field.attributes['type'] =  'list-single'
+		field.attributes['label'] = lang.get('msgconfirm_sendmode')
+		for title in msgconfirm_sendmode:
+			option = field.addElement('option')
+			option.attributes['label'] = lang.get(title)
+			value = option.addElement('value')
+			value.addContent(str(msgconfirm_sendmode[title]))
 		value = field.addElement('value')
-		value.addContent(str(settings['send_confirm_for_ut8_msg']))
+		value.addContent(str(settings['msgconfirm_sendmode']))
 		
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'

@@ -1037,11 +1037,11 @@ class SNACBased(OscarConnection):
 		message.append(encoding)
 		if msglen > 0:
 			multiparts.append(tuple(message))
-		# send it to user's jabber client
-		self.receiveMessage(user, multiparts, flags, delay)
 		# send confirmation
-		if self.settingsOptionEnabled('send_confirm_for_ut8_msg'):
-			self.sendMessageType2Confirmation(user.name, cookie)
+		if int(self.settingsOptionValue('msgconfirm_sendmode')) in (1,2):
+			self.sendMessageConfirmation(user.name, cookie)
+		# send message to user's jabber client
+		self.receiveMessage(user, multiparts, flags, delay)
 
 
 class BOSConnection(SNACBased):
@@ -1139,7 +1139,7 @@ class BOSConnection(SNACBased):
 	('away_messages_sending', 1),
 	('clist_show_phantombuddies', 0),
 	('utf8_messages_sendmode', 1),
-	('send_confirm_for_ut8_msg', 1),
+	('msgconfirm_sendmode', 2),
 	('user_mood_receiving', 1),
 	('user_activity_receiving', 1),
 	('user_tune_receiving', 1)
@@ -1657,6 +1657,9 @@ class BOSConnection(SNACBased):
 	    uvars['utf8_msg_using'] = 0 # is not utf8 message
 	    self.oscarcon.legacyList.setUserVars(user.name, uvars)
 
+	    if int(self.settingsOptionValue('msgconfirm_sendmode')) == 2:
+		self.sendMessageConfirmation(user.name, cookie) # send confirmation
+
             self.receiveMessage(user, multiparts, flags, delay)
         elif channel == 2: # rendezvous
             status = struct.unpack('!H',tlvs[5][:2])[0]
@@ -1721,7 +1724,7 @@ class BOSConnection(SNACBased):
 				uvars = {}
 				uvars['utf8_msg_using'] = 1 # is utf8 message
 				self.oscarcon.legacyList.setUserVars(user.name, uvars) # set vars
-				self.processIncomingMessageType2(user, extdata, cookie2) # send message to jabber-client
+				self.processIncomingMessageType2(user, extdata, cookie) # process message
 			elif msgtype == 0x1a: # plugin message
 				UnSafe_Notification = self.extractXStatusNotification(extdata)
 				request_pos_begin = UnSafe_Notification.find('<req><id>AwayStat</id>')
@@ -2672,36 +2675,21 @@ class BOSConnection(SNACBased):
 	else:
 		self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2) # send message
 	
-    def sendMessageType2Confirmation(self, user, cookie=None):
+    def sendMessageConfirmation(self, user, cookie=None):
 	"""
-	send confirmation for UTF-8 message
+	send confirmation for incoming message
 	"""
-	log.msg("Sending confirmation for type-2 message to %s" % user) 
+	log.msg("Sending confirmation for incoming message to %s" % user) 
 	# AIM messaging header
 	if not cookie:
 		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
-	header = str(header)
+	header = header + struct.pack('!H',0x3) # reason: channel-specific
 	extended_data = str(self.prepareMessageType2Body(None))
-	# TLV
-	extdataTLV = TLV(0x2711, extended_data)
-	# Render Vous Data body
-	rvdataTLV = struct.pack('!H',0x0000) # request
-	rvdataTLV = rvdataTLV + cookie # ICBM cookie
-	rvdataTLV = rvdataTLV + CAP_SERV_REL # ICQ Server Relaying
-	# additional TLVs
-	addTLV1 = TLV(0x0a, struct.pack('!H',1)) # Acktype: 1 - normal, 2 - ack
-	addTLV2 = TLV(0x0f) # empty TLV
-	# concat TLVs
-	rvdataTLV = rvdataTLV + addTLV1 + addTLV2 + extdataTLV
-	# make Render Vous Data TLV
-	rvdataTLV = TLV(0x0005, rvdataTLV)
-	# server Ack requested
-	TLVask = TLV(3)
 	# result data
-	data = header + rvdataTLV + TLVask
+	data = header + extended_data
 	
-	self.sendSNAC(0x04, 0x06, data).addCallback(self._sendMessageType2Confirmation) # send message
+	self.sendSNAC(0x04, 0x0b, data).addCallback(self._sendMessageConfirmation) # send message
 	
     def _sendMessageType2(self, snac):
 	"""
@@ -2709,11 +2697,11 @@ class BOSConnection(SNACBased):
         """
 	log.msg("Type-2 message sent")
 	
-    def _sendMessageType2Confirmation(self, snac):
+    def _sendMessageConfirmation(self, snac):
 	"""
-	callback for sending of type-2 message confirmation
+	callback for sending of incoming message confirmation
         """
-	log.msg("Confirmation for type-2 message sent")
+	log.msg("Confirmation for incoming message sent")
 	
     def prepareMessageType2Body(self, query):
 	"""

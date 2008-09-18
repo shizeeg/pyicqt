@@ -113,7 +113,10 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	utf8_messages_sendmode_none = u"Sending disabled"
 	utf8_messages_sendmode_as_reply = u"As reply on incoming utf-8 message"
 	utf8_messages_sendmode_always = u"Always when it's possible"
-	send_confirm_for_ut8_msg = u"Send confirmations for incoming utf-8 messages"
+	msgconfirm_sendmode = u"Confirmations sending mode"
+	msgconfirm_sendmode_none = u"Sending disabled"
+	msgconfirm_sendmode_for_utf8 = u"Only for utf-8 messages"
+	msgconfirm_sendmode_always = u"Always"
 	# personal events settings
 	user_mood_receiving = u"User mood receiving"
 	user_activity_receiving = u"User activity receiving"
