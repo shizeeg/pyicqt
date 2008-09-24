@@ -59,8 +59,6 @@ class PublishSubscribe:
 		LogEvent(INFO)
 		el = Element((None, "message"))
 		el.attributes["id"] = self.pytrans.makeMessageID()
-		if to:
-			el.attributes["to"] = to
 		if fro:
 			el.attributes["from"] = fro
 	
@@ -86,7 +84,9 @@ class PublishSubscribe:
 				t = m.addElement("text")
 				t.addContent(text)
 
-		self.pytrans.send(el)
+		for res in self.pytrans.sessions[to].resourceList: # send to every resource
+			el.attributes["to"] = to + '/' + res
+			self.pytrans.send(el)
 	
 	def sendActivity(self, to=None, fro=None, act=None, subact=None, text=None, subact_xmlns=None, action=None,  extend_subact_xmlns=None):
 		"""
@@ -100,8 +100,6 @@ class PublishSubscribe:
 		
 		el = Element((None, "message"))
 		el.attributes["id"] = self.pytrans.makeMessageID()
-		if to:
-			el.attributes["to"] = to
 		if fro:
 			el.attributes["from"] = fro
 	
@@ -131,7 +129,9 @@ class PublishSubscribe:
 				t = a.addElement("text")
 				t.addContent(text)
 		
-		self.pytrans.send(el)
+		for res in self.pytrans.sessions[to].resourceList: # send to every resource
+			el.attributes["to"] = to + '/' + res
+			self.pytrans.send(el)
 		
 	def sendTune(self, to=None, fro=None, musicinfo=None, stop=False):
 		"""
@@ -140,8 +140,6 @@ class PublishSubscribe:
 		LogEvent(INFO)
 		el = Element((None, "message"))
 		el.attributes["id"] = self.pytrans.makeMessageID()
-		if to:
-			el.attributes["to"] = to
 		if fro:
 			el.attributes["from"] = fro
 	
@@ -166,9 +164,9 @@ class PublishSubscribe:
 							t_key = t.addElement(key)
 							t_key.addContent(value)
 		
-		self.pytrans.send(el)
-#		for res in self.pytrans.sessions[to].resourceList: # send to every resource
-#			el.attributes["to"] = to + '/' + res
+		for res in self.pytrans.sessions[to].resourceList: # send to every resource
+			el.attributes["to"] = to + '/' + res
+			self.pytrans.send(el)
 
 class PubSubStorage:
 	""" Manages pubsub nodes on disk. Nodes are stored according to
