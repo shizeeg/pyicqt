@@ -87,14 +87,14 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_category_clist = u"Contact list settings"
 	settings_category_message = u"Message settings"
 	settings_category_personal_events = u"Personal events settings"
-	settings_instructions = u"Options marked with asterisk required\n re-login for applying changes"
+	settings_instructions = u"Options marked with asterisk (*) required\n re-login for applying changes"
 	settings_xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
 	# contact list settings
 	settings_clist_show_phantombuddies = u"* Show temporary ICQ contacts in roster (%s found)"
 	# status settings
 	away_messages_sending = u"Away messages sending"
 	away_messages_receiving = u"Away messages receiving"
-	xstatus_sendmode = u"X-statuses sending mode"
+	xstatus_sendmode = u"* X-statuses sending mode"
 	xstatus_sendmode_none = u"None"
 	xstatus_sendmode_ICQ5 = u"ICQ 5.1 (most popular)"
 	xstatus_sendmode_ICQ6 = u"ICQ 6 (less traffic)"
