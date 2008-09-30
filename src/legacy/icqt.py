@@ -492,6 +492,7 @@ class B(oscar.BOSConnection):
 		self.sendPersonalEventsStop(buddyjid, s_mood, s_act, s_subact, s_usetune) # stop them
 		self.oscarcon.legacyList.delCustomStatus(user.name) # del custom status struct for user
 		self.oscarcon.setPersonalEvents(user.name, None, None, None) # reset personal events struct
+		self.oscarcon.legacyList.delUserVars(user.name) # del custom user vars
 
 	def receiveMessage(self, user, multiparts, flags, delay=None):
 		from glue import icq2jid
@@ -545,6 +546,20 @@ class B(oscar.BOSConnection):
 			LogEvent(INFO, self.session.jabberID, "User %s wants our icon, so we're sending it." % user.name)
 			icondata = self.oscarcon.myavatar
 			self.sendIconDirect(user.name, icondata, wantAck=1)
+			
+	def receiveReceiptMsgReceived(self, user, cookie):
+		LogEvent(INFO, self.session.jabberID) # legacy client received own message
+		msg_query = self.oscarcon.getUserVarValue(user, 'wait_for_confirm_msg_query')
+		if len(msg_query):
+			if cookie in msg_query:
+				jabber_mid, resource = msg_query[cookie] # message id, and resource
+				from glue import icq2jid
+				sourcejid = icq2jid(user)
+				self.session.sendMessage(to=self.session.jabberID + '/' + resource, fro=sourcejid, receipt=True, mID=jabber_mid) # send confirmation to jabber client
+				uvars = {}
+				uvars['wait_for_confirm_msg_query'] = msg_query # update query
+				del msg_query[cookie] # delete cookie - id from query
+				self.oscarcon.legacyList.setUserVars(user, uvars) # update user's vars
 
 	def receiveWarning(self, newLevel, user):
 		LogEvent(INFO, self.session.jabberID)

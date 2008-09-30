@@ -894,6 +894,7 @@ class SNACBased(OscarConnection):
 	CustomStatus = {}
 	
 	snacdata = snac[5]
+	cookie = snacdata[0:8]
 	buddylen = struct.unpack('!B',snacdata[10:11])[0]
 	buddy_end = 11+buddylen
 	buddy = snacdata[11:buddy_end] # buddy uin
@@ -914,7 +915,7 @@ class SNACBased(OscarConnection):
 		CustomStatus['autoaway message'] = msg
 	elif msgtype == 0x01: # plain text message
 		log.msg("Received plain text message from %s" % buddy)
-		self.processIncomingMessageType2(None, extdata)
+		self.processIncomingMessageType2(buddy, extdata, cookie)
 		# empty msg - seems ask
 	else:
 		log.msg("Received x-status message response from %s" % buddy)
@@ -1027,7 +1028,7 @@ class SNACBased(OscarConnection):
 				encoding = "utf8"
 	# do actions			
 	if msglen == 1 and msg == '\x00': # is message ack
-		pass # TODO: add XEP-0184: Message Receipts support
+		self.receiveReceiptMsgReceived(user, cookie)
 	elif user: # usual message
 		# prepare message
 		delay = None
@@ -1140,6 +1141,7 @@ class BOSConnection(SNACBased):
 	('clist_show_phantombuddies', 0),
 	('utf8_messages_sendmode', 1),
 	('msgconfirm_sendmode', 2),
+	('msgconfirm_recvmode', 1),
 	('user_mood_receiving', 1),
 	('user_activity_receiving', 1),
 	('user_tune_receiving', 1)
@@ -2375,7 +2377,7 @@ class BOSConnection(SNACBased):
         """
         self.sendSNACnr(0x01, 0x11, struct.pack('!L',idleTime))
 
-    def sendMessage(self, user, message, wantAck = 0, autoResponse = 0, offline = 0, wantIcon = 0, iconSum = None, iconLen = None, iconStamp = None ):
+    def sendMessage(self, user, message, wantAck = 0, autoResponse = 0, offline = 0, wantIcon = 0, iconSum = None, iconLen = None, iconStamp = None, cookie = None):
         """
         send a message to user (not an OSCARUseR).
         message can be a string, or a multipart tuple.
@@ -2385,7 +2387,8 @@ class BOSConnection(SNACBased):
         if iconLen, iconSum, and iconStamp, we have a buddy icon and want user to know
         if wantIcon, we want their buddy icon, tell us if you have it
         """
-        cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+	if not cookie:
+        	cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
         data = cookie + struct.pack("!HB", 0x0001, len(user)) + user
         if not type(message) in (types.TupleType, types.ListType):
             message = [[message,]]
@@ -2634,13 +2637,14 @@ class BOSConnection(SNACBased):
         """
 	log.msg("Request for x-status details sent")
 	
-    def sendMessageType2(self, user, message):
+    def sendMessageType2(self, user, message, cookie=None):
 	"""
 	send UTF-8 message via serv_relay
 	"""
 	log.msg("Sending type-2 message to %s" % user) 
 	# AIM messaging header
-	cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+	if not cookie:
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 	header = str(header)
 	extended_data = str(self.prepareMessageType2Body(message))

@@ -117,6 +117,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	msgconfirm_sendmode_none = u"Sending disabled"
 	msgconfirm_sendmode_for_utf8 = u"Only for utf-8 messages"
 	msgconfirm_sendmode_always = u"Always"
+	msgconfirm_recvmode = u"Confirmations receiving"
 	# personal events settings
 	user_mood_receiving = u"User mood receiving"
 	user_activity_receiving = u"User activity receiving"

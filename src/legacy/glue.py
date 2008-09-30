@@ -18,6 +18,9 @@ import time
 import binascii
 import avatar
 import md5
+import random
+
+from twisted.python import log
 
 # The name of the transport
 name = "ICQ Transport"
@@ -132,7 +135,7 @@ class LegacyConnection:
 			#self.alertUser(lang.get("sessionnotactive", config.jid)
 			pass
 
-	def sendMessage(self, target, resource, message, noerror, xhtml, autoResponse=0):
+	def sendMessage(self, target, resource, message, noerror, xhtml, autoResponse=0, jabber_mid=None):
 		LogEvent(INFO, self.session.jabberID)
 		from glue import jid2icq
 		try:
@@ -162,19 +165,33 @@ class LegacyConnection:
 				LogEvent(INFO, self.session.jabberID, "Going to send info about our icon, length %d, cksum %d" % (iconLen, iconSum))
 
 			LogEvent(INFO, self.session.jabberID)
-			if uin[0].isdigit():
+			if uin[0].isdigit(): # ICQ users
 				encoding = config.encoding
 				charset = "iso-8859-1"
 				if self.legacyList.hasCapability(uin, "unicode"):
 					encoding = "utf-16be"
 					charset = "unicode"
 				LogEvent(INFO, self.session.jabberID, "Encoding %r" % encoding)
-				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2):
-					self.bos.sendMessageType2(uin, message)
+				
+				if jabber_mid and int(self.bos.selfSettings['msgconfirm_recvmode']) == 1:
+					cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+					uvars = {}
+					msg_query = self.getUserVarValue(uin, 'wait_for_confirm_msg_query')
+					if len(msg_query) == 0:
+						msg_query = dict([])
+					msg_query[cookie] = (jabber_mid, resource)
+					uvars['wait_for_confirm_msg_query'] = msg_query # update query
+					self.legacyList.setUserVars(uin, uvars)
+					log.msg('Waiting for confirmations msg query: %s' % msg_query)
 				else:
-					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp)
+					cookie = None
+				
+				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2):
+					self.bos.sendMessageType2(uin, message, cookie=cookie)
+				else:
+					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp, cookie=cookie)
 				self.session.sendArchive(target, self.session.jabberID, message)
-			else:
+			else: # AIM users
 				if xhtml and not config.disableXHTML:
 					xhtml = utils.xhtml_to_aimhtml(xhtml)
 					self.bos.sendMessage(uin, xhtml, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp)

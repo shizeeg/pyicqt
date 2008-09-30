@@ -115,6 +115,12 @@ class BuddyList:
 				self.uservars[lo_contact][key] = uvars[key] # update it!
 		else: 
 			self.uservars[lo_contact] = uvars # copy full customStatus
+			
+	def delUserVars(self, contact):
+		LogEvent(INFO, self.session.jabberID)
+		lo_contact = contact.lower()
+		if lo_contact in self.uservars:
+			del self.uservars[lo_contact]
 
 	def setCapabilities(self, contact, caplist):
 		LogEvent(INFO, self.session.jabberID)

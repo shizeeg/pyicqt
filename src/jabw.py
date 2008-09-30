@@ -10,13 +10,16 @@ import disco
 import globals
 
 
-def sendMessage(pytrans, to, fro, body, mtype=None, delay=None, xhtml=None, nickname=None):
+def sendMessage(pytrans, to, fro, body=None, mtype=None, delay=None, xhtml=None, nickname=None, receipt=None, mID=None):
 	""" Sends a Jabber message """
 	LogEvent(INFO)
 	el = Element((None, "message"))
 	el.attributes["to"] = to
 	el.attributes["from"] = fro
-	el.attributes["id"] = pytrans.makeMessageID()
+	if mID:
+		el.attributes["id"] = mID
+	else:
+		el.attributes["id"] = pytrans.makeMessageID()
 	if mtype:
 		el.attributes["type"] = mtype
 
@@ -30,14 +33,20 @@ def sendMessage(pytrans, to, fro, body, mtype=None, delay=None, xhtml=None, nick
 		n = el.addElement("nick")
 		n.attributes["xmlns"] = globals.NICK
 		n.addContent(nickname)
-
-	b = el.addElement("body")
-	b.addContent(utils.xmlify(body))
-	x = el.addElement("x")
-	x.attributes["xmlns"] = globals.XEVENT
-	composing = x.addElement("composing")
-	xx = el.addElement("active")
-	xx.attributes["xmlns"] = globals.CHATSTATES
+		
+	if receipt:
+		r = el.addElement("received")
+		r.attributes["xmlns"] = globals.RECEIPTS
+	else: # do not send state info in message receipt
+		x = el.addElement("x")
+		x.attributes["xmlns"] = globals.XEVENT
+		composing = x.addElement("composing")
+		xx = el.addElement("active")
+		xx.attributes["xmlns"] = globals.CHATSTATES
+	
+	if body:
+		b = el.addElement("body")
+		b.addContent(utils.xmlify(body))
 
 	if xhtml and not config.disableXHTML:
 		try:
@@ -173,7 +182,7 @@ class JabberConnection:
 		
 		return (froj.userhost() == self.jabberID) # Compare with the Jabber ID that we're looking at
 	
-	def sendMessage(self, to, fro, body, mtype=None, delay=None, xhtml=None, nickname=None):
+	def sendMessage(self, to, fro, body=None, mtype=None, delay=None, xhtml=None, nickname=None, receipt=None, mID=None):
 		""" Sends a Jabber message 
 		For this message to have a <x xmlns="jabber:x:delay"/>
 		you must pass a correctly formatted timestamp (See JEP0091)
@@ -182,7 +191,7 @@ class JabberConnection:
 		if xhtml and not self.hasCapability(globals.XHTML):
 			# User doesn't support XHTML, so kill it.
 			xhtml = None
-		sendMessage(self.pytrans, to, fro, body, mtype, delay, xhtml, nickname)
+		sendMessage(self.pytrans, to, fro, body, mtype, delay, xhtml, nickname, receipt, mID)
 
 	def sendArchive(self, to, fro, body):
 		""" Sends an Archive message (see JEP-0136) """
@@ -325,6 +334,7 @@ class JabberConnection:
 		autoResponse = 0
 		xhtml = None
 		error = None
+		request = False
 		messageEvent = False
 		noerror = False
 		composing = None
@@ -339,6 +349,9 @@ class JabberConnection:
 				xhtml = child.toXml()
 			elif child.name == "noerror" and child.uri == globals.SAPO_NOERROR:
 				noerror = True
+			elif child.name == "request":
+				if child.uri == globals.RECEIPTS:
+					request = True
 			elif child.name == "x":
 				if child.uri == globals.XEVENT:
 					messageEvent = True
@@ -372,12 +385,17 @@ class JabberConnection:
 		elif not body and messageEvent:
 			LogEvent(INFO, self.jabberID, "Typing notification %r" % composing)
 			self.typingNotificationReceived(toj.userhost(), toj.resource, composing)
-
+		
+		if request: # user want confirmation?
+			jabber_mid = mID
+		else:
+			jabber_mid = None
+			
 		if body:
 			# Save the message ID for later
 			self.messageIDs[to] = mID
 			LogEvent(INFO, self.jabberID, "Message packet")
-			self.messageReceived(froj.userhost(), froj.resource, toj.userhost(), toj.resource, mtype, body, noerror, xhtml, autoResponse=autoResponse)
+			self.messageReceived(froj.userhost(), froj.resource, toj.userhost(), toj.resource, mtype, body, noerror, xhtml, autoResponse=autoResponse, jabber_mid=jabber_mid)
 	
 	def onPresence(self, el):
 		""" Handles incoming presence packets """

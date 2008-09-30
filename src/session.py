@@ -315,7 +315,7 @@ class Session(jabw.JabberConnection):
 				elif avatarType == "iq" and not config.disableIQAvatars:
 					self.doIQAvatarUpdate()
 
-	def messageReceived(self, source, resource, dest, destr, mtype, body, noerror, xhtml, autoResponse=0):
+	def messageReceived(self, source, resource, dest, destr, mtype, body, noerror, xhtml, autoResponse=0, jabber_mid=None):
 		if dest == config.jid:
 			if body.lower().startswith("end"):
 				LogEvent(INFO, self.jabberID, "Received 'end' request")
@@ -327,7 +327,7 @@ class Session(jabw.JabberConnection):
 			return
 		
 		LogEvent(INFO, self.jabberID, "Message")
-		self.legacycon.sendMessage(dest, resource, body, noerror, xhtml, autoResponse=autoResponse)
+		self.legacycon.sendMessage(dest, resource, body, noerror, xhtml, autoResponse=autoResponse, jabber_mid=jabber_mid)
 	
 	def typingNotificationReceived(self, dest, resource, composing):
 		""" The user has sent typing notification to a contact on the legacy service """

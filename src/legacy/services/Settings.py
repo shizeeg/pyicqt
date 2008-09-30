@@ -416,6 +416,13 @@ class Settings:
 		value.addContent(str(settings['msgconfirm_sendmode']))
 		
 		field = x.addElement('field')
+		field.attributes['var'] = 'msgconfirm_recvmode'
+		field.attributes['type'] =  'boolean'
+		field.attributes['label'] = lang.get('msgconfirm_recvmode')
+		value = field.addElement('value')
+		value.addContent(str(settings['msgconfirm_recvmode']))
+		
+		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
 		field.attributes['var'] = 'settings_page'
 		value = field.addElement('value')
