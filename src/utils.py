@@ -435,7 +435,17 @@ def parseTune(string=None):
 	return musicinfo
 	
 def fixCharactersInDeXML(string):
-	string = string.replace('&amp;apos;','\'')
-	string = string.replace('&amp;amp;','&')
+	string = string.replace('amp;','&')
+	string = string.replace('apos;','\'')
+	string = string.replace('quot;','"')
+	string = string.replace('lt;','<')
+	string = string.replace('gt;','>')
 	return string
 
+def fixCharactersInXML(string):
+	string = string.replace('&', 'amp;')
+	string = string.replace('\'', 'apos;')
+	string = string.replace('"', 'quot;')
+	string = string.replace('<', 'lt;')
+	string = string.replace('>', 'gt;')
+	return string

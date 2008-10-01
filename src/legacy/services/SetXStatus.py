@@ -298,6 +298,7 @@ class SetXStatus:
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
 		if jid in self.pytrans.sessions:
+			xstatus_title = utils.fixCharactersInXML(xstatus_title)
 			self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
 			if bos.settingsOptionEnabled('xstatus_saving_enabled'):
 				self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
