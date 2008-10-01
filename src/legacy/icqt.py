@@ -552,7 +552,7 @@ class B(oscar.BOSConnection):
 		msg_query = self.oscarcon.getUserVarValue(user, 'wait_for_confirm_msg_query')
 		if len(msg_query):
 			if cookie in msg_query:
-				jabber_mid, resource = msg_query[cookie] # message id, and resource
+				jabber_mid, resource, s_time = msg_query[cookie] # message id, resource and time of sending
 				from glue import icq2jid
 				sourcejid = icq2jid(user)
 				self.session.sendMessage(to=self.session.jabberID + '/' + resource, fro=sourcejid, receipt=True, mID=jabber_mid) # send confirmation to jabber client

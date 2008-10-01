@@ -173,13 +173,23 @@ class LegacyConnection:
 					charset = "unicode"
 				LogEvent(INFO, self.session.jabberID, "Encoding %r" % encoding)
 				
-				if jabber_mid and int(self.bos.selfSettings['msgconfirm_recvmode']) == 1:
+				if jabber_mid and int(self.bos.selfSettings['msgconfirm_recvmode']) == 1 and  self.legacyList.hasCapability(uin, 'serv_rel'):
 					cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+					c_time = int(time.time())
 					uvars = {}
 					msg_query = self.getUserVarValue(uin, 'wait_for_confirm_msg_query')
 					if len(msg_query) == 0:
 						msg_query = dict([])
-					msg_query[cookie] = (jabber_mid, resource)
+					elif len(msg_query) > 4: # query already too long
+						del_msg_query = dict([])
+						for every in msg_query:
+							e_id, e_res, e_time = msg_query[every]
+							if int(c_time) > int(e_time) + 60: # sent more than 60 second ago and receiving not confirmed
+								del_msg_query[every] = msg_query[every] # message was lost
+						if len(del_msg_query):
+							for every in del_msg_query:
+								del msg_query[every]
+					msg_query[cookie] = (jabber_mid, resource, c_time)
 					uvars['wait_for_confirm_msg_query'] = msg_query # update query
 					self.legacyList.setUserVars(uin, uvars)
 					log.msg('Waiting for confirmations msg query: %s' % msg_query)
