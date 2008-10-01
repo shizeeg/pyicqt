@@ -333,9 +333,10 @@ class Session(jabw.JabberConnection):
 		""" The user has sent typing notification to a contact on the legacy service """
 		self.legacycon.userTypingNotification(dest, resource, composing)
 
-	def chatStateReceived(self, dest, resource, state):
+	def chatStateReceived(self, dest, resource, state, withmessage=False):
 		""" The user has sent a chat state notification to a contact on the legacy service """
-		self.legacycon.chatStateNotification(dest, resource, state)
+		# withmessage - chat state sent with message body
+		self.legacycon.chatStateNotification(dest, resource, state, withmessage)
 	
 	def presenceReceived(self, source, resource, to, tor, priority, ptype, show, status, url=None):
 		# Checks resources and priorities so that the highest priority resource always appears as the

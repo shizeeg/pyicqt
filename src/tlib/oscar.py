@@ -4272,6 +4272,8 @@ CAP_ICQVOICE = '\x67\x36\x15\x15\x61\x2d\x4c\x07\x8f\x3d\xbd\xe6\x40\x8e\xa0\x41
 CAP_ICQPUSHTOTALK = '\xe3\x62\xc1\xe9\x12\x1a\x4b\x94\xa6\x26\x7a\x74\xde\x24\x27\x0d'
 # Empty capability ... ?
 CAP_EMPTY = '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+# Typing notifications
+CAP_TYPING	= '\x56\x3f\xc8\x09\x0b\x6f\x41\xbd\x9f\x79\x42\x26\x09\xdf\xa2\xf3'
 
 
 # Mappings of capabilities back to identifier strings.
@@ -4314,7 +4316,8 @@ CAPS = dict( [
     (CAP_ICQVOICE, 'icqvoicechat'),
     (CAP_ICQXTRAZ, 'icqxtraz'),
     (CAP_ICQPUSHTOTALK, 'icqpushtotalk'),
-    (CAP_EMPTY, 'empty')
+    (CAP_EMPTY, 'empty'),
+    (CAP_TYPING, 'typing')
     ] )
 
 # 24 statuses - ICQ 5.1

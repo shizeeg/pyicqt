@@ -321,15 +321,27 @@ class LegacyConnection:
 		else:
 			self.sendTypingNotify("finish", dest)
 
-	def chatStateNotification(self, dest, resource, state):
+	def chatStateNotification(self, dest, resource, state, withmessage=False):
 		LogEvent(INFO, self.session.jabberID)
-		if state == "composing":
-			self.sendTypingNotify("begin", dest)
-		elif state == "paused" or state == "inactive":
-			self.sendTypingNotify("idle", dest)
-		elif state == "active" or state == "gone":
-			self.sendTypingNotify("finish", dest)
-		pass
+		from glue import jid2icq
+		user = jid2icq(dest)
+		prev_legacy_state = self.getUserVarValue(user, 'last_chatstate_event')
+		if not len(prev_legacy_state):
+			prev_legacy_state = 'finish'
+		
+		legacy_state = None
+		if state == 'composing' and prev_legacy_state in ('finish', 'idle'):
+			legacy_state = 'begin'
+		elif state in ('paused', 'inactive') and prev_legacy_state == 'begin':
+			legacy_state = 'idle'
+		elif (state == 'gone' or withmessage) and prev_legacy_state in ('begin', 'idle'):
+			legacy_state = 'finish'
+		
+		if legacy_state:
+			self.sendTypingNotify(legacy_state, dest)
+			uvars = dict([])
+			uvars['last_chatstate_event'] = state
+			self.legacyList.setUserVars(user, uvars)
 
 	def jabberVCardRequest(self, vcard, user):
 		LogEvent(INFO, self.session.jabberID)

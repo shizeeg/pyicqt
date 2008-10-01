@@ -374,6 +374,7 @@ class JabberConnection:
 		# Check message event stuff
 		if body and chatStates:
 			self.chatStateUser = True
+			self.chatStateReceived(toj.userhost(), toj.resource, chatStateEvent, withmessage=True)
 		elif body and messageEvent:
 			self.typingUser = True
 		elif body and not messageEvent and not chatStates:
