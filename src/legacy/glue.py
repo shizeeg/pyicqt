@@ -336,7 +336,7 @@ class LegacyConnection:
 		from glue import jid2icq
 		user = jid2icq(dest)
 		prev_legacy_state = self.getUserVarValue(user, 'last_chatstate_event')
-		if not len(prev_legacy_state):
+		if prev_legacy_state not in ('begin', 'idle', 'finish'):
 			prev_legacy_state = 'finish'
 		
 		legacy_state = None
@@ -350,7 +350,7 @@ class LegacyConnection:
 		if legacy_state:
 			self.sendTypingNotify(legacy_state, dest)
 			uvars = dict([])
-			uvars['last_chatstate_event'] = state
+			uvars['last_chatstate_event'] = legacy_state
 			self.legacyList.setUserVars(user, uvars)
 
 	def jabberVCardRequest(self, vcard, user):
