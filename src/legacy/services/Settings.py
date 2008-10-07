@@ -113,6 +113,9 @@ class Settings:
 		x.attributes['xmlns'] = 'jabber:x:data'
 		x.attributes['type'] = 'form'
 		
+		title = x.addElement('title')
+		title.addContent(lang.get('command_Settings'))
+		
 		instructions = x.addElement('instructions')
 		instructions.addContent(lang.get('settings_instructions'))
 		
@@ -188,6 +191,9 @@ class Settings:
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
 		
+		title = x.addElement('title')
+		title.addContent(lang.get('settings_category_xstatus'))
+		
 		if config.xstatusessupport:
 			field = x.addElement('field')
 			field.attributes['var'] = 'away_messages_sending'
@@ -224,7 +230,7 @@ class Settings:
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
 			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('settings_xstatus_restore_after_disconnect')
+			field.attributes['label'] = lang.get('xstatus_restore_after_disconnect')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_saving_enabled']))	
 			
@@ -324,6 +330,9 @@ class Settings:
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
 		
+		title = x.addElement('title')
+		title.addContent(lang.get('settings_category_clist'))
+		
 		field = x.addElement('field')
 		field.attributes['var'] = 'clist_show_phantombuddies'
 		field.attributes['type'] = 'boolean'
@@ -380,6 +389,9 @@ class Settings:
 		x = command.addElement("x")
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
+		
+		title = x.addElement('title')
+		title.addContent(lang.get('settings_category_message'))
 		
 		utf8_messages_sendmode = dict([
 			('utf8_messages_sendmode_none',0),
@@ -472,6 +484,9 @@ class Settings:
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
 		
+		title = x.addElement('title')
+		title.addContent(lang.get('settings_category_personal_events'))
+		
 		field = x.addElement('field')
 		field.attributes['var'] = 'user_mood_receiving'
 		field.attributes['type'] = 'boolean'
@@ -530,7 +545,17 @@ class Settings:
 		
 		note = command.addElement('note')
 		note.attributes['type'] = 'info'
-		note.addContent('Your settings were changed')
+		note.addContent(lang.get('settings_changed'))
+		
+		x = command.addElement('x')
+		x.attributes['xmlns'] = 'jabber:x:data'
+		x.attributes['type'] = 'form'
+
+		title = x.addElement('title')
+		title.addContent(lang.get('command_Settings'))
+		
+		instructions = x.addElement('instructions')
+		instructions.addContent(lang.get('settings_changed'))
 		
 		self.pytrans.send(iq)
 		

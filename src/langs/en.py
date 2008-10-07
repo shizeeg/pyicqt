@@ -39,8 +39,8 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	command_ChangeEmail = u"Change registered e-mail address"
 	command_ChangeEmail_Instructions = u"Enter your new e-mail address below.\nA confirmation message will be sent to your current address and,\nunless you cancel, your new address will take effect in 72 hours."
 	command_ChangeEmail_Email = u"E-Mail address"
-	command_SetXStatus = u"Set x-status" #TODO: make translation for other languages
-	command_Settings = u"Settings" #TODO: make translation for other languages
+	command_SetXStatus = u"Set x-status"
+	command_Settings = u"Settings"
 	command_FormatScreenName = u"Change format of screen name"
 	command_FormatScreenName_Instructions = u"Enter format of screen name below.\nPlease be aware that only capitalization and spacing may be changed."
 	command_FormatScreenName_FMTScreenName = u"Formatted ScreenName"
@@ -88,7 +88,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_category_message = u"Message settings"
 	settings_category_personal_events = u"Personal events settings"
 	settings_instructions = u"Options marked with asterisk (*) required\n re-login for applying changes"
-	settings_xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
+	settings_changed = u"Your settings were changed"
 	# contact list settings
 	settings_clist_show_phantombuddies = u"* Show temporary ICQ contacts in roster (%s found)"
 	# status settings
@@ -99,6 +99,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_sendmode_ICQ5 = u"ICQ 5.1 (most popular)"
 	xstatus_sendmode_ICQ6 = u"ICQ 6 (less traffic)"
 	xstatus_sendmode_ICQ5_6 = u"ICQ 5.1+6 (max compatibility)"
+	xstatus_restore_after_disconnect = u"Restore latest x-status after disconnect"
 	xstatus_recvmode = u"X-statuses receiving mode"
 	xstatus_recvmode_none = u"None"
 	xstatus_recvmode_ICQ5 = u"ICQ 5.1 (most popular)"
@@ -165,10 +166,6 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	xstatus_ru1 = u"Searching"
 	xstatus_ru2 = u"Flirt"
 	xstatus_ru3 = u"Blogging"
-	# these lines for adding to user's status
-	xstatus_append_status = u"Status"
-	xstatus_append_xstatus = u"X-status"
-	xstatus_append_xmessage = u"X-message"
 	# moods
 	mood_afraid = 'Afraid'
 	mood_amazed = 'Amazed'

@@ -273,6 +273,16 @@ class SetXStatus:
 		note.attributes['type'] = 'info'
 		note.addContent(message)
 		
+		x = command.addElement('x')
+		x.attributes['xmlns'] = 'jabber:x:data'
+		x.attributes['type'] = 'form'
+
+		title = x.addElement('title')
+		title.addContent(lang.get('command_SetXStatus'))
+		
+		instructions = x.addElement('instructions')
+		instructions.addContent(message)
+		
 		self.pytrans.send(iq)
 	
 	def setXStatus(self, to_jid, xstatus_name, xstatus_title=None, xstatus_desc=None):
