@@ -2233,6 +2233,8 @@ class BOSConnection(SNACBased):
                 groupID = least_groupID
             elif isinstance(item, SSIGroup):
                 groupID = least_groupID
+	    elif isinstance(item, SSIBuddy):
+		groupID = least_groupID
 	    else:
 		groupID = item.group.group.findIDFor(item.group)
         if buddyID is None:
