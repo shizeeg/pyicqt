@@ -919,7 +919,7 @@ class SNACBased(OscarConnection):
 	elif msgtype == 0x01: # plain text message
 		log.msg("Received plain text message from %s" % buddy)
 		self.processIncomingMessageType2(buddy, extdata, cookie)
-		# empty msg - seems ask
+		# autoresponse with plain-text message - seems ask
 	else:
 		log.msg("Received x-status message response from %s" % buddy)
 		title = ''
@@ -1030,9 +1030,9 @@ class SNACBased(OscarConnection):
 			if cap == MSGTYPE_TEXT_ID_UTF8MSGS:
 				encoding = "utf8"
 	# do actions			
-	if msglen == 1 and msg == '\x00': # is message ack
+	if isinstance(user,str): # is message ack
 		self.receiveReceiptMsgReceived(user, cookie)
-	elif user: # usual message
+	elif isinstance(user,OSCARUser): # usual message
 		# prepare message
 		delay = None
 		flags = []
