@@ -777,6 +777,9 @@ class SNACBased(OscarConnection):
 				reactor.callLater(delay, self.sendSNAC, fam, sub, data)
 				log.msg('Will resend after %s seconds' % delay)
 				showdata = False
+			elif error_code == 0x14 and fam == 0x0a and sub == 0x02: # no match e-mail
+				log.msg('User by e-mail don\'t found')
+				showdata = False
 		else:
 			log.msg('Reason: unknown (0x%02x)' % error_code)
 	else:
@@ -3088,14 +3091,14 @@ class BOSConnection(SNACBased):
         return self.sendSNAC(0x0a, 0x02, email).addCallback(self._cbLookupEmail).addErrback(self._cbLookupEmailError)
 
     def _cbLookupEmail(self, snac):
-        tlvs = readTLVs(snac[5])
-        results = []
-        data = snac[5]
-        while data:
-           tlv,data = readTLVs(data, count=1)
-           results.append(tlv[0x01])
-
-        return results
+	results = []
+	if snac and snac[5]:
+		tlvs = readTLVs(snac[5])
+		data = snac[5]
+		while data:
+			tlv,data = readTLVs(data, count=1)
+			results.append(tlv[0x01])
+	return results
 
     def _cbLookupEmailError(self, result):
         return result

@@ -119,10 +119,6 @@ class EmailLookup:
 		command.attributes["xmlns"] = globals.COMMANDS
 		command.attributes["status"] = "completed"
 
-		note = command.addElement("note")
-		note.attributes["type"] = "info"
-		note.addContent(lang.get("command_EmailLookup_Results", ulang))
-
 		x = command.addElement("x")
 		x.attributes["xmlns"] = "jabber:x:data"
 		x.attributes["type"] = "form"
@@ -130,9 +126,17 @@ class EmailLookup:
 		title = x.addElement("title")
 		title.addContent(lang.get("command_EmailLookup", ulang))
 
-		for r in results:
-			email = x.addElement("field")
-			email.attributes["type"] = "fixed"
-			email.addElement("value").addContent(r)
+		if len(results):
+			note = command.addElement("note")
+			note.attributes["type"] = "info"
+			note.addContent(lang.get("command_EmailLookup_Results", ulang))
+			for r in results:
+				email = x.addElement("field")
+				email.attributes["type"] = "fixed"
+				email.addElement("value").addContent(r)
+		else:
+			note = command.addElement("note")
+			note.attributes["type"] = "info"
+			note.addContent(lang.get("command_EmailLookup_NoResults", ulang))
 
 		self.pytrans.send(iq)

@@ -36,6 +36,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	command_EmailLookup_Instructions = u"Enter an email address below to locate screen names associated with it."
 	command_EmailLookup_Email = u"E-Mail address"
 	command_EmailLookup_Results = u"These screen names matched the address provided:"
+	command_EmailLookup_NoResults = u"Don't found screen names matched the address provided"
 	command_ChangeEmail = u"Change registered e-mail address"
 	command_ChangeEmail_Instructions = u"Enter your new e-mail address below.\nA confirmation message will be sent to your current address and,\nunless you cancel, your new address will take effect in 72 hours."
 	command_ChangeEmail_Email = u"E-Mail address"
