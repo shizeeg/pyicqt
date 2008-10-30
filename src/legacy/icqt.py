@@ -119,9 +119,12 @@ class B(oscar.BOSConnection):
 	def gotAuthorizationRequest(self, uin):
 		from glue import icq2jid
 		LogEvent(INFO, self.session.jabberID)
-		if not uin in self.authorizationRequests:
-			self.authorizationRequests.append(uin)
-			self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
+		if self.settingsOptionEnabled('clist_deny_all_auth_requests'): # deny all auth requests
+			self.sendAuthorizationResponse(uin, False, "Request denied")
+		else:
+			if not uin in self.authorizationRequests:
+				self.authorizationRequests.append(uin)
+				self.session.sendPresence(to=self.session.jabberID, fro=icq2jid(uin), ptype="subscribe")
 
 	def youWereAdded(self, uin):
 		from glue import icq2jid

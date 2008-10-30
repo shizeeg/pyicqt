@@ -341,6 +341,13 @@ class Settings:
 		value.addContent(str(settings['clist_show_phantombuddies']))
 		
 		field = x.addElement('field')
+		field.attributes['var'] = 'clist_deny_all_auth_requests'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('settings_clist_deny_all_auth_requests')
+		value = field.addElement('value')
+		value.addContent(str(settings['clist_deny_all_auth_requests']))
+		
+		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
 		field.attributes['var'] = 'settings_page'
 		value = field.addElement('value')

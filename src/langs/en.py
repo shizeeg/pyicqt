@@ -93,6 +93,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_changed = u"Your settings were changed"
 	# contact list settings
 	settings_clist_show_phantombuddies = u"* Show temporary ICQ contacts in roster (%s found)"
+	settings_clist_deny_all_auth_requests = u"Deny all authorization requests"
 	# status settings
 	away_messages_sending = u"Away messages sending"
 	away_messages_receiving = u"Away messages receiving"
