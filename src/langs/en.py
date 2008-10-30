@@ -48,6 +48,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	command_ConfirmAccount = u"Confirm ICQ account"
 	command_ConfirmAccount_Complete = u"Account confirmation request completed.\nYou should receive email soon with instructions on how to proceed."
 	command_ConfirmAccount_Failed = u"Unable to request confirmation at this time."
+	command_ConfirmAccount_Unknown = u"Unknown status of account confirmation."
 	command_ICQURITranslate = u"Translate an ICQ URI"
 	command_ICQURITranslate_Instructions = u"Enter an ICQ URI and appropriate action will be taken based off the function of the URI."
 	command_ICQURITranslate_URI = u"URI"

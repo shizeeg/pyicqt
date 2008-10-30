@@ -33,7 +33,7 @@ class ConfirmAccount:
 		else:
 			self.pytrans.sessions[toj.userhost()].legacycon.bos.confirmAccount().addCallback(self.sendResponse, el, sessionid)
 
-	def sendResponse(self, failure, el, sessionid=None):
+	def sendResponse(self, stcode, el, sessionid=None):
 		LogEvent(INFO)
 		to = el.getAttribute("from")
 		toj = internJID(to)
@@ -57,11 +57,14 @@ class ConfirmAccount:
 		command.attributes["status"] = "completed"
 
 		note = command.addElement("note")
-		if failure:
+		if stcode == 0:
 			note.attributes["type"] = "error"
 			note.addContent(lang.get("command_ConfirmAccount_Failed", ulang))
-		else:
+		elif stcode == 1:
 			note.attributes["type"] = "info"
 			note.addContent(lang.get("command_ConfirmAccount_Complete", ulang))
+		else:
+			note.attributes["type"] = "warn"
+			note.addContent(lang.get("command_ConfirmAccount_Unknown", ulang))
 
 		self.pytrans.send(iq)

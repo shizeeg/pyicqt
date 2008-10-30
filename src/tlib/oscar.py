@@ -3823,10 +3823,12 @@ class AdminService(OSCARService):
         status = int(struct.unpack(">H", snac[5][0:2])[0])
         # Returns whether it failed or not
         self.disconnect()
-        if (status == "\x00\x13"):
-            return 1
-        else:
-            return 0
+        if status == 0x13:
+            return 1 # status: confirmed
+        elif status == 0x18:
+	    return 2 # status: unknown
+	else:
+            return 0 # status: unconfirmed
 
     def _cbAccountConfirmError(self, error):
         log.msg("GOT ACCOUNT CONFIRMATION ERROR %s" % error)
