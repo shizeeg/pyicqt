@@ -1388,7 +1388,7 @@ class BOSConnection(SNACBased):
 
         #c = serviceClasses[service](self, cookie, d)
         if self.socksProxyServer and self.socksProxyPort:
-            c = protocol.ProxyClientCreator(reactor, serviceClasses[service], self, cookie, d)
+            c = socks5.ProxyClientCreator(reactor, serviceClasses[service], self, cookie, d)
             c.connectSocks5Proxy(ip, self.connectPort, self.socksProxyServer, int(self.socksProxyPort), "BOSCONN").addCallback(addService)
         else:
             c = protocol.ClientCreator(reactor, serviceClasses[service], self, cookie, d)

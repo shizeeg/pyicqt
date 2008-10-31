@@ -2,10 +2,12 @@ from twisted.internet.interfaces import ITransport
 from twisted.internet.base      import BaseConnector
 from twisted.internet           import reactor, tcp
 from twisted.internet           import protocol, defer
-from twisted.python             import log, failure
+from twisted.python             import failure
 import struct, re, socket, sys
 
 from sockserror import *
+
+from debug import LogEvent, INFO, WARN, ERROR
 
 # Used to distinguish IP address from domain name
 # TODO: should this be optimized somehow?
@@ -75,7 +77,7 @@ server.
         # prepare connection string with available authentication methods
         #
 	
-        log.debug ("SOCKS5.connectionMade")
+        LogEvent(INFO, msg="SOCKS5.connectionMade")
         methods = "\x00"
         if not self.login is None: methods += "\x02"
 
@@ -85,7 +87,7 @@ server.
         self.state = "gotHelloReply"
 
     def dataReceived (self, data):
-        log.debug ("SOCKS state=" + self.state)
+        LogEvent(INFO, msg="SOCKS state=" + self.state)
         method = getattr(self, 'socks_%s' % (self.state), 
             self.socks_thisMustNeverHappen)
         method (data)
@@ -112,7 +114,7 @@ self)))
         if data == "\x05\xFF":
             # No acceptable methods. We MUST close
             #
-	    log.debug("No acceptable methods, closing connection")
+	    LogEvent(WARN, msg="No acceptable methods, closing connection")
             self.transport.loseConnection()
             return
 
@@ -164,7 +166,7 @@ self)))
     def socks_method_CONNECT (self):
         # Check if we have ip address or domain name
         #
-	log.debug("socks_method_CONNECT host = " + self.host)
+	LogEvent(INFO, msg="socks_method_CONNECT host = " + self.host)
 
  	# The FaceTime SOCKS5 proxy treats IP addr the same way as hostname
        # if _ip_regex.match (self.host):
@@ -200,11 +202,12 @@ self)))
 
             self.otherProtocol.transport = self
             self.otherProtocol.connectionMade()
-            return 
+            return
 
         errcode = ord (data[1])
 
         if errcode < len (SOCKS_errors):
+	    LogEvent(ERROR, msg='SOCKS error: %s' % SOCKS_errors[errcode])
             self.transport.loseConnection()
             self.factory.clientConnectionFailed (self, failure.Failure (
                 ConnectError ("%s %s" % (SOCKS_errors[errcode], self))))
@@ -244,6 +247,9 @@ self)))
 
     def stopConsuming(self):
         self.transport.stopConsuming()
+	
+    def setTcpNoDelay(self, enabled):
+	pass # as possible implement it? SOCKS 5 protocol have no support for one
 
 class ClientConnector (tcp.Connector):
     """Object used to connect to some host using intermediate server
@@ -315,7 +321,7 @@ class ClientFactory (protocol.ClientFactory):
         # Set global timeout
         #
 	if self.timeout is not None:
-           log.msg ("Set timeout %d sec" % self.timeout)
+           LogEvent(INFO, msg="Set timeout %d sec" % self.timeout)
            delayedcall = reactor.callLater (self.timeout, self.onTimeout,
            				    connector)
            setattr (self, "delayed_timeout_call", delayedcall)
@@ -329,7 +335,7 @@ class ClientFactory (protocol.ClientFactory):
         and unconditionally in the whatever state I am.
         """
         connector.disconnect()
-        log.msg ("%s timeout %d sec" % (self, self.timeout))
+        LogEvent(INFO, msg="%s timeout %d sec" % (self, self.timeout))
         self.clientConnectionFailed (self, failure.Failure (
             GlobalTimeoutError ("Timeout %s" % self)))
 
@@ -368,8 +374,8 @@ class ClientFactory (protocol.ClientFactory):
             if self.status != "established":
                 # Tell about error
                 #
-                log.msg ("Connection LOST before SOCKS established %s" % self)
-                self.otherFactory.clientConnectionFailed (connector, rmap)
+                LogEvent(ERROR, msg="Connection LOST before SOCKS established %s" % self)
+                self.otherFactory.clientConnectionLost (connector, rmap)
             else:
                 self.otherFactory.clientConnectionLost (connector, rmap)
         except:
@@ -384,8 +390,9 @@ class ClientFactory (protocol.ClientFactory):
 
         try:
             if self.status != "established":
-                log.msg ("Connection FAILED before SOCKS established %s" % self)
-                self.otherFactory.clientConnectionFailed (connector, rmap)
+                LogEvent(ERROR, msg="Connection FAILED before SOCKS established %s" % self)
+		# prevent Traceback in Twisted
+                #self.otherFactory.clientConnectionFailed (connector, rmap)
             else:
                 self.otherFactory.clientConnectionFailed (connector, rmap)
         except:

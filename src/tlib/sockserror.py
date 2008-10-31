@@ -34,8 +34,9 @@ class GlobalTimeoutError (SocksException):
 # here are SOCKS error codes according to RFC1928
 #
 SOCKS_errors = [\
-    "general SOCKS server failure",
-    "connection not allowed by ruleset",
+    "Succeeded",
+    "General SOCKS server failure",
+    "Connection not allowed by ruleset",
     "Network unreachable",
     "Host unreachable",
     "Connection refused",
