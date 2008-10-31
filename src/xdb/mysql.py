@@ -9,6 +9,7 @@
 import config
 import os
 import MySQLdb
+import re
 
 class XDB:
 	"""
@@ -241,7 +242,7 @@ class XDB:
 		c.execute("DELETE FROM list_attributes WHERE owner = '%s' AND type = '%s' AND jid = '%s'" % (jabberID, type, legacyID))
 		c.execute("INSERT INTO lists(owner,type,jid) VALUES('%s','%s','%s')" % (jabberID, type, legacyID))
 		for p in payload.keys():
-			c.execute("INSERT INTO list_attributes(owner,type,jid,attribute,value) VALUES('%s','%s','%s','%s','%s')" % (jabberID, type, legacyID, p, payload[p].replace("'", "\\'")))
+			c.execute("INSERT INTO list_attributes(owner,type,jid,attribute,value) VALUES('%s','%s','%s','%s','%s')" % (jabberID, type, legacyID, p, re.escape(payload[p].replace("'", "\\'"))))
 
 	def removeListEntry(self, type, jabberID, legacyID):
 		""" Removes a legacy ID entry from a list in
