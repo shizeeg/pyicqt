@@ -75,6 +75,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	statistics_AvatarCount_Desc = u"How many avatars have been transferred to and from the ICQ network."
 	statistics_FailedAvatarCount_Desc = u"The number of avatar transfers that have failed."
 	xstatus_set = u"Your x-status has been set"
+	xstatus_reset = u"Your x-status has been reset"
 	xstatus_support_disabled = u"X-status support disabled\n by your administrator"
 	xstatus_sending_disabled = u"X-status sending support disabled.\n Check your settings for details"
 	xstatus_set_xstatus_name = u"Set x-status name"

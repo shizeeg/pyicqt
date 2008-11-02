@@ -86,7 +86,7 @@ class SetXStatus:
 				self.sendXStatusTextSelectionForm(el, xstatus_name, sessionid) # send second form
 			else:
 				self.setXStatus(toj, xstatus_name) # set only x-status name (icon)
-				self.sendXStatusCompleted(el, lang.get('xstatus_set'), sessionid) # send ack to user
+				self.sendXStatusCompleted(el, lang.get('xstatus_reset'), sessionid) # send ack to user
 		elif stage == '2' or do_action == 'done':
 			self.setXStatus(toj, xstatus_name, xstatus_title, xstatus_desc) # set x-status name and text
 			self.sendXStatusCompleted(el, lang.get('xstatus_set'), sessionid) # send ack to user
@@ -308,7 +308,10 @@ class SetXStatus:
 		
 		xstatus_number = bos.getXstatusNumberByName(xstatus_name)
 		if jid in self.pytrans.sessions:
-			xstatus_title = utils.fixCharactersInXML(xstatus_title)
+			if xstatus_title:
+				xstatus_title = utils.fixCharactersInXML(xstatus_title)
+			else:
+				xstatus_title = ''
 			self.pytrans.xdb.setXstatusText(jid, xstatus_number, xstatus_title, xstatus_desc)
 			if bos.settingsOptionEnabled('xstatus_saving_enabled'):
 				self.pytrans.xdb.setCSetting(jid, 'latest_xstatus_number', str(xstatus_number))
