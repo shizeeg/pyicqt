@@ -65,6 +65,12 @@
 
 	<!-- Send greeting on login (enter text to be sent to users here) -->
 	<!-- <sessionGreeting>enter message here</sessionGreeting> -->
+	
+	<!-- Send message to user on transport stop/restart -->
+	<enableShutdownMessage/>
+	
+	<!-- Custom shutdown message -->
+	<!-- <customShutdownMessage></customShutdownMessage> -->
 
 	<!-- Send message on successful registration -->
 	<!-- <registerMessage>You have successfully registered with PyICQt</registerMessage> -->

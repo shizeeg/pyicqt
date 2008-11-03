@@ -69,4 +69,6 @@ xstatusessupport = bool(False)
 supportRoom = ""
 transportWebsite = ""
 supportJid = ""
+enableShutdownMessage = bool(False)
+customShutdownMessage = ""
 

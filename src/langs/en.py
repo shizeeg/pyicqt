@@ -62,6 +62,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	help_localwebsite = u"Local website"
 	help_localroom = u"Local support room"
 	help_localsupportjid = u"Local support jid"
+	alert_shutdown = u"Transport will stopped now. Please, don't panic, its work will restored as quickly as possible"
 	statistics_OnlineSessions = u"Online Users"
 	statistics_Uptime = u"Uptime"
 	statistics_IncomingMessages = u"Incoming Messages"

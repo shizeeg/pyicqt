@@ -392,8 +392,18 @@ class PyTransport(component.Service):
 				LogEvent(INFO, msg="Inviting %r" % jid)
 				jabw.sendPresence(self, jid, config.jid, ptype="probe")
 				jabw.sendPresence(self, jid, "%s/registered" % (config.jid), ptype="probe")
-
-
+				
+	def sendMessagesOnShutdown(self):
+		if config.enableShutdownMessage:
+			msg = lang.get('alert_shutdown')
+			if config.customShutdownMessage: 
+				msg = config.customShutdownMessage 
+			for jid in self.sessions:
+				LogEvent(INFO, msg='Msg on shutdown to %r' % jid)
+				tmpjid = config.jid
+				if self.sessions[jid].registeredmunge:
+					tmpjid = tmpjid + '/registered'
+				jabw.sendMessage(self, jid, tmpjid, body=msg, mtype='error')
 
 class App:
 	def __init__(self):
@@ -439,6 +449,7 @@ class App:
 		pf.close()
 
 	def shuttingDown(self):
+		self.transportSvc.sendMessagesOnShutdown()
 		self.transportSvc.removeMe()
 		def cb(ignored=None):
 			if config.pid:
