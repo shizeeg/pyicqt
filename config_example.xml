@@ -21,6 +21,15 @@
 
 	<!-- The website of the Jabber service -->
 	<website>http://jabber.localhost/</website>
+	
+	<!-- The website of the transport service -->
+	<!-- <transportWebsite></transportWebsite> -->
+	
+	<!-- The support room on your server -->
+	<!-- <supportRoom></supportRoom> -->
+	
+	<!-- The JID of a service admin or helpdesk -->
+	<!-- <supportJid></supportJid> -->
 
 	<!-- The TCP port to connect to the Jabber server on -->
 	<!-- (this is the default for Jabberd2) -->
