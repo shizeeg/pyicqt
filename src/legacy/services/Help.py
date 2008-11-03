@@ -26,10 +26,7 @@ class Help:
 				self.pytrans.adhoc.sendCancellation('help', el, sessionid)
 				return
 
-		if toj.userhost() not in self.pytrans.sessions or not hasattr(self.pytrans.sessions[toj.userhost()].legacycon, 'bos'):
-			self.pytrans.adhoc.sendError('help', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
-		else:
-			self.showHelp(el, sessionid=None)
+		self.showHelp(el, sessionid=None)
 			
 	def showHelp(self, el, sessionid=None):
 		to = el.getAttribute('from')
