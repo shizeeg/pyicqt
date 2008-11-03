@@ -403,7 +403,7 @@ class PyTransport(component.Service):
 				tmpjid = config.jid
 				if self.sessions[jid].registeredmunge:
 					tmpjid = tmpjid + '/registered'
-				jabw.sendMessage(self, jid, tmpjid, body=msg, mtype='error')
+				jabw.sendErrorMessage(self, jid, tmpjid, 'cancel', 'undefined-condition', '', msg)
 
 class App:
 	def __init__(self):

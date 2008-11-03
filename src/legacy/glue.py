@@ -996,8 +996,7 @@ class LegacyConnection:
 			tmpjid = config.jid
 			if self.session.registeredmunge:
 				tmpjid = tmpjid + "/registered"
-			self.session.sendMessage(to=self.session.jabberID, fro=tmpjid, body=message, mtype="error")
-
+			self.session.sendErrorMessage(self.session.jabberID, tmpjid, 'cancel', '', 'undefined-condition', message)
 
 
 
