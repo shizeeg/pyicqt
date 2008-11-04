@@ -136,6 +136,8 @@ class SetXStatus:
 		field.attributes['var'] = 'xstatus_name'
 		field.attributes['type'] =  'list-single'
 		field.attributes['label'] = lang.get('xstatus_name')
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('xstatus_set_instructions_Desc'))
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('xstatus_no_xstatus')

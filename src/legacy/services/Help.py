@@ -64,43 +64,55 @@ class Help:
 		field.attributes['label'] = lang.get('help_mainwiki')
 		value = field.addElement('value')
 		value.addContent(help_mainwiki)
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('help_mainwiki_Desc'))
 		
 		field = x.addElement('field')
 		field.attributes['type'] =  'text-single'
 		field.attributes['label'] = lang.get('help_maillist')
 		value = field.addElement('value')
 		value.addContent(help_maillist)
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('help_maillist_Desc'))
 		
 		field = x.addElement('field')
 		field.attributes['type'] =  'text-single'
 		field.attributes['label'] = lang.get('help_mainroom')
 		value = field.addElement('value')
-		value.addContent(help_mainroom) 
+		value.addContent(help_mainroom)
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('help_mainroom_Desc')) 
 		
 		if config.transportWebsite:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localwebsite')
 			value = field.addElement('value')
-			value.addContent(config.transportWebsite) 
+			value.addContent(config.transportWebsite)
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('help_localwebsite_Desc')) 
 			
 		if config.supportRoom:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localroom')
 			value = field.addElement('value')
-			value.addContent(config.supportRoom) 
+			value.addContent(config.supportRoom)
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('help_localroom_Desc'))  
 			
 		if config.supportJid:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localsupportjid')
 			value = field.addElement('value')
-			value.addContent(config.supportJid) 
+			value.addContent(config.supportJid)
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('help_localsupportjid_Desc'))  
 		
 		self.pytrans.send(iq)
 		
 help_mainroom = 'pytransports@conference.jabber.modevia.com'
 help_maillist = 'http://groups.google.com/group/py-transports'
-help_mainwiki = 'http://code.google.com/p/pyicqt/wiki/AdHoc'
+help_mainwiki = 'http://code.google.com/p/pyicqt/wiki/UserStartPage'
 

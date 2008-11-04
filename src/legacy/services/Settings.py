@@ -123,6 +123,8 @@ class Settings:
 		field.attributes['var'] = 'settings_page'
 		field.attributes['type'] = 'list-single'
 		field.attributes['label'] = lang.get('settings_category')
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('settings_instructions_Desc'))
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_clist')
@@ -201,6 +203,8 @@ class Settings:
 			field.attributes['label'] = lang.get('away_messages_sending')
 			value = field.addElement('value')
 			value.addContent(str(settings['away_messages_sending']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('away_messages_sending_Desc')) 
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'away_messages_receiving'
@@ -208,6 +212,8 @@ class Settings:
 			field.attributes['label'] = lang.get('away_messages_receiving')
 			value = field.addElement('value')
 			value.addContent(str(settings['away_messages_receiving']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('away_messages_receiving_Desc')) 
 			
 			xstatus_sending = dict([
 			('xstatus_sendmode_none',0),
@@ -226,6 +232,8 @@ class Settings:
 				value.addContent(str(xstatus_sending[title]))
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_sending_mode']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_sendmode_Desc')) 
 				
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_saving_enabled'
@@ -233,6 +241,8 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_restore_after_disconnect')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_saving_enabled']))	
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_restore_after_disconnect_Desc')) 
 			
 			xstatus_receiving = dict([
 			('xstatus_recvmode_none',0),
@@ -251,6 +261,8 @@ class Settings:
 				value.addContent(str(xstatus_receiving[title]))
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_receiving_mode']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_recvmode_Desc')) 
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_option_smooth'
@@ -258,6 +270,8 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_option_smooth')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_option_smooth']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_option_smooth_Desc')) 
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_display_icon_as_PEP'
@@ -265,6 +279,8 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_display_icon_as_PEP')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_display_icon_as_PEP']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_display_icon_as_PEP_Desc')) 
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_display_text_as_PEP'
@@ -272,6 +288,8 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_display_text_as_PEP')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_display_text_as_PEP']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_display_text_as_PEP_Desc')) 
 			
 			field = x.addElement('field')
 			field.attributes['var'] = 'xstatus_icon_for_transport'
@@ -279,6 +297,8 @@ class Settings:
 			field.attributes['label'] = lang.get('xstatus_icon_for_transport')
 			value = field.addElement('value')
 			value.addContent(str(settings['xstatus_icon_for_transport']))
+			desc = field.addElement('desc')
+			desc.addContent(lang.get('xstatus_icon_for_transport_Desc')) 
 			
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
@@ -339,6 +359,8 @@ class Settings:
 		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
 		value = field.addElement('value')
 		value.addContent(str(settings['clist_show_phantombuddies']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('settings_clist_show_phantombuddies_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'clist_deny_all_auth_requests'
@@ -346,6 +368,8 @@ class Settings:
 		field.attributes['label'] = lang.get('settings_clist_deny_all_auth_requests')
 		value = field.addElement('value')
 		value.addContent(str(settings['clist_deny_all_auth_requests']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('settings_clist_deny_all_auth_requests_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
@@ -416,6 +440,8 @@ class Settings:
 			value.addContent(str(utf8_messages_sendmode[title]))
 		value = field.addElement('value')
 		value.addContent(str(settings['utf8_messages_sendmode']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('utf8_messages_sendmode_Desc')) 
 		
 		msgconfirm_sendmode = dict([
 			('msgconfirm_sendmode_none',0),
@@ -433,6 +459,8 @@ class Settings:
 			value.addContent(str(msgconfirm_sendmode[title]))
 		value = field.addElement('value')
 		value.addContent(str(settings['msgconfirm_sendmode']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('msgconfirm_sendmode_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'msgconfirm_recvmode'
@@ -440,6 +468,8 @@ class Settings:
 		field.attributes['label'] = lang.get('msgconfirm_recvmode')
 		value = field.addElement('value')
 		value.addContent(str(settings['msgconfirm_recvmode']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('msgconfirm_recvmode_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
@@ -500,6 +530,8 @@ class Settings:
 		field.attributes['label'] = lang.get('user_mood_receiving')
 		value = field.addElement('value')
 		value.addContent(str(settings['user_mood_receiving']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('user_mood_receiving_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'user_activity_receiving'
@@ -507,6 +539,8 @@ class Settings:
 		field.attributes['label'] = lang.get('user_activity_receiving')
 		value = field.addElement('value')
 		value.addContent(str(settings['user_activity_receiving']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('user_activity_receiving_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['var'] = 'user_tune_receiving'
@@ -514,6 +548,8 @@ class Settings:
 		field.attributes['label'] = lang.get('user_tune_receiving')
 		value = field.addElement('value')
 		value.addContent(str(settings['user_tune_receiving']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('user_tune_receiving_Desc')) 
 		
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
