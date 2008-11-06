@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# Plugin to monitor the Py-transport memory usage
+#
+# Requirements:
+# proc filesystem support
+# Py-transport, running under separate user
+# munin <http://munin.projects.linpro.no> 
+#
+# Usage: Link or copy into /etc/munin/plugins/
+# Example: status_pyicqt for PyICQt monitoring
+#
+# Magic markers (optional - only used by munin-config and some
+# installation scripts):
+#
+#%# family=auto
+#%# capabilities=autoconf
+
+TRANSPORT=`basename $0 | sed 's/^memory_//g' | tr '_' '.'`
+
+# used by munin-config
+if [ "$1" = "autoconf" ]; then
+	echo yes
+	exit 0
+fi
+
+if [ "$1" = "config" ]; then
+	echo "graph_title $TRANSPORT memory"
+	echo 'graph_order memory data code stack shared'
+	echo "graph_info This graph shows $TRANSPORT memory usage"
+	echo 'graph_category processes'
+	echo 'graph_period minute'
+	echo 'memory.label memory'
+	echo 'memory.info Virtual memory size'
+	echo 'data.label data'
+	echo 'data.info Size of data segment'
+	echo 'code.label code'
+	echo 'code.info Size of code segment'
+	echo 'stack.label stack'
+	echo 'stack.info Size of stack segment'
+	echo 'shared.label shared'
+	echo 'shared.info Size of shared libraries'
+	exit 0
+fi
+
+if [ ! -r /var/run/$TRANSPORT/$TRANSPORT.pid ] ; then
+     echo Cannot read /var/run/$TRANSPORT/$TRANSPORT.pid >&2
+     exit -1
+fi 
+
+pid=`cat /var/run/$TRANSPORT/$TRANSPORT.pid`
+
+vmsize=`cat /proc/$pid/status | grep VmSize`
+vmsize_kb=`echo $vmsize | cut -f2 -d ' '`
+echo -n 'memory.value '
+echo `expr $vmsize_kb '*' 1024` # virtual memory size
+
+vmdata=`cat /proc/$pid/status | grep VmData`
+vmdata_kb=`echo $vmdata | cut -f2 -d ' '`
+echo -n 'data.value '
+echo `expr $vmdata_kb '*' 1024` # size of data segment
+
+vmexe=`cat /proc/$pid/status | grep VmExe`
+vmexe_kb=`echo $vmexe | cut -f2 -d ' '`
+echo -n 'code.value '
+echo `expr $vmexe_kb '*' 1024` # size of text segment
+
+vmstk=`cat /proc/$pid/status | grep VmStk`
+vmstk_kb=`echo $vmstk | cut -f2 -d ' '`
+echo -n 'stack.value '
+echo `expr $vmstk_kb '*' 1024` # size of stack segment
+
+vmlib=`cat /proc/$pid/status | grep VmLib`
+vmlib_kb=`echo $vmlib | cut -f2 -d ' '`
+echo -n 'shared.value '
+echo `expr $vmlib_kb '*' 1024` # size of shared libraries

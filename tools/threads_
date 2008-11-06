@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# Plugin to monitor the Py-transport threads count
+#
+# Requirements:
+# proc filesystem support
+# Py-transport, running under separate user
+# munin <http://munin.projects.linpro.no> 
+#
+# Usage: Link or copy into /etc/munin/plugins/
+# Example: threads_pyicqt for PyICQt monitoring
+#
+# Magic markers (optional - only used by munin-config and some
+# installation scripts):
+#
+#%# family=auto
+#%# capabilities=autoconf
+
+TRANSPORT=`basename $0 | sed 's/^threads_//g' | tr '_' '.'`
+
+# used by munin-config
+if [ "$1" = "autoconf" ]; then
+	echo yes
+	exit 0
+fi
+
+if [ "$1" = "config" ]; then
+	echo "graph_title $TRANSPORT threads"
+	echo 'graph_order threads'
+	echo "graph_info This graph shows $TRANSPORT threads count"
+	echo 'graph_category processes'
+	echo 'graph_period minute'
+	echo 'threads.label threads'
+	echo 'threads.info Threads count'
+	exit 0
+fi
+
+if [ ! -r /var/run/$TRANSPORT/$TRANSPORT.pid ] ; then
+     echo Cannot read /var/run/$TRANSPORT/$TRANSPORT.pid >&2
+     exit -1
+fi 
+
+pid=`cat /var/run/$TRANSPORT/$TRANSPORT.pid`
+
+threads=`cat /proc/$pid/status | grep Threads`
+threads=`echo $threads | cut -f2 -d ' '`
+echo -n 'threads.value '
+echo $threads # threads count
