@@ -8,11 +8,12 @@ from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class Settings:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand('settings', self.incomingIq, 'command_Settings')
+		self.pytrans.adhoc.addCommand('settings', self.incomingIq, 'command_Settings', rights_user)
 		
 	def incomingIq(self, el):
 		settings_page = 'xstatus_settings'

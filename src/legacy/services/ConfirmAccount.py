@@ -8,11 +8,12 @@ from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class ConfirmAccount:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand("confirmaccount", self.incomingIq, "command_ConfirmAccount")
+		self.pytrans.adhoc.addCommand("confirmaccount", self.incomingIq, "command_ConfirmAccount", rights_user)
 
 	def incomingIq(self, el):
 		to = el.getAttribute("from")

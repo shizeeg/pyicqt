@@ -8,12 +8,13 @@ from debug import LogEvent, INFO, WARN, ERROR
 import config
 import lang
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 # TODO: rewrite with better code)
 class SetXStatus:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand('setxstatus', self.incomingIq, 'command_SetXStatus')
+		self.pytrans.adhoc.addCommand('setxstatus', self.incomingIq, 'command_SetXStatus', rights_user)
 
 	def incomingIq(self, el):
 		

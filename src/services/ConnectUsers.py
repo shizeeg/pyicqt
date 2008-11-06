@@ -9,11 +9,12 @@ import config
 import lang
 from debug import LogEvent, INFO, WARN, ERROR
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class ConnectUsers:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand("connectusers", self.incomingIq, "command_ConnectUsers")
+		self.pytrans.adhoc.addCommand("connectusers", self.incomingIq, "command_ConnectUsers", rights_admin)
         
 	def sendProbes(self):
 		for jid in self.pytrans.xdb.getRegistrationList():

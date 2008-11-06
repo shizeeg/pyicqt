@@ -17,10 +17,12 @@ class AdHocCommands:
 
 		self.commands = {} # Dict of handlers indexed by node
 		self.commandNames = {} # Dict of names indexed by node
+		self.commandRights = {} # Dict of user rights indexed by node
 
-	def addCommand(self, command, handler, name):
+	def addCommand(self, command, handler, name, rights):
 		self.commands[command] = handler
 		self.commandNames[command] = name
+		self.commandRights[command] = rights
 		self.pytrans.disco.addNode(command, self.incomingIq, name, config.jid, False)
 
 	def incomingIq(self, el):
@@ -58,6 +60,7 @@ class AdHocCommands:
 
 	def sendCommandList(self, el):
 		to = el.getAttribute("from")
+		toj_uh = internJID(to).userhost()
 		ID = el.getAttribute("id")
 		ulang = utils.getLang(el)
 
@@ -71,12 +74,19 @@ class AdHocCommands:
 		query = iq.addElement("query")
 		query.attributes["xmlns"] = globals.DISCO_ITEMS
 		query.attributes["node"] = globals.COMMANDS
-
+		
+		rights = rights_guest
+		if toj_uh in self.pytrans.sessions: # logined
+			rights = rights_user 
+		if toj_uh in config.admins: # admin
+			rights = rights_admin
+			
 		for command in self.commands:
-			item = query.addElement("item")
-			item.attributes["jid"] = config.jid
-			item.attributes["node"] = command
-			item.attributes["name"] = lang.get(self.commandNames[command], ulang)
+			if self.commandRights[command] <= rights: # user can view this item (enough rights)
+				item = query.addElement("item")
+				item.attributes["jid"] = config.jid
+				item.attributes["node"] = command
+				item.attributes["name"] = lang.get(self.commandNames[command], ulang)
 
 		self.pytrans.send(iq)
 
@@ -167,3 +177,10 @@ class AdHocCommands:
 		note.addContent(errormsg)
 
 		self.pytrans.send(iq)
+		
+# guest
+rights_guest = 0
+# logined
+rights_user = 1
+# admin
+rights_admin = 2

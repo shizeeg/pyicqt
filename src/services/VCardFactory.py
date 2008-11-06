@@ -9,13 +9,14 @@ import config
 import lang
 from debug import LogEvent, INFO, WARN, ERROR
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class VCardFactory:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
 		self.pytrans.disco.addFeature(globals.VCARD, self.incomingIq, "USER")
 		self.pytrans.disco.addFeature(globals.VCARD, self.incomingIq, config.jid)
-		self.pytrans.adhoc.addCommand("updatemyvcard", self.getMyVCard, "command_UpdateMyVCard")
+		self.pytrans.adhoc.addCommand("updatemyvcard", self.getMyVCard, "command_UpdateMyVCard", rights_user)
 
 	def incomingIq(self, el):
 		itype = el.getAttribute("type")

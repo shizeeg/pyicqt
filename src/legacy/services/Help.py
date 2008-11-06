@@ -6,11 +6,12 @@ from twisted.words.protocols.jabber.jid import internJID
 import utils
 import lang
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class Help:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand('help', self.incomingIq, 'command_Help')
+		self.pytrans.adhoc.addCommand('help', self.incomingIq, 'command_Help', rights_guest)
 		
 	def incomingIq(self, el):
 		to = el.getAttribute('from')

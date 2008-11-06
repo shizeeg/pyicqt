@@ -7,11 +7,12 @@ import config
 import lang
 from debug import LogEvent, INFO, WARN, ERROR
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class Statistics:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand("stats", self.incomingIq, "command_Statistics")
+		self.pytrans.adhoc.addCommand("stats", self.incomingIq, "command_Statistics", rights_guest)
 
 		# self.stats is indexed by a unique ID, with value being the value for that statistic
 		self.stats = {}

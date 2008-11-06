@@ -8,11 +8,12 @@ import config
 import lang
 from debug import LogEvent, INFO, WARN, ERROR
 import globals
+from adhoc import rights_guest, rights_user, rights_admin
 
 class RosterRetrieval:
 	def __init__(self, pytrans):
 		self.pytrans = pytrans
-		self.pytrans.adhoc.addCommand("retrieveroster", self.incomingIq, "command_RosterRetrieval")
+		self.pytrans.adhoc.addCommand("retrieveroster", self.incomingIq, "command_RosterRetrieval", rights_user)
 
 	def incomingIq(self, el):
 		to = el.getAttribute("from")
