@@ -2466,7 +2466,7 @@ class BOSConnection(SNACBased):
 	"""
 	send request for x-status message to user
         """
-	if user in self.oscarcon.legacyList.usercaps:
+	if self.oscarcon.legacyList and user in self.oscarcon.legacyList.usercaps:
 		if 'icqxtraz' in self.oscarcon.legacyList.usercaps[user]: # xtraz supported by client
 			if user in self.oscarcon.legacyList.usercustomstatuses and 'x-status' in self.oscarcon.legacyList.usercustomstatuses[user]: # and x-status was set
 				log.msg("Sending x-status details request to %s" % user)
