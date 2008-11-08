@@ -63,6 +63,7 @@ class Help:
 		field = x.addElement('field')
 		field.attributes['type'] =  'text-single'
 		field.attributes['label'] = lang.get('help_mainwiki')
+		field.attributes['var'] = 'help_mainwiki'
 		value = field.addElement('value')
 		value.addContent(help_mainwiki)
 		desc = field.addElement('desc')
@@ -71,6 +72,7 @@ class Help:
 		field = x.addElement('field')
 		field.attributes['type'] =  'text-single'
 		field.attributes['label'] = lang.get('help_maillist')
+		field.attributes['var'] = 'help_maillist'
 		value = field.addElement('value')
 		value.addContent(help_maillist)
 		desc = field.addElement('desc')
@@ -79,6 +81,7 @@ class Help:
 		field = x.addElement('field')
 		field.attributes['type'] =  'text-single'
 		field.attributes['label'] = lang.get('help_mainroom')
+		field.attributes['var'] = 'help_mainroom'
 		value = field.addElement('value')
 		value.addContent(help_mainroom)
 		desc = field.addElement('desc')
@@ -88,6 +91,7 @@ class Help:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localwebsite')
+			field.attributes['var'] = 'help_localwebsite'
 			value = field.addElement('value')
 			value.addContent(config.transportWebsite)
 			desc = field.addElement('desc')
@@ -97,6 +101,7 @@ class Help:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localroom')
+			field.attributes['var'] = 'help_localroom'
 			value = field.addElement('value')
 			value.addContent(config.supportRoom)
 			desc = field.addElement('desc')
@@ -106,6 +111,7 @@ class Help:
 			field = x.addElement('field')
 			field.attributes['type'] =  'text-single'
 			field.attributes['label'] = lang.get('help_localsupportjid')
+			field.attributes['var'] = 'help_localsupportjid'
 			value = field.addElement('value')
 			value.addContent(config.supportJid)
 			desc = field.addElement('desc')
