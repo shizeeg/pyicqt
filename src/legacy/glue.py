@@ -26,7 +26,7 @@ from twisted.python import log
 name = "ICQ Transport"
 
 # The transport's version
-version = "0.8.1b2"
+version = "0.8.1b3"
 
 # URL of the transport's web site
 url = "http://pyicqt.googlecode.com/"
