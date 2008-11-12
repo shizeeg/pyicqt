@@ -69,6 +69,9 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	help_localwebsite_Desc = u"Local website with documentation for transport"
 	help_localroom_Desc = u"Local Jabber-related groupchat"
 	help_localsupportjid_Desc = u"JID of a person, who can answer on your questions"
+	help_action = u"Action"
+	help_action_Desc = u"Join to one from support rooms"
+	help_invitation_sent = u"You will receive invitation to support room now"
 	
 	alert_shutdown = u"Transport will stopped now. Please, don't panic, its work will restored as quickly as possible"
 	
