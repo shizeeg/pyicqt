@@ -2594,6 +2594,10 @@ class BOSConnection(SNACBased):
         """
 	if query == None:
 		query = ''
+	if self.session.legacycon:
+		icqStatus = self.session.legacycon.bos.icqStatus
+	else:
+		icqStatus = 0x00
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2607,7 +2611,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
 	extended_data = extended_data + struct.pack('!B', 0xe8) # msg type: auto-away message
 	extended_data = extended_data + struct.pack('!B', 0x03) # msg flags: auto message
-	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('<H', icqStatus) # status
 	extended_data = extended_data + struct.pack('!H',0x0100) # priority
 	extended_data = extended_data + struct.pack('<H',len(query)) + query # message
 	return extended_data
@@ -2616,6 +2620,10 @@ class BOSConnection(SNACBased):
 	"""
 	prepare it
         """
+	if self.session.legacycon:
+		icqStatus = self.session.legacycon.bos.icqStatus
+	else:
+		icqStatus = 0x00
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2629,7 +2637,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
 	extended_data = extended_data + struct.pack('!B', 0x1a) # msg type: Plugin message described by text string
 	extended_data = extended_data + struct.pack('!B', 0x00) # msg flags
-	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('<H', icqStatus) # status
 	extended_data = extended_data + struct.pack('!H',0x0100) # priority
 	extended_data = extended_data + struct.pack('!HB',0x0100,0x00) # empty message
 	extended_data = extended_data + self.packPluginTypeId()
@@ -2720,6 +2728,10 @@ class BOSConnection(SNACBased):
 	if query == None:
 		query = ''
 	query = query.encode('utf-8') + '\x00'
+	if self.session.legacycon:
+		icqStatus = self.session.legacycon.bos.icqStatus
+	else:
+		icqStatus = 0x00
 	# extended data body
 	extended_data = struct.pack('<H',0x1b) # unknown (header #1 len?)
 	extended_data = extended_data + struct.pack('!B',0x08) # protocol version
@@ -2733,7 +2745,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + struct.pack('!LLL', 0, 0, 0) # unknown
 	extended_data = extended_data + struct.pack('!B', 0x01) # msg type: plain text message
 	extended_data = extended_data + struct.pack('!B', 0x00) # msg flags: none
-	extended_data = extended_data + struct.pack('<H', self.session.legacycon.bos.icqStatus) # status
+	extended_data = extended_data + struct.pack('<H', icqStatus) # status
 	extended_data = extended_data + struct.pack('!H',0x0100) # priority
 	extended_data = extended_data + struct.pack('<H',len(query)) + query # message
 	return extended_data
