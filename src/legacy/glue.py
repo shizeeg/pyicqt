@@ -196,7 +196,7 @@ class LegacyConnection:
 				else:
 					cookie = None
 				
-				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2):
+				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2 and not offline):
 					self.bos.sendMessageType2(uin, message, cookie=cookie)
 				else:
 					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp, cookie=cookie)
