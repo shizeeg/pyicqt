@@ -174,7 +174,7 @@ class LegacyConnection:
 				LogEvent(INFO, self.session.jabberID, "Encoding %r" % encoding)
 				
 				if jabber_mid and int(self.bos.selfSettings['msgconfirm_recvmode']) == 1 and  self.legacyList.hasCapability(uin, 'serv_rel'):
-					cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+					cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
 					c_time = int(time.time())
 					uvars = {}
 					msg_query = self.getUserVarValue(uin, 'wait_for_confirm_msg_query')

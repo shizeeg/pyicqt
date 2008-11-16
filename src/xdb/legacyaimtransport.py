@@ -50,7 +50,7 @@ class XDB:
 	def files(self):
 		""" Returns a list containing the files in the current XDB database """         
 		files=os.listdir(self.name);
-		for i in range(len(files)):
+		for i in xrange(len(files)):
 			files[i]=utils.unmangle(files[i])
 			files[i]=files[i][:len(files[i])-4]
 		return files

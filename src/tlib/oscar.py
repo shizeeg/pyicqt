@@ -40,7 +40,7 @@ def logPacketData(data):
     return
     lines = len(data)/16
     if lines*16 != len(data): lines=lines+1
-    for i in range(lines):
+    for i in xrange(lines):
         d = tuple(data[16*i:16*i+16])
         hex = map(lambda x: "%02X"%ord(x),d)
         text = map(lambda x: (len(repr(x))>3 and '.') or x, d)
@@ -119,7 +119,7 @@ def encryptPasswordICQ(password):
     key=[0xF3,0x26,0x81,0xC4,0x39,0x86,0xDB,0x92,0x71,0xA3,0xB9,0xE6,0x53,0x7A,0x95,0x7C]
     bytes=map(ord,password)
     r=""
-    for i in range(len(bytes)):
+    for i in xrange(len(bytes)):
         r=r+chr(bytes[i]^key[i%len(key)])
     return r
 
@@ -1403,7 +1403,7 @@ class BOSConnection(SNACBased):
         self.outRateTable={}
         count=struct.unpack('!H',snac[5][0:2])[0]
         snac[5]=snac[5][2:]
-        for i in range(count):
+        for i in xrange(count):
             info=struct.unpack('!HLLLLLLL',snac[5][:30])
             classid=info[0]
             window=info[1]
@@ -2394,7 +2394,7 @@ class BOSConnection(SNACBased):
         if wantIcon, we want their buddy icon, tell us if you have it
         """
 	if not cookie:
-        	cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+        	cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
         data = cookie + struct.pack("!HB", 0x0001, len(user)) + user
         if not type(message) in (types.TupleType, types.ListType):
             message = [[message,]]
@@ -2471,7 +2471,7 @@ class BOSConnection(SNACBased):
 			if user in self.oscarcon.legacyList.usercustomstatuses and 'x-status' in self.oscarcon.legacyList.usercustomstatuses[user]: # and x-status was set
 				log.msg("Sending x-status details request to %s" % user)
 				# AIM messaging header
-				cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+				cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # ICBM cookie
 				header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 				# xtraz request
 				notifyBody='<srv><id>cAwaySrv</id><req><id>AwayStat</id><trans>1</trans><senderId>%s</senderId></req></srv>'  % self.name
@@ -2537,7 +2537,7 @@ class BOSConnection(SNACBased):
 	if user in self.oscarcon.legacyList.usercaps:
 		log.msg("Sending status details request to %s" % user)
 		# AIM messaging header
-		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # ICBM cookie
 		header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 		# request TLV
 		extdataTLV = TLV(0x2711, self.prepareClientAutoResponseBody('\0')) # make TLV with empty body
@@ -2604,7 +2604,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + CAP_EMPTY # Plugin Version
 	extended_data = extended_data + struct.pack("!L", 0x3) # client features
 	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
-	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(2)]) # it non-clear way
 	extended_data = extended_data + msgcookie # message cookie
 	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
 	extended_data = extended_data + msgcookie # message cookie again
@@ -2630,7 +2630,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + CAP_EMPTY # Plugin Version
 	extended_data = extended_data + struct.pack("!L", 0x3) # client features
 	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
-	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(2)]) # it non-clear way
 	extended_data = extended_data + msgcookie # message cookie
 	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
 	extended_data = extended_data + msgcookie # message cookie again
@@ -2658,7 +2658,7 @@ class BOSConnection(SNACBased):
 	log.msg("Sending type-2 message to %s" % user) 
 	# AIM messaging header
 	if not cookie:
-		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # ICBM cookie
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 	header = str(header)
 	extended_data = str(self.prepareMessageType2Body(message))
@@ -2700,7 +2700,7 @@ class BOSConnection(SNACBased):
 	log.msg("Sending confirmation for incoming message to %s" % user) 
 	# AIM messaging header
 	if not cookie:
-		cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # ICBM cookie
+		cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # ICBM cookie
 	header = cookie + struct.pack("!HB", 0x0002, len(user)) + user # channel 2, user UIN
 	header = header + struct.pack('!H',0x3) # reason: channel-specific
 	extended_data = str(self.prepareMessageType2Body(None))
@@ -2738,7 +2738,7 @@ class BOSConnection(SNACBased):
 	extended_data = extended_data + CAP_EMPTY # Plugin Version
 	extended_data = extended_data + struct.pack("!L", 0x3) # client features
 	extended_data = extended_data + struct.pack('!L', 0x0004) # DC type: normal direct connection (without proxy/firewall)
-	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in range(2)]) # it non-clear way
+	msgcookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(2)]) # it non-clear way
 	extended_data = extended_data + msgcookie # message cookie
 	extended_data = extended_data + struct.pack('<H',0x0e) # unknown (header #2 len?)
 	extended_data = extended_data + msgcookie # message cookie again
@@ -2968,7 +2968,7 @@ class BOSConnection(SNACBased):
         send a chat room invitation to a user (not an OSCARUser).
         if wantAck, we return a Deferred that gets a callback when the message is sent.
         """
-        cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+        cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
         intdata = '\x00\x00'+cookie+CAP_CHAT
         intdata = intdata + TLV(0x0a,'\x00\x01')
         intdata = intdata + TLV(0x0f)
@@ -2990,7 +2990,7 @@ class BOSConnection(SNACBased):
         timestamp should be the timestamp on the icon, or will be "now"
         if wantAck, we return a Deferred that gets a callback when the message is sent.
         """
-        cookie = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+        cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
         intdata = '\x00\x00'+cookie+CAP_ICON
         intdata = intdata + TLV(0x0a,'\x00\x01')
         intdata = intdata + TLV(0x0f)
@@ -3591,7 +3591,7 @@ class ChatService(OSCARService):
     def sendMessage(self,message):
         log.msg("Sending chat message... I hope.")
         tlvs=TLV(0x02,"us-ascii")+TLV(0x03,"en")+TLV(0x01,message)
-        data = ''.join([chr(random.randrange(0, 127)) for i in range(8)]) # cookie
+        data = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
         data = data + "\x00\x03" # message channel 3
         data = data + TLV(1) # this is for a chat room
         data = data + TLV(6) # reflect message back to us

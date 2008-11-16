@@ -201,10 +201,10 @@ class PyTransport(component.Service):
 	def loadPlugins(self, dir):
 		imppath = dir.replace("src/", "").replace("/", ".")
 		files = os.listdir(dir);
-		for i in range(len(files)):
-			if files[i] == "__init__.py": continue
-			if files[i].endswith(".py"):
-				classname = files[i].replace(".py","")
+		for file in files:
+			if file == "__init__.py": continue
+			if file.endswith(".py"):
+				classname = file.replace(".py","")
 				if self.serviceplugins.has_key(classname):
 					print "Unable to load service plugin %s: Duplicate plugin???" % classname
 					continue

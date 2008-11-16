@@ -78,7 +78,7 @@ class B(oscar.BOSConnection):
 
 	def gotUserInfo(self, id, type, userinfo):
 		if userinfo:
-			for i in range(len(userinfo)):
+			for i in xrange(len(userinfo)):
 				#userinfo[i] = userinfo[i].decode(config.encoding, "replace").encode("utf-8", "replace")
 				try:
 					userinfo[i],uenc = oscar.guess_encoding(userinfo[i], config.encoding)
