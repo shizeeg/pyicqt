@@ -330,8 +330,8 @@ class PyTransport(component.Service):
 			for child in el.elements():
 				if child.name == "body":
 					body = child.__str__()
-			LogEvent(INFO, msg="Sending error response to a message outside of seession")
-			jabw.sendErrorMessage(self, fro, to, "auth", "not-authorized", lang.get("notloggedin", ulang), body)
+					LogEvent(INFO, msg="Sending error response to a message outside of seession")
+					jabw.sendErrorMessage(self, fro, to, "auth", "not-authorized", lang.get("notloggedin", ulang), body)
 	
 	def onPresence(self, el):
 		fro = el.getAttribute("from")
