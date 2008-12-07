@@ -156,7 +156,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	utf8_messages_sendmode = u"utf-8 messages sending mode"
 	utf8_messages_sendmode_none = u"Sending disabled"
 	utf8_messages_sendmode_as_reply = u"As reply on incoming utf-8 message"
-	utf8_messages_sendmode_always = u"Always when it's possible"
+	utf8_messages_sendmode_always = u"Always"
 	utf8_messages_sendmode_Desc = u"Messages in utf-8 allow solve problem with encodings"
 	msgconfirm_sendmode = u"Confirmations sending mode"
 	msgconfirm_sendmode_none = u"Sending disabled"
