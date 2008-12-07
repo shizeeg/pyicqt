@@ -2411,12 +2411,12 @@ class BOSConnection(SNACBased):
                     charSet = 0x0000
                 except:
                     try:
-                        part[0] = part[0].encode(config.encoding)
-                        charSet = 0x0003
+                        part[0] = part[0].encode('utf-16be', 'replace')
+                        charSet = 0x0002
                     except:
                         try:
-                            part[0] = part[0].encode('utf-16be', 'replace')
-                            charSet = 0x0002
+                            part[0] = part[0].encode(config.encoding)
+                            charSet = 0x0003
                         except:
                             part[0] = part[0].encode('iso-8859-1', 'replace')
                             charSet = 0x0003
