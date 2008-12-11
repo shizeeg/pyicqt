@@ -130,13 +130,14 @@ def sendErrorMessage(pytrans, to, fro, etype, condition, explanation, body=None,
 	text.attributes["xmlns"] = globals.XMPP_STANZAS
 	text.addContent(explanation)
 
-	bodywritten = False
-	for child in el.elements():
-		if child.name == 'body' and len(body) > 0: # <body/> already in el
-			body_txt = child.__str__()
-			child.addContent(body_txt+'\n'+body)
+	bodywritten = False # no <body/> in message
+	for child in el.elements(): # try find in el	
+		if child.name == 'body': # <body/> already in el
+			if body and len(body) > 0: # necessary add other info to it
+				body_txt = child.__str__()
+				child.addContent(body_txt+'\n'+body)
 			bodywritten = True
-	if not bodywritten and body and len(body) > 0:
+	if not bodywritten and body and len(body) > 0: # <body/> in el don't found
 		b = el.addElement('body')
 		b.addContent(body)
 	pytrans.send(el)
