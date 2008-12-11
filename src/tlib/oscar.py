@@ -903,8 +903,16 @@ class SNACBased(OscarConnection):
 	buddy = snacdata[11:buddy_end] # buddy uin
 	
 	extdata = snacdata[buddy_end+2:]
+	extdata_len = len(extdata)
+	if extdata_len < 54:
+		log.msg('Malformed packet')
+		return
 	headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+	if headerlen1 > extdata_len - 2:
+		headerlen1 = 0x1b # default value
 	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+	if headerlen2 > extdata_len - headerlen1 - 4:
+		headerlen2 = 0x0e # default value
 	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
 	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
 	if msgtype in (0xe7, 0xe8): # auto away message
@@ -966,10 +974,16 @@ class SNACBased(OscarConnection):
         """
 	UnSafe_Notification = ''
 	
-	# skip 'first header' 
-	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
-	# skip 'second header' 	
-	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+	extdata_len = len(extdata)
+	if extdata_len < 54:
+		log.msg('Malformed packet')
+		return
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+	if headerlen1 > extdata_len - 2:
+		headerlen1 = 0x1b # default value
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+	if headerlen2 > extdata_len - headerlen1 - 4:
+		headerlen2 = 0x0e # default value
 	# message type, flags, status and priority. It don't matter usually
 	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
 	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
@@ -1005,10 +1019,16 @@ class SNACBased(OscarConnection):
 	"""
 	encoding = 'unknown'
 	
-	# skip 'first header' 
-	headerlen1 = struct.unpack('<H',extdata[0:2])[0]
-	# skip 'second header' 	
-	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0]
+	extdata_len = len(extdata)
+	if extdata_len < 54:
+		log.msg('Malformed packet')
+		return
+	headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+	if headerlen1 > extdata_len - 2:
+		headerlen1 = 0x1b # default value
+	headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+	if headerlen2 > extdata_len - headerlen1 - 4:
+		headerlen2 = 0x0e # default value
 	# message type, flags, status and priority. It don't matter usually
 	msg_features_pos = 2 + headerlen1 + 2 + headerlen2
 	msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
@@ -1715,8 +1735,16 @@ class BOSConnection(SNACBased):
                 if 0x2711 in moreTLVs:
 			# Extended data
 			extdata = moreTLVs[0x2711]
+			extdata_len = len(extdata)
+			if extdata_len < 54:
+				log.msg('Malformed packet')
+				return
 			headerlen1 = struct.unpack('<H',extdata[0:2])[0] # skip 'first header' 
+			if headerlen1 > extdata_len - 2:
+				headerlen1 = 0x1b # default value
 			headerlen2 = struct.unpack('<H',extdata[2+headerlen1:4+headerlen1])[0] # skip 'second header' 	
+			if headerlen2 > extdata_len - headerlen1 - 4:
+				headerlen2 = 0x0e # default value
 			msg_features_pos = 2 + headerlen1 + 2 + headerlen2
 			msgtype = struct.unpack('!B',extdata[msg_features_pos:msg_features_pos+1])[0]
 			if msgtype in (0xe7, 0xe8): # auto away message
