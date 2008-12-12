@@ -212,20 +212,15 @@ def guess_encoding(data, defaultencoding=config.encoding):
     If unsuccessful it raises a ``UnicodeError``
     """
     successful_encoding = None
-    #encodings = ['utf-8', 'utf-16be', defaultencoding]
-    encodings = ['utf-8', defaultencoding]
+    encodings = ['utf-16be', 'utf-8', defaultencoding, 'iso-8859-1', 'ascii']
     for enc in encodings:
-        # some of the locale calls 
-        # may have returned None
         if not enc:
             continue
         try:
-            decoded = unicode(data, enc)
-            #decoded = data.decode(enc)
+            decoded = data.decode(enc)
             successful_encoding = enc
-
         except (UnicodeError, LookupError):
-            pass
+            log.msg('Probing encoding %s failed' % enc)
         else:
             break
     if not successful_encoding:
@@ -2023,7 +2018,6 @@ class BOSConnection(SNACBased):
                     log.msg("Received Offline Message: %r" % (v))
                     # Offline message
                     senderuin = struct.unpack('<I',v[10:14])[0]
-                    #print "senderuin: "+str(senderuin)+"\n"
                     msg_date = str( "%4d-%02d-%02dT%02d:%02d:00Z" #XEP-091 date format
                                  % struct.unpack('<HBBBB', v[14:20]) )
                     messagetype, messageflags,messagelen = struct.unpack('<BBH',v[20:24])
