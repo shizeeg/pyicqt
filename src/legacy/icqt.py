@@ -79,11 +79,10 @@ class B(oscar.BOSConnection):
 	def gotUserInfo(self, id, type, userinfo):
 		if userinfo:
 			for i in xrange(len(userinfo)):
-				#userinfo[i] = userinfo[i].decode(config.encoding, "replace").encode("utf-8", "replace")
 				try:
-					userinfo[i],uenc = oscar.guess_encoding(userinfo[i], config.encoding)
-				except UnicodeError:
-					userinfo[i] = userinfo[i].encode('utf-8', 'replace')
+					userinfo[i] = userinfo[i].decode(config.encoding, 'strict')
+				except (UnicodeError, LookupError):
+					userinfo[i] = userinfo[i].decode('utf-8', 'replace')
 		if self.oscarcon.userinfoCollection[id].gotUserInfo(id, type, userinfo):
 			# True when all info packages has been received
 			self.oscarcon.gotvCard(self.oscarcon.userinfoCollection[id])
@@ -726,7 +725,10 @@ class B(oscar.BOSConnection):
 				self.readGroup(member.users, parent=member)
 			elif isinstance(member, oscar.SSIBuddy):
 				if member.nick:
-					unick,uenc = oscar.guess_encoding(member.nick, config.encoding)
+					try:
+						unick = member.nick.decode(config.encoding, 'strict')
+					except (UnicodeError, LookupError):
+						unick = member.nick.decode('utf-8', 'replace')
 				else:
 					unick = None
 				if parent:
@@ -785,7 +787,10 @@ class B(oscar.BOSConnection):
 	def gotNickname(self, (nick, first, last, email), uin):
 		LogEvent(INFO, self.session.jabberID)
 		if nick:
-			unick,uenc = oscar.guess_encoding(nick, config.encoding)
+			try:
+				unick = nick.decode(config.encoding, 'strict')
+			except (UnicodeError, LookupError):
+				unick = nick.decode('utf-8', 'replace')
 			LogEvent(INFO, self.session.jabberID, "Found a nickname, lets update.")
 			self.oscarcon.legacyList.updateNickname(uin, unick)
 
