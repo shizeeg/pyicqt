@@ -460,10 +460,7 @@ class SSIGroup:
         user.group = None
 
     def oscarRep(self):
-	try:
-		name = self.name.encode("utf-8","replace")
-	except UnicodeError:
-		name = 'unknown'
+	name = self.name
         data = struct.pack(">H", len(name)) + name
         tlvs = TLV(0xc8, struct.pack(">H",len(self.users)))
         data += struct.pack(">4H", self.groupID, self.buddyID, 1, len(tlvs))
@@ -533,7 +530,7 @@ class SSIBuddy:
                 self.firstMessage = v # unix timestamp
  
     def oscarRep(self):
-        data = struct.pack(">H", len(self.name)) + self.name.encode("utf-8")
+        data = struct.pack(">H", len(self.name)) + self.name
         tlvs = ""
         if not self.authorized:
             tlvs += TLV(0x0066) # awaiting authorization
@@ -579,7 +576,7 @@ class SSIIconSum:
         log.msg("icon sum is %s" % binascii.hexlify(self.iconSum))
  
     def oscarRep(self):
-        data = struct.pack(">H", len(self.name)) + self.name.encode("utf-8")
+        data = struct.pack(">H", len(self.name)) + self.name
         tlvs = TLV(0x00d5,struct.pack('!BB', 0x00, len(self.iconSum))+self.iconSum)+TLV(0x0131, "")
         data += struct.pack(">4H", self.groupID, self.buddyID, AIM_SSI_TYPE_ICONINFO, len(tlvs))
         return data+tlvs
@@ -602,7 +599,7 @@ class SSIPDInfo:
         self.visibility = tlvs.get(0xcb, None)
 
     def oscarRep(self):
-        data = struct.pack(">H", len(self.name)) + self.name.encode("utf-8")
+        data = struct.pack(">H", len(self.name)) + self.name
         tlvs = ""
         if self.permitMode:
             tlvs += TLV(0xca,struct.pack('!B', self.permitMode))
