@@ -15,14 +15,18 @@ def observer(eventDict):
 
 def observer2(eventDict):
 	edm = eventDict['message']
+	if isinstance(edm, tuple): # LogEvent can be in tuple
+		edm = edm[0]
 	if isinstance(edm, LogEvent):
 		if edm.category == INFO and config.debugLevel < 3:
 			return
-		if (edm.category == WARN or edm.category == ERROR) and config.debugLevel < 2:
+		elif edm.category == WARN and config.debugLevel < 2:
+			return
+		elif edm.category == ERROR and config.debugLevel < 1:
 			return
 		text = str(edm)
 	elif edm:
-		if config.debugLevel < 3: return
+		if not eventDict['isError'] and config.debugLevel < 3: return # not error
 		text = ' '.join(map(str, edm))
 	else:
 		if eventDict['isError'] and eventDict.has_key('failure'):
@@ -67,9 +71,9 @@ def reloadConfig():
 	else:
 		log.discardLogs()
 
-class INFO : pass
-class WARN : pass
-class ERROR: pass
+class INFO : pass	# debugLevel == 3
+class WARN : pass	# debugLevel >= 2
+class ERROR: pass	# debuglevel >= 1
 
 class LogEvent:
 	def __init__(self, category=INFO, ident="", msg="", log=True, skipargs=False):

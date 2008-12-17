@@ -9,8 +9,10 @@ import sys
 if type(True) != bool: from bool import bool
 
 def invalidError(text):
-	print text
-	print "Exiting..."
+	LogEvent(ERROR, msg=text)
+	if config.debugLevel < 1:
+		print text
+		print "Exiting..."
 	sys.exit(1)
 
 def importFile(conffile):
