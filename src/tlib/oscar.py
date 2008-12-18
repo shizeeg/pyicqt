@@ -876,6 +876,16 @@ class SNACBased(OscarConnection):
         #    import sys
         #    sys.exit()
 
+    def oscar_01_0B(self,snac):
+	"""
+	server pause
+	"""
+	# Save all features supported by current server
+	data = ''
+	for every in self.supportedFamilies:
+		data = data + struct.pack('!H',every)
+	self.sendSNACnr(0x01,0x0c,data) # pause acknowledge
+
     def oscar_01_18(self,snac):
         """
         host versions, in the same format as we sent
