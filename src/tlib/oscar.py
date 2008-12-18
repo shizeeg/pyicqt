@@ -1677,8 +1677,9 @@ class BOSConnection(SNACBased):
 
 	    if int(self.settingsOptionValue('msgconfirm_sendmode')) == 2:
 		self.sendMessageConfirmation(user.name, cookie) # send confirmation
+	    if len(multiparts) > 0:
+		self.receiveMessage(user, multiparts, flags, delay)
 
-            self.receiveMessage(user, multiparts, flags, delay)
         elif channel == 2: # rendezvous
             status = struct.unpack('!H',tlvs[5][:2])[0]
             cookie2 = tlvs[5][2:10]

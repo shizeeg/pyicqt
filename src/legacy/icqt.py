@@ -501,7 +501,10 @@ class B(oscar.BOSConnection):
 
 		LogEvent(INFO, self.session.jabberID, "%s %s %s" % (user.name, multiparts, flags))
 		sourcejid = icq2jid(user.name)
-		text = multiparts[0][0]
+		if len(multiparts) == 0:
+			return # no data, illegal formed message
+		if len(multiparts[0]) >= 1:
+			text = multiparts[0][0]
 		if len(multiparts[0]) > 1:
 			if multiparts[0][1] == 'unicode':
 				encoding = "utf-16be"
