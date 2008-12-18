@@ -27,7 +27,7 @@ def observer2(eventDict):
 		text = str(edm)
 	elif edm:
 		if not eventDict['isError'] and config.debugLevel < 3: return # not error
-		text = ' '.join(map(str, edm))
+		text = str(edm)
 	else:
 		if eventDict['isError'] and eventDict.has_key('failure'):
 			if config.debugLevel < 1: return
