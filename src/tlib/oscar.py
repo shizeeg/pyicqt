@@ -202,7 +202,7 @@ def getIconSum(buf):
 # in the docutils extension module
 # see http://docutils.sourceforge.net
 # modified for better use here
-def guess_encoding(data, defaultencoding=config.encoding):
+def guess_encoding(data, defaultencoding=config.encoding, encoding_set='wide'):
     """
     Given a byte string, attempt to decode it.
     Tries 'utf-16be, 'utf-8' and 'iso-8859-1' (or something else) encodings.
@@ -212,7 +212,10 @@ def guess_encoding(data, defaultencoding=config.encoding):
     If unsuccessful it raises a ``UnicodeError``
     """
     successful_encoding = None
-    encodings = ['utf-16be', 'utf-8', defaultencoding, 'iso-8859-1', 'ascii']
+    if encoding_set == 'wide': # wide range
+	encodings = ['utf-16be', 'utf-8', defaultencoding, 'iso-8859-1', 'ascii']
+    else: # minimal range
+	encodings = ['utf-8', defaultencoding]
     for enc in encodings:
         if not enc:
             continue

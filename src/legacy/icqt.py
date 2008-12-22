@@ -728,7 +728,10 @@ class B(oscar.BOSConnection):
 				self.readGroup(member.users, parent=member)
 			elif isinstance(member, oscar.SSIBuddy):
 				if member.nick:
-					unick = member.nick
+					try:
+						unick, uenc = oscar.guess_encoding(member.nick, config.encoding, 'minimal') # attempt to decode
+					except (UnicodeError, LookupError): # no, error occured
+						unick = member.nick.encode('utf-8', 'replace') # convert to utf-8
 				else:
 					unick = None
 				if parent:
@@ -787,8 +790,12 @@ class B(oscar.BOSConnection):
 	def gotNickname(self, (nick, first, last, email), uin):
 		LogEvent(INFO, self.session.jabberID)
 		if nick:
+			try: # may be
+				unick, uenc = oscar.guess_encoding(nick, config.encoding, 'minimal') # attempt to decode
+			except (UnicodeError, LookupError): # no
+				unick = nick.encode('utf-8', 'replace') # convert to utf-8
 			LogEvent(INFO, self.session.jabberID, "Found a nickname, lets update.")
-			self.oscarcon.legacyList.updateNickname(uin, nick)
+			self.oscarcon.legacyList.updateNickname(uin, unick)
 
 	def warnedUser(self, oldLevel, newLevel, username):
 		LogEvent(INFO, self.session.jabberID)

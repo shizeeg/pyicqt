@@ -301,7 +301,7 @@ class JabberConnection:
 		item.attributes["subscription"] = sub
 		n = el.addElement("nick")
 		n.attributes["xmlns"] = globals.NICK
-		n.addContent(unicode(name))
+		n.addContent(name)
 		for group in groups:
 			g = item.addElement("group")
 			g.addContent(group)
