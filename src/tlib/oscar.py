@@ -195,42 +195,7 @@ def getIconSum(buf):
     sum = ((sum & 0xffff0000L) >> 16) + (sum & 0x0000ffffL)
 
     return sum
-
-# Originally taken from:
-# http://www.pyzine.com/Issue008/Section_Articles/article_Encodings.html
-# which was adapted from io.py
-# in the docutils extension module
-# see http://docutils.sourceforge.net
-# modified for better use here
-def guess_encoding(data, defaultencoding=config.encoding, encoding_set='wide'):
-    """
-    Given a byte string, attempt to decode it.
-    Tries 'utf-16be, 'utf-8' and 'iso-8859-1' (or something else) encodings.
     
-    If successful it returns 
-        (decoded_unicode, successful_encoding)
-    If unsuccessful it raises a ``UnicodeError``
-    """
-    successful_encoding = None
-    if encoding_set == 'wide': # wide range
-	encodings = ['utf-16be', 'utf-8', defaultencoding, 'iso-8859-1', 'ascii']
-    else: # minimal range
-	encodings = ['utf-8', defaultencoding]
-    for enc in encodings:
-        if not enc:
-            continue
-        try:
-            decoded = data.decode(enc)
-            successful_encoding = enc
-        except (UnicodeError, LookupError):
-            log.msg('Probing encoding %s failed' % enc)
-        else:
-            break
-    if not successful_encoding:
-         decoded = "We have received text in unsupported encoding.\n" + repr(data)
-         successful_encoding = "iso-8859-1"
-    return (decoded, successful_encoding)
-
 
 class OSCARUser:
     def __init__(self, name, warn, tlvs):
@@ -2032,7 +1997,7 @@ class BOSConnection(SNACBased):
                     msg_date = str( "%4d-%02d-%02dT%02d:%02d:00Z" #XEP-091 date format
                                  % struct.unpack('<HBBBB', v[14:20]) )
                     messagetype, messageflags,messagelen = struct.unpack('<BBH',v[20:24])
-                    umessage, encoding = guess_encoding(v[24:24+messagelen-1],self.defaultEncoding)
+                    umessage, encoding = utils.guess_encoding(v[24:24+messagelen-1],self.defaultEncoding)
                     log.msg("Converted message, encoding %r: %r" % (encoding, umessage))
                     #umessage = umessage + "\n\n/sent " + msg_date
                     message = [ umessage.encode("utf-16be"), "unicode" ]

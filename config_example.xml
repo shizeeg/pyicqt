@@ -114,6 +114,9 @@
 	
 	<!-- Support for x-statuses -->
 	<!-- <xstatusessupport/> -->
+	
+	<!-- Try detect Unicode in offiline messages, vCards, etc. (Attention: this solution can be slowly on high-load servers) -->
+	<!-- <detectunicode/> -->
 
 	<!-- You can choose which users you wish to have as administrators. These users can perform some tasks with Ad-Hoc commands that others cannot -->
 	<admins>

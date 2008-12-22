@@ -729,7 +729,7 @@ class B(oscar.BOSConnection):
 			elif isinstance(member, oscar.SSIBuddy):
 				if member.nick:
 					try:
-						unick, uenc = oscar.guess_encoding(member.nick, config.encoding, 'minimal') # attempt to decode
+						unick, uenc = utils.guess_encoding(member.nick, config.encoding, 'minimal') # attempt to decode
 					except (UnicodeError, LookupError): # no, error occured
 						unick = member.nick.encode('utf-8', 'replace') # convert to utf-8
 				else:
@@ -791,7 +791,7 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		if nick:
 			try: # may be
-				unick, uenc = oscar.guess_encoding(nick, config.encoding, 'minimal') # attempt to decode
+				unick, uenc = utils.guess_encoding(nick, config.encoding, 'minimal') # attempt to decode
 			except (UnicodeError, LookupError): # no
 				unick = nick.encode('utf-8', 'replace') # convert to utf-8
 			LogEvent(INFO, self.session.jabberID, "Found a nickname, lets update.")

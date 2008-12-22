@@ -66,6 +66,7 @@ disableVCardAvatars = bool(False)
 #disablePEPAvatars = bool(False)
 disableAwayMessage = bool(False)
 xstatusessupport = bool(False)
+detectunicode = bool(False)
 supportRoom = ""
 transportWebsite = ""
 supportJid = ""

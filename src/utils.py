@@ -5,6 +5,7 @@ from debug import LogEvent, INFO, WARN, ERROR
 import re
 import string
 import config
+import chardet_utf
 import os
 import os.path
 import sys
@@ -449,3 +450,59 @@ def fixCharactersInXML(string):
 	string = string.replace('<', 'lt;')
 	string = string.replace('>', 'gt;')
 	return string
+
+def guess_encoding(data, defaultencoding=config.encoding, encoding_set='wide'):
+    """
+    Guess encoding
+    """
+    if config.detectunicode:
+	return detect_encoding(data, defaultencoding)
+    else:
+	return guess_encoding_by_decode(data, defaultencoding, encoding_set)
+
+def guess_encoding_by_decode(data, defaultencoding=config.encoding, encoding_set='wide'):
+    """
+    Guess encoding (not always right)
+    """
+    successful_encoding = None
+    if encoding_set == 'wide': # wide range
+	encodings = ['utf-16be', 'utf-8', defaultencoding, 'iso-8859-1', 'ascii']
+    else: # minimal range
+	encodings = ['utf-8', defaultencoding]
+    for enc in encodings:
+        if not enc:
+            continue
+        try:
+            decoded = data.decode(enc)
+            successful_encoding = enc
+        except (UnicodeError, LookupError):
+            pass
+        else:
+            break
+    if not successful_encoding:
+         decoded = 'We have received text in unsupported encoding.\n' + repr(data)
+         successful_encoding = 'iso-8859-1'
+    return (decoded, successful_encoding)
+
+def detect_encoding(data, defaultencoding=config.encoding):
+    """
+    Detects encoding
+    """
+    successful_encoding = None
+    encoding = chardet_utf.detect(data)['encoding']
+    if encoding and encoding != 'ascii': # if utf-32, utf-16 or utf-8
+	try:
+	    decoded = data.decode(encoding)
+	    successful_encoding = encoding
+	except:
+	    pass
+    else: # otherwise
+	try:
+	    decoded = data.decode(defaultencoding)
+	    successful_encoding = defaultencoding
+	except:
+	    pass
+    if not successful_encoding:
+         decoded = 'We have received text in unsupported encoding.\n' + repr(data)
+         successful_encoding = 'iso-8859-1'
+    return (decoded, successful_encoding)
