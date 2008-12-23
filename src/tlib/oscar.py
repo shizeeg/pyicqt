@@ -1997,7 +1997,7 @@ class BOSConnection(SNACBased):
                     msg_date = str( "%4d-%02d-%02dT%02d:%02d:00Z" #XEP-091 date format
                                  % struct.unpack('<HBBBB', v[14:20]) )
                     messagetype, messageflags,messagelen = struct.unpack('<BBH',v[20:24])
-                    umessage, encoding = utils.guess_encoding(v[24:24+messagelen-1],self.defaultEncoding)
+                    umessage, encoding = utils.guess_encoding(v[24:24+messagelen-1],self.defaultEncoding, mode=1)
                     log.msg("Converted message, encoding %r: %r" % (encoding, umessage))
                     #umessage = umessage + "\n\n/sent " + msg_date
                     message = [ umessage.encode("utf-16be"), "unicode" ]

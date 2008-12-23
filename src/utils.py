@@ -451,11 +451,11 @@ def fixCharactersInXML(string):
 	string = string.replace('>', 'gt;')
 	return string
 
-def guess_encoding(data, defaultencoding=config.encoding, encoding_set='wide'):
+def guess_encoding(data, defaultencoding=config.encoding, encoding_set='wide', mode=0):
     """
     Guess encoding
     """
-    if config.detectunicode:
+    if config.detectunicode >= mode:
 	return detect_encoding(data, defaultencoding)
     else:
 	return guess_encoding_by_decode(data, defaultencoding, encoding_set)
@@ -490,7 +490,7 @@ def detect_encoding(data, defaultencoding=config.encoding):
     """
     successful_encoding = None
     encoding = chardet_utf.detect(data)['encoding']
-    if encoding and encoding != 'ascii': # if utf-32, utf-16 or utf-8
+    if encoding and encoding != 'ascii': # if utf-16 or utf-8
 	try:
 	    decoded = data.decode(encoding)
 	    successful_encoding = encoding
