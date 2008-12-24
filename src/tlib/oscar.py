@@ -1589,7 +1589,7 @@ class BOSConnection(SNACBased):
                             elif charSet == 0x0002:
                                 message.append('unicode')
                             elif charSet == 0x0003:
-                                message.append('custom') # iso-8859-1?
+                                message.append('custom')
                             elif charSet == 0xffff:
                                 message.append('none')
                             else:

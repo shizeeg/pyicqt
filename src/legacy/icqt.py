@@ -507,9 +507,11 @@ class B(oscar.BOSConnection):
 			text = multiparts[0][0]
 		if len(multiparts[0]) > 1:
 			if multiparts[0][1] == 'unicode':
-				encoding = "utf-16be"
+				encoding = 'utf-16be'
 			elif multiparts[0][1] == 'utf8':
-				encoding = "utf-8"
+				encoding = 'utf-8'
+			elif multiparts[0][1] == 'custom': # can be any
+				encoding = utils.guess_encoding_by_decode(text, config.encoding, 'minimal')[1] # try guess
 			else:
 				encoding = config.encoding
 		else:
