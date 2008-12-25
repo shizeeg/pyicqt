@@ -166,13 +166,6 @@ class LegacyConnection:
 
 			LogEvent(INFO, self.session.jabberID)
 			if uin[0].isdigit(): # ICQ users
-				encoding = config.encoding
-				charset = "iso-8859-1"
-				if self.legacyList.hasCapability(uin, "unicode"):
-					encoding = "utf-16be"
-					charset = "unicode"
-				LogEvent(INFO, self.session.jabberID, "Encoding %r" % encoding)
-				
 				if jabber_mid and int(self.bos.selfSettings['msgconfirm_recvmode']) == 1 and  self.legacyList.hasCapability(uin, 'serv_rel'):
 					cookie = ''.join([chr(random.randrange(0, 127)) for i in xrange(8)]) # cookie
 					c_time = int(time.time())
@@ -196,9 +189,15 @@ class LegacyConnection:
 				else:
 					cookie = None
 				
-				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2 and not offline):
-					self.bos.sendMessageType2(uin, message, cookie=cookie)
-				else:
+				# if contact uses utf-8 via serv_rel and necessary see on it
+				# or if contact has unicode & serl_rel caps and utf-8 via serv_rel preferred
+				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and self.legacyList.hasCapability(uin, 'unicode') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2 and not offline):
+					self.bos.sendMessageType2(uin, message, cookie=cookie) # send as type-2 message
+				else: # send as usual message, choose encoding
+					if self.legacyList.hasCapability(uin, 'unicode'): # contact has unicode cap
+					    charset = 'unicode' # utf-16be
+					else:
+					    charset = 'iso-8859-1' # config encoding
 					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp, cookie=cookie)
 				self.session.sendArchive(target, self.session.jabberID, message)
 			else: # AIM users

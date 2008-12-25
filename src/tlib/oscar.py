@@ -2401,7 +2401,13 @@ class BOSConnection(SNACBased):
         messageData = ''
         for part in message:
             charSet = 0x0000
-            if 'none' in part[1:]:
+	    if 'unicode' in part[1:]:
+		part[0] = part[0].encode('utf-16be', 'replace')
+		charSet = 0x0002
+	    elif 'iso-8859-1' in part[1:]:
+		part[0] = part[0].encode(config.encoding)
+		charSet = 0x0003
+            elif 'none' in part[1:]:
                 charSet = 0xffff
             else:
                 try:
