@@ -121,7 +121,7 @@
 	    2 - and in nicknames
 	    Attention: this solution can be slowly on high-load servers
 	-->
-	<!-- <detectunicode>0</detectunicode> -->
+	<detectunicode>1</detectunicode>
 
 	<!-- You can choose which users you wish to have as administrators. These users can perform some tasks with Ad-Hoc commands that others cannot -->
 	<admins>
