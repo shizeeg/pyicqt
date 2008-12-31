@@ -3297,8 +3297,11 @@ class BOSConnection(SNACBased):
         return self.sendSNAC(0x15, 0x02, tlvs).addCallback(self._cbGetShortInfo)
 
     def _cbGetShortInfo(self, snac):
-        nick,first,last,email = self.parseBasicInfo(snac[5][16:])
-        return nick,first,last,email
+	if snac:
+	    nick,first,last,email = self.parseBasicInfo(snac[5][16:])
+	    return nick,first,last,email
+	else: # no data received
+	    return None, None, None, None
 
     def requestOffline(self):
         """
