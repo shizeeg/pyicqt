@@ -1134,6 +1134,7 @@ class BOSConnection(SNACBased):
 	('clist_show_phantombuddies', 0),
 	('clist_deny_all_auth_requests',0),
 	('utf8_messages_sendmode', 2),
+	('offline_messages_sendenc',2),
 	('msgconfirm_sendmode', 2),
 	('msgconfirm_recvmode', 1),
 	('user_mood_receiving', 1),

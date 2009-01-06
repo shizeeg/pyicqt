@@ -472,6 +472,28 @@ class Settings:
 		desc = field.addElement('desc')
 		desc.addContent(lang.get('msgconfirm_recvmode_Desc')) 
 		
+		offline_messages_sendenc = dict([
+			('offline_messages_sendenc_unicode',0),
+			('offline_messages_sendenc_local',1),
+			('offline_messages_sendenc_auto',2)
+			])
+		field = x.addElement('field')
+		field.attributes['var'] = 'offline_messages_sendenc'
+		field.attributes['type'] =  'list-single'
+		field.attributes['label'] = lang.get('offline_messages_sendenc')
+		for title in offline_messages_sendenc:
+			option = field.addElement('option')
+			if title == 'offline_messages_sendenc_local':
+			    option.attributes['label'] = lang.get(title) % config.encoding
+			else:
+			    option.attributes['label'] = lang.get(title)
+			value = option.addElement('value')
+			value.addContent(str(offline_messages_sendenc[title]))
+		value = field.addElement('value')
+		value.addContent(str(settings['offline_messages_sendenc']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('offline_messages_sendenc_Desc')) 
+
 		field = x.addElement('field')
 		field.attributes['type'] = 'hidden'
 		field.attributes['var'] = 'settings_page'

@@ -188,16 +188,21 @@ class LegacyConnection:
 					log.msg('Waiting for confirmations msg query: %s' % msg_query)
 				else:
 					cookie = None
-				
+				        
 				# if contact uses utf-8 via serv_rel and necessary see on it
 				# or if contact has unicode & serl_rel caps and utf-8 via serv_rel preferred
 				if (str(self.getUserVarValue(uin, 'utf8_msg_using')) == '1' and int(self.bos.selfSettings['utf8_messages_sendmode']) == 1) or (self.legacyList.hasCapability(uin, 'serv_rel') and self.legacyList.hasCapability(uin, 'unicode') and int(self.bos.selfSettings['utf8_messages_sendmode']) == 2 and not offline):
 					self.bos.sendMessageType2(uin, message, cookie=cookie) # send as type-2 message
 				else: # send as usual message, choose encoding
-					if self.legacyList.hasCapability(uin, 'unicode'): # contact has unicode cap
+					if offline and int(self.bos.settingsOptionValue('offline_messages_sendenc')) == 0: # Unicode for offline messages
 					    charset = 'unicode' # utf-16be
-					else:
+					elif offline and int(self.bos.settingsOptionValue('offline_messages_sendenc')) == 1: # local encoding for offline messages
 					    charset = 'iso-8859-1' # config encoding
+					else: # autodetect (both for offline and online messages)
+					    if self.legacyList.hasCapability(uin, 'unicode'): # contact has unicode cap
+						charset = 'unicode' # utf-16be
+					    else:
+						charset = 'iso-8859-1' # config encoding
 					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp, cookie=cookie)
 				self.session.sendArchive(target, self.session.jabberID, message)
 			else: # AIM users
