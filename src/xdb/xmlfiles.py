@@ -273,7 +273,7 @@ class XDB:
 		return settings
 		
 	def getXstatusText(self, jabberID, number):
-		""" Get a latest title and desc for x-status """
+		""" Gets a latest title and desc for x-status with specific number """
 		result = self.request(jabberID, XDBNS_XSTATUSES)
 		if result == None:
 			return ('','')
@@ -288,7 +288,7 @@ class XDB:
 		return ('','')	
 		
 	def setXstatusText(self, jabberID, number, title, desc):
-		""" Set a latest title and desc for x-status """
+		""" Sets a latest title and desc for x-status with specific number """
 		xstatuses = self.request(jabberID, XDBNS_XSTATUSES)
 		if xstatuses == None:
 			xstatuses = Element((None, "query"))

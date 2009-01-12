@@ -173,6 +173,26 @@ class XDB:
 		""" Sets a user setting in the XDB. """
 		pass
 
+	def getCSetting(self, jabberID, variable):
+		""" Gets a custom user setting from the XDB. """
+		return None
+
+	def setCSetting(self, jabberID, variable, value):
+		""" Sets a custom user setting in the XDB. """
+		pass
+
+	def getCSettingList(self, jabberID):
+		""" Gets a list of all custom settings for a user from the XDB. """
+		return {}
+
+	def getXstatusText(self, jabberID, number):
+		""" Gets a latest title and desc for x-status with specific number """
+		return ('','')
+
+	def setXstatusText(self, jabberID, number, title, desc):
+		""" Sets a latest title and desc for x-status with specific number """
+		pass
+
 	def getListEntry(self, type, jabberID, legacyID):
 		""" Retrieves a legacy ID entry from a list in
 		the XDB, based off the type and jabberID you provide.
