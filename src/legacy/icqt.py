@@ -265,7 +265,7 @@ class B(oscar.BOSConnection):
 		status = user.status
 		encoding = user.statusencoding
 		url = user.url
-		if encoding:
+		if encoding and status:
 			if encoding == "utf-16be":
 				status = status.decode("utf-16be", "replace")
 			if encoding == "unicode":
@@ -297,10 +297,12 @@ class B(oscar.BOSConnection):
 							except:
 								#status = "Wrong encoding:" + repr(status)
 								status = str(status).decode("iso-8859-1", "replace")
-		else:
+		elif status:
 			# this is a fallback solution in case that the client status encoding has not been extracted, to avoid raising an exception
 			status = status.decode('utf-8', 'replace')
 			LogEvent(WARN, self.session.jabberID, "Unknown status message encoding for %s" % user.name)
+		else: # no status text
+		    pass
 		status = oscar.dehtml(status) # Removes any HTML tags
 
 		if user.iconmd5sum != None and not config.disableAvatars and not config.avatarsOnlyOnChat:
