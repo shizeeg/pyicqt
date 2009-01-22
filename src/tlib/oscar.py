@@ -35,6 +35,11 @@ import config
 import datetime
 import utils
 
+def gen_init_seqid():
+    initpool = (9833, 14936, 19200, 21818, 23301, 24722, 26522, 5695, 23595, 23620, 23049, 0x2886, 0x2493, 23620, 23049, 2853, 17372, 1255, 1796, 1657, 13606, 1930, 23918, 31234, 30120, 24380, 0x1BEA, 0x5342, 0x30CC, 0x2294, 0x5697, 0x25FA, 0x3C26, 0x3303, 0x078A, 0x0FC5, 0x25D6, 0x26EE,0x7570, 0x7F33, 0x4E94, 0x07C9, 0x7339, 0x42A8)
+    r = random.randrange(0,len(initpool))
+    return initpool[r] - 1
+
 def logPacketData(data):
     # Comment out to display packet log data
     return
@@ -598,7 +603,7 @@ class SSIPDInfo:
 class OscarConnection(protocol.Protocol):
     def connectionMade(self):
         self.state=""
-        self.seqnum=0
+        self.seqnum=gen_init_seqid()
         self.buf=''
         self.outRate=6000
         self.outTime=time.time()
@@ -617,7 +622,7 @@ class OscarConnection(protocol.Protocol):
 
     def sendFLAP(self,data,channel = 0x02):
         if not hasattr(self, "seqnum"):
-             self.seqnum = 0
+             self.seqnum = gen_init_seqid()
         self.seqnum=(self.seqnum+1)%0xFFFF
         seqnum=self.seqnum
         head=struct.pack("!BBHH", 0x2a, channel,
@@ -4013,13 +4018,13 @@ class OscarAuthenticator(OscarConnection):
 		TLV(TLV_USERNAME,self.username)+
 		TLV(TLV_PASSWORD,encpass)+
 		TLV(0x004C)+
-		TLV(TLV_CLIENTNAME,'ICQBasic')+
+		TLV(TLV_CLIENTNAME,'ICQ Client')+
 		TLV(TLV_CLIENTID,"\x01\x0a")+
-		TLV(TLV_CLIENTMAJOR,"\x00\x14")+
-		TLV(TLV_CLIENTMINOR,"\x00\x22")+
-		TLV(TLV_CLIENTLESSER,"\x00\x01")+
-		TLV(TLV_CLIENTSUB,"\x06\x66")+
-		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x06\x66")+
+		TLV(TLV_CLIENTMAJOR,"\x00\x06")+
+		TLV(TLV_CLIENTMINOR,"\x00\x05")+
+		TLV(TLV_CLIENTLESSER,"\x00\x00")+
+		TLV(TLV_CLIENTSUB,"\x00\x68")+
+		TLV(TLV_CLIENTDISTNUM,"\x00\x00\x75\x53")+
 		TLV(TLV_LANG,"en")+
 		TLV(TLV_COUNTRY,"us")))
         return "Cookie"
