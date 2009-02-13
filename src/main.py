@@ -137,7 +137,7 @@ from twisted.python import log
 import xdb
 import avatar
 import session
-import svninfo
+import git_ver
 import jabw
 import iq
 import disco
@@ -153,11 +153,12 @@ import globals
 class PyTransport(component.Service):
 	routewrap = 0
 	def __init__(self):
+		git_head = git_ver.get_git_head()
+		if git_head != '':
+		  self.version = '%s-%s' % (legacy.version, git_head[0:7])
+		else:
+		  self.version = legacy.version
 		LogEvent(INFO)
-		try:
-			LogEvent(INFO, msg="SVN r" + svninfo.getSVNVersion())
-		except:
-			pass
 
 		### Database prep-work
 		# Open our spool

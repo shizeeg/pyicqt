@@ -3,7 +3,6 @@
 
 import utils
 from twisted.words.xish.domish import Element
-import svninfo
 import legacy
 import config
 from debug import LogEvent, INFO, WARN, ERROR
@@ -16,10 +15,7 @@ class VersionTeller:
 		self.pytrans = pytrans
 		self.pytrans.disco.addFeature(globals.IQVERSION, self.incomingIq, config.jid)
 		self.pytrans.disco.addFeature(globals.IQVERSION, self.incomingIq, "USER")
-		try:
-			self.version = "%s - SVN r%s" % (legacy.version, svninfo.getSVNVersion())
-		except:
-			self.version = legacy.version
+		self.version = self.pytrans.version
 		self.os = "Python " + sys.version.split(' ')[0] + "/" + sys.platform + ", Twisted " + twisted.copyright.version
 
 	def incomingIq(self, el):
