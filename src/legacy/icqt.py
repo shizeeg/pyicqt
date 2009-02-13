@@ -321,8 +321,6 @@ class B(oscar.BOSConnection):
 			self.oscarcon.legacyList.delCustomStatus(user.name, savemask=mask)
 			
 		LogEvent(WARN, self.session.jabberID, "Status message: %s" % status)
-		status = status.encode("utf-8", "replace")
-		# status = status.encode(config.encoding, "replace")
 		
 		if config.xstatusessupport:		
 			if int(self.settingsOptionValue('xstatus_receiving_mode')) != 0:
