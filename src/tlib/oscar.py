@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2001-2005 Twisted Matrix Laboratories.
 # See LICENSE for details.
 #
@@ -36,9 +37,14 @@ import datetime
 import utils
 
 def gen_init_seqid():
-    initpool = (9833, 14936, 19200, 21818, 23301, 24722, 26522, 5695, 23595, 23620, 23049, 0x2886, 0x2493, 23620, 23049, 2853, 17372, 1255, 1796, 1657, 13606, 1930, 23918, 31234, 30120, 24380, 0x1BEA, 0x5342, 0x30CC, 0x2294, 0x5697, 0x25FA, 0x3C26, 0x3303, 0x078A, 0x0FC5, 0x25D6, 0x26EE,0x7570, 0x7F33, 0x4E94, 0x07C9, 0x7339, 0x42A8)
-    r = random.randrange(0,len(initpool))
-    return initpool[r] - 1
+    rnd = random.randrange(0, 0xFFFF)
+    s = 0
+    i = rnd
+    while i > 0:
+      i = i >> 3
+      s += i
+    r = ((0-s)^(0xFF&rnd)) & 7^rnd + 2
+    return r
 
 def logPacketData(data):
     # Comment out to display packet log data
