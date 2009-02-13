@@ -22,9 +22,6 @@ except:
 	print "Unable to find a reactor.\nExiting..."
 	sys.exit(1)
 
-import twistfix
-twistfix.main()
-
 if __name__ == "__main__":
 	print "The transport can no longer be started from main.py.  Please use"
 	print "PyICQt.py from the root of the distribution instead."
