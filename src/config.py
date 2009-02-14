@@ -73,3 +73,5 @@ supportJid = ""
 enableShutdownMessage = bool(False)
 customShutdownMessage = ""
 
+adhocDefaults = {} # dict with Ad-Hoc defaults
+

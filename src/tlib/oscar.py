@@ -1152,6 +1152,14 @@ class BOSConnection(SNACBased):
 	('user_activity_receiving', 1),
 	('user_tune_receiving', 1)
 	])
+	if 'user' in config.adhocDefaults: # administrator set own defaults:
+	  for key in dsettings:
+	    if key in config.adhocDefaults['user']: # key exists
+	      try:
+		if dsettings[key] != int(config.adhocDefaults['user'][key]): # and it has other value
+		  dsettings[key] = int(config.adhocDefaults['user'][key]) # use new value
+	      except:
+		log.msg('Replacing %s Ad-Hoc setting for user from %s to %s failed: bad format' % (key, dsettings[key], config.adhocDefaults['user'][key]))
 	if settings and len(settings) != 0:
 		for key in settings:
 			dsettings[key] = settings[key]

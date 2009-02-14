@@ -221,4 +221,28 @@
 	<!-- 'samAccountname' in Windows, 'uid' on most other systems -->
 	<!-- <uidAttr>samAccountname</uidAttr> -->
 	<!-- </authRegister_LDAP> -->
+	
+	<!-- Default Ad-Hoc settings -->
+	<adhocDefaults>
+	  <user> <!-- ... for new users - they can change these settings later -->
+	    <xstatus_receiving_mode>0</xstatus_receiving_mode> <!-- 0 - disable x-status receiving, 1 - receive as ICQ 5.1, 2 - as ICQ 6, 3 - combined -->
+	    <xstatus_sending_mode>0</xstatus_sending_mode> <!-- 0 - disable x-status sending, 1 - send as ICQ 5.1, 2 - as ICQ 6, 3 - combined -->
+	    <xstatus_saving_enabled>1</xstatus_saving_enabled> <!-- 1 - restore latest x-status after login, 0 - do not restore -->
+	    <xstatus_option_smooth>1</xstatus_option_smooth> <!-- 1 - allow partial interconnect between ICQ 5.1 and ICQ 6 x-statuses -->
+	    <xstatus_display_icon_as_PEP>1</xstatus_display_icon_as_PEP> <!-- 1 - display x-status icon as User Mood/Activity/Tune -->
+	    <xstatus_display_text_as_PEP>1</xstatus_display_text_as_PEP> <!-- 1 - Try interpret x-status text as User Mood/Activity/Tune -->
+	    <xstatus_icon_for_transport>0</xstatus_icon_for_transport> <!-- 1 - show self x-status icon as User Mood/Activity/Tune for transport (works for Gajim when transport displayed in roster) -->
+	    <away_messages_receiving>1</away_messages_receiving> <!-- 1 - ask contacts for Away messages -->
+	    <away_messages_sending>1</away_messages_sending> <!-- 1 - allow own Away Message sending -->
+	    <clist_show_phantombuddies>0</clist_show_phantombuddies> <!-- 1 - show old deleted contacts without authorization in roster -->
+	    <clist_deny_all_auth_requests>0</clist_deny_all_auth_requests> <!-- 1 - auto send 'Deny' reply on any authorization request -->
+	    <utf8_messages_sendmode>2</utf8_messages_sendmode> <!-- 0 - never send messages in Unicode, 1 - only when contact sends messages in Unicode, 2 - send always -->
+	    <offline_messages_sendenc>2</offline_messages_sendenc> <!-- 0 - send offline messages in Unicode, 1 - in default message encoding (see above), 2 - auto detect -->
+	    <msgconfirm_sendmode>2</msgconfirm_sendmode> <!-- 0 - never send message confirmations, 1 - send for Unicode messages, 2 - for all messages -->
+	    <msgconfirm_recvmode>1</msgconfirm_recvmode> <!-- 1 - receive message confirmations -->
+	    <user_mood_receiving>1</user_mood_receiving> <!-- 1 - transport should send User Mood/Activity/Tune events to connected user -->
+	    <user_activity_receiving>1</user_activity_receiving> <!--  (requirted for x-status as icon displaying) -->
+	    <user_mood_receiving>1</user_mood_receiving> <!-- set options if most of users has client with support of these PEP events -->
+	  </user>
+	</adhocDefaults>
 </pyicqt>
