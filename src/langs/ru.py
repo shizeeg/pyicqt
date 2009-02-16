@@ -104,6 +104,11 @@ class ru: # Russian - evadim <evadim@evadim.ru>, Night Nord <NightNord@gmail.com
 	xstatus_description = u"Описание"
 	xstatus_set_instructions_Desc = u"Внимание: официальные клиенты поддерживают только 24 статуса (Сердитый - Печатаю), поддержка остальных статусов зависит от ICQ клиента"
 
+	status_away = u"Отошел"
+	status_dnd = u"Не беспокоить"
+	status_xa = u"Отошел давно"
+	status_chat = u"Готов поболтать"
+
 	settings_category = u"Категория"
 	settings_category_xstatus = u"Настройки X-статуса"
 	settings_category_clist = u"Настройки списка контактов"

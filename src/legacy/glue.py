@@ -260,24 +260,19 @@ class LegacyConnection:
  	def setStatus(self, nickname, show, friendly, url=None):
 		LogEvent(INFO, self.session.jabberID)
 
-		if not show:
-		  show="online" # default status
-
-		if show=="away" and not friendly:
-			friendly="Away"
-		elif show=="dnd" and not friendly:
-			friendly="Do Not Disturb"
-		elif show=="xa" and not friendly:
-			friendly="Extended Away"
-		elif show=="chat" and not friendly:
-			friendly="Free to Chat"
+		if show:
+		  if show in ('away','dnd','xa','chat'):
+		    if not friendly:
+		      friendly = lang.get('status_%s' % show)
+		  else:
+		    show = None
 
 		self.savedShow = show
 		self.savedFriendly = friendly
 		self.savedURL = url
 
 		if not self.session.ready:
-			return
+		  return
 
 		self.setICQStatus(show)
 		self.setAway(friendly)

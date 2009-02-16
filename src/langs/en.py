@@ -95,6 +95,11 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	statistics_FailedMessageCount_Desc = u"The number of messages that didn't make it to the ICQ recipient and were bounced."
 	statistics_AvatarCount_Desc = u"How many avatars have been transferred to and from the ICQ network."
 	statistics_FailedAvatarCount_Desc = u"The number of avatar transfers that have failed."
+
+	status_away = u"Away"
+	status_dnd = u"Do Not Disturb"
+	status_xa = u"Extended Away"
+	status_chat = u"Free to Chat"
 	
 	xstatus_set = u"Your x-status has been set"
 	xstatus_reset = u"Your x-status has been reset"

@@ -285,14 +285,10 @@ class OSCARUser:
 					(0x4000,'depression'),
 					(0x5000,'home'),
 					(0x6000,'work'),
-					(0x2001,'lunch')]
+					(0x2000,'lunch')]
 				for o, f in status_dict:
 					if o == mv: # if exact match
 						self.icqStatus.append(f)
-				if len(self.icqStatus) == 0: # strange status. Need try interpret it
-					for o, f in status_dict:
-						if mv&o:
-							self.icqStatus.append(f)
 			elif k == 0x0008: # client type?
 				pass
 			elif k == 0x000a: # icq user ip address

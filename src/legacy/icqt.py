@@ -132,40 +132,28 @@ class B(oscar.BOSConnection):
 
 	def detectAdditionalNormalStatus(self, icqStatus):
 		LogEvent(INFO, self.session.jabberID)
+
 		anormal = None
 		show = None
-		# normal statuses
-		if icqStatus.count('dnd'):
-			show = 'dnd'
-		elif icqStatus.count('xa'):
-			show = 'xa'
-		elif icqStatus.count('busy'):
-			show = 'dnd'
-		elif icqStatus.count('chat'):
-			show = 'chat'
-		elif icqStatus.count('away'):
-			show = 'away'
-		# additional "normal" statuses
-		elif icqStatus.count('lunch'):
-			show = 'away'
-			anormal = 'anstatus_out_to_lunch'
-		elif icqStatus.count('phone'):
-			show = 'dnd'
-			anormal = 'anstatus_on_the_phone'
-		elif icqStatus.count('home'):
-			show = 'online'
-			anormal = 'anstatus_at_home'
-		elif icqStatus.count('work'):
-			show = 'online'
-			anormal = 'anstatus_at_work'
-		elif icqStatus.count('evil'):
-			show = 'online'
-			anormal = 'anstatus_evil'
-		elif icqStatus.count('depression'):
-			show = 'online'
-			anormal = 'anstatus_depression'
-		else:
-			show = 'online'
+		if icqStatus in ('away', 'chat', 'dnd', 'xa'):
+		  show = icqStatus
+		elif icqStatus == 'busy':
+		  show = 'dnd'
+		elif icqStatus == 'depression':
+		  anormal = 'anstatus_depression'
+		elif icqStatus == 'evil':
+		  anormal = 'anstatus_evil'
+		elif icqStatus == 'home':
+		  anormal = 'anstatus_at_home'
+		elif icqStatus == 'work':
+		  anormal = 'anstatus_at_work'
+		elif icqStatus == 'lunch':
+		  show = 'away'
+		  anormal = 'anstatus_out_to_lunch'
+		elif icqStatus == 'phone':
+		  show = 'dnd'
+		  anormal = 'anstatus_on_the_phone'
+
 		return (show, anormal)
 	
 	def parseAndSearchForActivity(self, title):
@@ -774,7 +762,7 @@ class B(oscar.BOSConnection):
 			tmpjid=config.jid+"/registered"
 		if self.session.pytrans:
 			self.session.sendPresence(to=self.session.jabberID, fro=tmpjid, show=self.oscarcon.savedShow, status=self.oscarcon.savedFriendly, url=self.oscarcon.savedURL)
-		if not self.oscarcon.savedShow or self.oscarcon.savedShow == "online":
+		if not self.oscarcon.savedShow:
 			#self.oscarcon.setBack(self.oscarcon.savedFriendly)
 			self.oscarcon.setAway() # reset away message
 		else:
