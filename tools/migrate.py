@@ -72,9 +72,6 @@ reload(debug)
 if len(args) != 2:
 	showhelp()
 
-import twistfix
-twistfix.main()
-
 import xmlconfig
 xmlconfig.Import(conffile, options)
 from twisted.words.xish.domish import Element
