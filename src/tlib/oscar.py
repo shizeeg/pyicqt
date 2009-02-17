@@ -270,25 +270,14 @@ class OSCARUser:
 						(0x1000,'dcauth'),
 						(0x2000,'dccont')]:
 					if mv&o: self.icqFlags.append(f)
-		
 				# Status flags next
 				mv=struct.unpack('!H',v[2:4])[0]
-				status_dict = [(0x0000,'online'),
-					(0x0001,'away'),
-					(0x0002,'dnd'),
-					(0x0004,'xa'),
-					(0x0010,'busy'),
-					(0x0020,'chat'),
-					(0x0100,'invisible'),
-					# QutIM
-					(0x3000,'evil'),
-					(0x4000,'depression'),
-					(0x5000,'home'),
-					(0x6000,'work'),
-					(0x2000,'lunch')]
-				for o, f in status_dict:
-					if o == mv: # if exact match
-						self.icqStatus.append(f)
+				status_numbers = [0x6000, 0x5000, 0x4000, 0x3000, 0x2000, 0x0100, 0x0020, 0x0010, 0x0004, 0x0002, 0x0001, 0x0000]
+				status_names = ['work', 'home', 'depression', 'evil', 'lunch', 'invisible', 'chat', 'busy', 'xa', 'dnd', 'away', 'online']
+				for num in status_numbers:
+				  if mv & num:
+				    self.icqStatus = status_names[status_numbers.index(num)]
+				    break
 			elif k == 0x0008: # client type?
 				pass
 			elif k == 0x000a: # icq user ip address
