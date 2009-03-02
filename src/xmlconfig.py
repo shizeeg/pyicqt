@@ -31,7 +31,7 @@ def importFile(conffile):
 		      config.adhocDefaults['user'] = {} # create dict
 		      for child3 in child2.elements(): # for every settings
 			config.adhocDefaults['user'][child3.name] = str(child3) # no limitation for tags now
-			print 'Adding Ad-Hoc defaults for user: %s with value %s' % (str(child3.name), str(child3))
+			LogEvent(INFO, msg='Adding Ad-Hoc defaults for user: %s with value %s' % (str(child3.name), str(child3)), skipargs=True)
 		else: # other settings
 		  tag = child.name
 		  cdata = child.__str__()
