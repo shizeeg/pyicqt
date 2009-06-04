@@ -45,7 +45,7 @@
 	<!-- The default language to use (for error/status messages) -->
 	<lang>en</lang>
 
-	<!-- Default message encoding to use -->
+	<!-- Default one-byte message encoding to use -->
 	<encoding>iso-8859-1</encoding>
 
 	<!-- The hostname of the ICQ server you wish to connect to -->
@@ -128,7 +128,7 @@
 	<!--<jid>admin@host.com</jid>-->
 	</admins>
 
-	<!-- You can select which event loop PyAIMt will use. It's probably safe to leave this as the default -->
+	<!-- You can select which event loop PyICQt will use. It's probably safe to leave this as the default -->
 
 	<!-- Use epoll for high-load Linux servers running kernel 2.6 or above -->
 	<!--<reactor>epoll</reactor>-->
@@ -183,7 +183,6 @@
 
 	<!-- SASL username used to bind to Jabber server. -->
 	<!-- secret, above, is used for sasl password -->
-	<!-- NOTE: This does not work with Twisted > 2.2.0. -->
 	<!-- <saslUsername>username</saslUsername> -->
 
 	<!-- Use external component binding. -->
