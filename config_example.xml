@@ -243,6 +243,8 @@
 	    <user_mood_receiving>1</user_mood_receiving> <!-- 1 - transport should send User Mood/Activity/Tune events to connected user -->
 	    <user_activity_receiving>1</user_activity_receiving> <!--  (requirted for x-status as icon displaying) -->
 	    <user_mood_receiving>1</user_mood_receiving> <!-- set options if most of users has client with support of these PEP events -->
+	    <autoanswer_enable>0</autoanswer_enable> <!-- enable auto answer as reply on any incoming message -->
+	    <autoanswer_hide_dialog>0</autoanswer_hide_dialog> <!-- hide incoming messages when autoanswer enabled -->
 	  </user>
 	</adhocDefaults>
 </pyicqt>

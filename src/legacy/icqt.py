@@ -17,8 +17,6 @@ import md5
 import locale
 import struct
 
-from twisted.python import log
-
 
 
 #############################################################################
@@ -521,9 +519,18 @@ class B(oscar.BOSConnection):
 		if offlinemessage == False:
 			delay = None # Send timestamp to user if offline message
 
-		self.session.sendMessage(to=self.session.jabberID, fro=sourcejid, body=text, mtype=mtype, delay=delay, xhtml=xhtml)
+		if not (self.settingsOptionEnabled('autoanswer_enable') and self.settingsOptionEnabled('autoanswer_hide_dialog')): # send incoming message to jabber client
+			self.session.sendMessage(to=self.session.jabberID, fro=sourcejid, body=text, mtype=mtype, delay=delay, xhtml=xhtml)
 		self.session.pytrans.serviceplugins['Statistics'].stats['IncomingMessages'] += 1
 		self.session.pytrans.serviceplugins['Statistics'].sessionUpdate(self.session.jabberID, 'IncomingMessages', 1)
+		if self.settingsOptionEnabled('autoanswer_enable'):
+			if self.settingsOptionExists('autoanswer_text'): # custom text
+				autoanswer_text = self.settingsOptionValue('autoanswer_text')
+			else: # text by default
+				autoanswer_text = lang.get('autoanswer_text_content')
+			if not self.settingsOptionEnabled('autoanswer_hide_dialog'): # send autoanswer reply to user
+				self.session.sendMessage(to=self.session.jabberID, fro=sourcejid, body='%s %s' % (lang.get('autoanswer_prefix'), autoanswer_text), mtype=mtype, delay=delay, xhtml=xhtml)
+			self.sendMessage(user.name, autoanswer_text) # send auto-answer text to contact
 		if not config.disableAwayMessage and self.awayMessage and not "auto" in flags:
 			if not self.awayResponses.has_key(user.name) or self.awayResponses[user.name] < (time.time() - 900):
 				#self.sendMessage(user.name, "Away message: "+self.awayMessage.encode("iso-8859-1", "replace"), autoResponse=1)

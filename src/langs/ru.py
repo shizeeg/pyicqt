@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # If you change or add any strings in this file please contact the translators listed below
 # Everything must be in UTF-8
@@ -114,6 +114,7 @@ class ru: # Russian - evadim <evadim@evadim.ru>, Night Nord <NightNord@gmail.com
 	settings_category_clist = u"Настройки списка контактов"
 	settings_category_message = u"Настройки сообщений"
 	settings_category_personal_events = u"Настройки оповещений"
+	settings_category_autoanswer = u"Автоответчик"
 	settings_instructions = u"Выберите категорию настроек"
 	settings_changed = u"Настройки изменены успешно"
 	settings_instructions_Desc = u"Внимание: Вам нужно переподключиться чтобы настройки отмеченные звёздочкой (*) вступили в силу"
@@ -178,6 +179,16 @@ class ru: # Russian - evadim <evadim@evadim.ru>, Night Nord <NightNord@gmail.com
 	user_mood_receiving_Desc = u"Иконка Х-статуса как настроение - поддерживается в Psi 0.11+, Gajim 0.12+, Jabbim 0.4+, Tkabber 0.11+, Coccinella 0.95+, Miranda IM 0.7+"
 	user_activity_receiving_Desc = u"Иконка Х-статуса как занятие - поддерживается в Gajim 0.12+, Jabbim 0.4+, Tkabber 0.11+, Coccinella 0.96+, Miranda IM 0.8+"
 	user_tune_receiving_Desc = u"Иконка Х-статуса как мелодия - поддерживается в Psi 0.11+, Gajim 0.12+, Jabbim 0.4+, Tkabber 0.11+, Miranda IM 0.7+"
+
+	# auto-answer settings
+	autoanswer_enable = u"Включть автоответчик"
+	autoanswer_enable_Desc = u"Выбранный текст будет отправлен в качестве ответа на любое входящее сообщение"
+	autoanswer_hide_dialog =  u"Скрывать диалог автоответчика"
+	autoanswer_hide_dialog_Desc = u"Скрывать входящие сообщения когда автоответчик отвечает на них"
+	autoanswer_text = u"Текст"
+	autoanswer_text_Desc = u"Текст автоответчика"
+	autoanswer_text_content = u"Привет. Я отсутствую и не могу ответить прямо сейчас. Оставьте свое сообщение"
+	autoanswer_prefix = u"[Автоответчик]"
 
 	# additional "normal" statuses
 	anstatus_out_to_lunch = u"Ем"

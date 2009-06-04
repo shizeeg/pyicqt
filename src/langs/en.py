@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # If you change or add any strings in this file please contact the translators listed below
 # Everything must be in UTF-8
@@ -119,6 +119,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	settings_category_clist = u"Contact list settings"
 	settings_category_message = u"Message settings"
 	settings_category_personal_events = u"Personal events settings"
+	settings_category_autoanswer = u"Auto answer"
 	settings_instructions = u"Choose category of settings"
 	settings_changed = u"Your settings were changed"
 	settings_instructions_Desc = u"Note: you should re-login after changing of settings marked with asterisk (*)"
@@ -184,6 +185,16 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	user_activity_receiving_Desc = u"X-status icon as activity - supported by Gajim 0.12+, Jabbim 0.4+, Tkabber 0.11+, Coccinella 0.96+, Miranda IM 0.8+"
 	user_tune_receiving_Desc = u"X-status icon as tune - supported by Psi 0.11+, Gajim 0.12+, Jabbim 0.4+, Tkabber 0.11+, Miranda IM 0.7+"
 	
+	# auto-answer settings
+	autoanswer_enable = u"Enable auto-answer"
+	autoanswer_enable_Desc = u"Selected text will sent as reply on any incoming message"
+	autoanswer_hide_dialog =  u"Hide auto-answer dialog"
+	autoanswer_hide_dialog_Desc = u"Hide incoming messages when auto-answer responds on them"
+	autoanswer_text = u"Text"
+	autoanswer_text_Desc = u"Auto answer text"
+	autoanswer_text_content = u"Hi. I'm currently away and can't reply immediately. Stay your message"
+	autoanswer_prefix = u"[Autoanswer]"
+
 	# additional "normal" statuses
 	anstatus_out_to_lunch = u"Out to lunch"
 	anstatus_on_the_phone = u"On the phone"

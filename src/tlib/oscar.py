@@ -1135,7 +1135,9 @@ class BOSConnection(SNACBased):
 	('msgconfirm_recvmode', 1),
 	('user_mood_receiving', 1),
 	('user_activity_receiving', 1),
-	('user_tune_receiving', 1)
+	('user_tune_receiving', 1),
+	('autoanswer_enable', 0),
+	('autoanswer_hide_dialog', 0)
 	])
 	if 'user' in config.adhocDefaults: # administrator set own defaults:
 	  for key in dsettings:
@@ -2872,6 +2874,14 @@ class BOSConnection(SNACBased):
 	if option in self.selfSettings:
 		return str(self.selfSettings[option])
 	return str(0)
+
+    def settingsOptionExists(self, option):
+	"""
+	return True if setting exists
+        """
+	if option in self.selfSettings:
+		return True
+	return False
 	
     def	setSelfXstatusName(self, xstatus_name, availmsg):
 	"""

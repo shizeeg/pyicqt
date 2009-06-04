@@ -54,7 +54,10 @@ class Settings:
 							elif field.getAttribute('var'):
 								for value in field.elements():
 									if value.name == 'value':
-										settings_dict[field.getAttribute('var')] = value.__str__()
+										if field.getAttribute('type') == 'text-multi' and field.getAttribute('var') in settings_dict:
+											settings_dict[field.getAttribute('var')] += '\n%s' % value.__str__()
+										else:
+											settings_dict[field.getAttribute('var')] = value.__str__()
 			
 		if jid not in self.pytrans.sessions: # if user not logined
 			self.pytrans.adhoc.sendError('settings', el, errormsg=lang.get('command_NoSession', ulang), sessionid=sessionid)
@@ -71,6 +74,8 @@ class Settings:
 				self.ApplyMessageSettings(toj, settings_dict) # apply message settings
 			elif settings_page == 'personal_events_settings':
 				self.ApplyPersonalEventsSettings(toj, settings_dict) # apply personal events settings
+			elif settings_page == 'autoanswer_settings':
+				self.ApplyAutoanswerSettings(toj, settings_dict) # apply auto-answer settings
 			self.sendCompletedForm(el, sessionid) # send answer
 		elif stage == '1':
 			if settings_page == 'xstatus_settings':
@@ -81,6 +86,8 @@ class Settings:
 				self.sendMessageSettingsForm(el, sessionid) # send form with message settings
 			elif settings_page == 'personal_events_settings':
 				self.sendPersonalEventsSettingsForm(el, sessionid) # send form with personal events settings
+			elif settings_page == 'autoanswer_settings':
+				self.sendAutoanswerSettingsForm(el, sessionid) # send form with auto-answer settings
 		else:
 			self.sendSettingsClassForm(el, sessionid) # send form
 	
@@ -146,6 +153,11 @@ class Settings:
 		option.attributes['label'] = lang.get('settings_category_personal_events')
 		value = option.addElement('value')
 		value.addContent('personal_events_settings')
+
+		option = field.addElement('option')
+		option.attributes['label'] = lang.get('settings_category_autoanswer')
+		value = option.addElement('value')
+		value.addContent('autoanswer_settings')
 		
 		stage = x.addElement('field')
 		stage.attributes['type'] = 'hidden'
@@ -587,6 +599,89 @@ class Settings:
 		value.addContent('2')
 		
 		self.pytrans.send(iq)
+
+	def sendAutoanswerSettingsForm(self, el, sessionid=None):
+		to = el.getAttribute("from")
+		ID = el.getAttribute("id")
+		ulang = utils.getLang(el)
+		
+		toj = internJID(to)
+		jid = toj.userhost()
+		
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		settings = bos.selfSettings
+		
+		iq = Element((None, "iq"))
+		iq.attributes["to"] = to
+		iq.attributes["from"] = config.jid
+		if ID:
+			iq.attributes["id"] = ID
+		iq.attributes["type"] = "result"
+
+		command = iq.addElement("command")
+		if sessionid:
+			command.attributes["sessionid"] = sessionid
+		else:
+			command.attributes["sessionid"] = self.pytrans.makeMessageID()
+		command.attributes["node"] = "settings"
+		command.attributes["xmlns"] = globals.COMMANDS
+		command.attributes["status"] = "executing"
+
+		actions = command.addElement("actions")
+		actions.attributes["execute"] = "complete"
+		actions.addElement('prev')
+		actions.addElement("complete")
+
+		x = command.addElement("x")
+		x.attributes["xmlns"] = "jabber:x:data"
+		x.attributes["type"] = "form"
+		
+		title = x.addElement('title')
+		title.addContent(lang.get('settings_category_autoanswer'))
+
+		field = x.addElement('field')
+		field.attributes['var'] = 'autoanswer_text'
+		field.attributes['type'] = 'text-multi'
+		field.attributes['label'] = lang.get('autoanswer_text')
+		value = field.addElement('value')
+		if 'autoanswer_text' in settings:
+			value.addContent(str(settings['autoanswer_text']))
+		else:
+			value.addContent(lang.get('autoanswer_text_content'))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('autoanswer_text_Desc')) 
+
+		field = x.addElement('field')
+		field.attributes['var'] = 'autoanswer_enable'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('autoanswer_enable')
+		value = field.addElement('value')
+		value.addContent(str(settings['autoanswer_enable']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('autoanswer_enable_Desc')) 
+
+		field = x.addElement('field')
+		field.attributes['var'] = 'autoanswer_hide_dialog'
+		field.attributes['type'] = 'boolean'
+		field.attributes['label'] = lang.get('autoanswer_hide_dialog')
+		value = field.addElement('value')
+		value.addContent(str(settings['autoanswer_hide_dialog']))
+		desc = field.addElement('desc')
+		desc.addContent(lang.get('autoanswer_hide_dialog_Desc')) 
+
+		field = x.addElement('field')
+		field.attributes['type'] = 'hidden'
+		field.attributes['var'] = 'settings_page'
+		value = field.addElement('value')
+		value.addContent('autoanswer_settings')
+
+		stage = x.addElement('field')
+		stage.attributes['type'] = 'hidden'
+		stage.attributes['var'] = 'stage'
+		value = stage.addElement('value')
+		value.addContent('2')
+
+		self.pytrans.send(iq)
 		
 	def sendCompletedForm(self, el, sessionid=None):
 		to = el.getAttribute('from')
@@ -672,6 +767,15 @@ class Settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
 				
 	def ApplyPersonalEventsSettings(self, to_jid, settings):
+		jid = to_jid.userhost()
+		LogEvent(INFO, jid)
+		bos = self.pytrans.sessions[jid].legacycon.bos
+		bos.addToSelfSettings(settings)
+		if jid in self.pytrans.sessions:
+			for key in settings:
+				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
+
+	def ApplyAutoanswerSettings(self, to_jid, settings):
 		jid = to_jid.userhost()
 		LogEvent(INFO, jid)
 		bos = self.pytrans.sessions[jid].legacycon.bos
