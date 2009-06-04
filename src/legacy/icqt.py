@@ -306,7 +306,7 @@ class B(oscar.BOSConnection):
 			mask = ('mood', 'activity', 'subactivity', 'text', 'usetune') # keep values for mood/activity
 			self.oscarcon.legacyList.delCustomStatus(user.name, savemask=mask)
 			
-		LogEvent(WARN, self.session.jabberID, "Status message: %s" % status)
+		LogEvent(INFO, self.session.jabberID, "Status message: %s" % status)
 		
 		if config.xstatusessupport:		
 			if int(self.settingsOptionValue('xstatus_receiving_mode')) != 0:
