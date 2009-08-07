@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 # Copyright (c) 2001-2005 Twisted Matrix Laboratories.
 # See LICENSE for details.
 #
@@ -1077,9 +1077,6 @@ class BOSConnection(SNACBased):
         self.socksProxyServer = None
         self.socksProxyPort = None
         self.connectPort = 5190
-        # Note that this is "no unicode" default encoding
-        # We use unicode if it's there
-        self.defaultEncoding = config.encoding
 
         if not self.capabilities:
             self.capabilities = [CAP_CHAT]
@@ -1100,6 +1097,7 @@ class BOSConnection(SNACBased):
 		self.selfSettings = self.session.pytrans.xdb.getCSettingList(self.session.jabberID)
 		self.selfSettings = self.addSelfSettingsByDefault(self.selfSettings)
 		log.msg("CSettings for user %s is %s" % (self.session.jabberID, self.selfSettings))
+		self.updateUserEncoding()
 	
 		if config.xstatusessupport:
 			if self.settingsOptionEnabled('xstatus_saving_enabled'):
@@ -2007,7 +2005,7 @@ class BOSConnection(SNACBased):
                                  % struct.unpack('<HBBBB', v[14:20]) )
                     messagetype, messageflags,messagelen = struct.unpack('<BBH',v[20:24])
 		    if (messagelen > 0):
-			umessage, encoding = utils.guess_encoding(v[24:24+messagelen-1],self.defaultEncoding, mode=1)
+			umessage, encoding = utils.guess_encoding(v[24:24+messagelen-1],self.userEncoding, mode=1)
 			log.msg("Converted message, encoding %r: %r" % (encoding, umessage))
 			#umessage = umessage + "\n\n/sent " + msg_date
 			message = [ umessage.encode("utf-16be"), "unicode" ]
@@ -2408,16 +2406,16 @@ class BOSConnection(SNACBased):
                 message[0].append('unicode')
         messageData = ''
         for part in message:
-            charSet = 0x0000
-	    if 'unicode' in part[1:]:
-		part[0] = part[0].encode('utf-16be', 'replace')
-		charSet = 0x0002
-	    elif 'iso-8859-1' in part[1:]:
-		part[0] = part[0].encode(config.encoding)
-		charSet = 0x0003
+            charSet = 0x0000 # ascii
+            if 'unicode' in part[1:]:
+                part[0] = part[0].encode('utf-16be', 'replace')
+                charSet = 0x0002
+            elif 'custom' in part[1:]:
+                part[0] = part[0].encode(self.userEncoding)
+                charSet = 0x0003
             elif 'none' in part[1:]:
                 charSet = 0xffff
-            else:
+            else: # unknown
                 try:
                     part[0] = part[0].encode('ascii')
                     charSet = 0x0000
@@ -2427,7 +2425,7 @@ class BOSConnection(SNACBased):
                         charSet = 0x0002
                     except:
                         try:
-                            part[0] = part[0].encode(config.encoding)
+                            part[0] = part[0].encode(self.userEncoding)
                             charSet = 0x0003
                         except:
                             part[0] = part[0].encode('iso-8859-1', 'replace')
@@ -2884,6 +2882,20 @@ class BOSConnection(SNACBased):
 	if option in self.selfSettings:
 		return True
 	return False
+	
+    def updateUserEncoding(self):
+	"""
+	updates preferred user encoding 
+	"""
+	if self.settingsOptionValue('userencoding_list') != 'selected':
+            self.userEncoding = self.settingsOptionValue('userencoding_list')
+	else:
+	    test_phrase = 'Test phrase for decoding'
+	    try:
+		test_phrase.decode(self.settingsOptionValue('userencoding_other'))
+		self.userEncoding = self.settingsOptionValue('userencoding_other')
+	    except:
+		self.userEncoding = config.encoding
 	
     def	setSelfXstatusName(self, xstatus_name, availmsg):
 	"""

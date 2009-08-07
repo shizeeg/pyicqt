@@ -462,7 +462,7 @@ class Settings:
 			option = field.addElement('option')
 			option.attributes['label'] = lang.get(title)
 			option.addElement('value', None, str(userencoding_list[title]))
-		if str(settings['userencoding_list']) not in userencoding_list.values(): # encoding not from list
+		if str(settings['userencoding_list']) not in userencoding_list.values() and str(settings['userencoding_list']) != config.encoding: # encoding not from list
 			option = field.addElement('option')
 			option.attributes['label'] = '%s (%s)' % (lang.get('userencoding_list_other'), str(settings['userencoding_list']))
 			option.addElement('value', None, str(settings['userencoding_list']))
@@ -541,7 +541,7 @@ class Settings:
 		for title in offline_messages_sendenc:
 			option = field.addElement('option')
 			if title == 'offline_messages_sendenc_local':
-			    option.attributes['label'] = lang.get(title) % config.encoding
+			    option.attributes['label'] = lang.get(title)
 			else:
 			    option.attributes['label'] = lang.get(title)
 			value = option.addElement('value')
@@ -810,6 +810,7 @@ class Settings:
 		if jid in self.pytrans.sessions:
 			for key in settings:
 				self.pytrans.xdb.setCSetting(jid, key, str(settings[key]))
+		bos.updateUserEncoding()
 				
 	def ApplyPersonalEventsSettings(self, to_jid, settings):
 		jid = to_jid.userhost()

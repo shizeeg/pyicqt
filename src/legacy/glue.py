@@ -197,12 +197,12 @@ class LegacyConnection:
 					if offline and int(self.bos.settingsOptionValue('offline_messages_sendenc')) == 0: # Unicode for offline messages
 					    charset = 'unicode' # utf-16be
 					elif offline and int(self.bos.settingsOptionValue('offline_messages_sendenc')) == 1: # local encoding for offline messages
-					    charset = 'iso-8859-1' # config encoding
+					    charset = 'custom' # single-byte encoding
 					else: # autodetect (both for offline and online messages)
 					    if self.legacyList.hasCapability(uin, 'unicode'): # contact has unicode cap
 						charset = 'unicode' # utf-16be
 					    else:
-						charset = 'iso-8859-1' # config encoding
+						charset = 'custom' # single-byte encoding
 					self.bos.sendMessage(uin, [[message,charset]], offline=offline, wantIcon=wantIcon, autoResponse=autoResponse, iconSum=iconSum, iconLen=iconLen, iconStamp=iconStamp, cookie=cookie)
 				self.session.sendArchive(target, self.session.jabberID, message)
 			else: # AIM users

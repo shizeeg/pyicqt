@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2004-2006 Daniel Henninger <jadestorm@nc.rr.com>
 # Licensed for distribution under the GPL version 2, check COPYING for details
 
@@ -45,7 +46,6 @@ class B(oscar.BOSConnection):
 			self.socksProxyPort = config.socksProxyPort
 		if config.icqPort:
 			self.connectPort = config.icqPort
-		self.defaultEncoding = config.encoding
 
 	def initDone(self):
 		if not hasattr(self, "session") or not self.session:
@@ -78,7 +78,7 @@ class B(oscar.BOSConnection):
 		if userinfo:
 			for i in xrange(len(userinfo)):
 				try:
-					userinfo[i] = userinfo[i].decode(config.encoding, 'strict')
+					userinfo[i] = userinfo[i].decode(self.userEncoding, 'strict')
 				except (UnicodeError, LookupError):
 					userinfo[i] = userinfo[i].decode('utf-8', 'replace')
 		if self.oscarcon.userinfoCollection[id].gotUserInfo(id, type, userinfo):
@@ -258,6 +258,8 @@ class B(oscar.BOSConnection):
 				status = status.decode("utf-16be", "replace")
 			elif encoding == "iso-8859-1":
 				status = status.decode("iso-8859-1", "replace")
+			elif encoding == self.userEncoding:
+				status = status.decode(self.userEncoding, "replace")
 			elif encoding == config.encoding:
 				status = status.decode(config.encoding, "replace")
 			elif encoding == "icq51pseudounicode":
@@ -497,11 +499,11 @@ class B(oscar.BOSConnection):
 			elif multiparts[0][1] == 'utf8':
 				encoding = 'utf-8'
 			elif multiparts[0][1] == 'custom': # can be any
-				encoding = utils.guess_encoding_by_decode(text, config.encoding, 'minimal')[1] # try guess
+				encoding = utils.guess_encoding_by_decode(text, self.userEncoding, 'minimal')[1] # try guess
 			else:
 				encoding = config.encoding
 		else:
-			encoding = config.encoding
+			encoding = self.userEncoding
 		LogEvent(INFO, self.session.jabberID, "Using encoding %s" % (encoding))
 		text = text.decode(encoding, "replace")
 		xhtml = utils.prepxhtml(text)
@@ -636,6 +638,7 @@ class B(oscar.BOSConnection):
 					elif charset == "us-ascii":
 						charset = "iso-8859-1"
 					elif charset == "iso-8859-1": pass
+					elif charset == self.userEncoding: pass
 					else:
 						LogEvent(INFO, self.session.jabberID, "Unknown charset (%s) of buddy's away message" % msg[0]);
 						charset = config.encoding
@@ -726,7 +729,7 @@ class B(oscar.BOSConnection):
 			elif isinstance(member, oscar.SSIBuddy):
 				if member.nick:
 					try:
-						unick, uenc = utils.guess_encoding(member.nick, config.encoding, 'minimal', mode=2) # attempt to decode
+						unick, uenc = utils.guess_encoding(member.nick, self.userEncoding, 'minimal', mode=2) # attempt to decode
 					except (UnicodeError, LookupError): # no, error occured
 						unick = member.nick.encode('utf-8', 'replace') # convert to utf-8
 				else:
@@ -788,7 +791,7 @@ class B(oscar.BOSConnection):
 		LogEvent(INFO, self.session.jabberID)
 		if nick:
 			try: # may be
-				unick, uenc = utils.guess_encoding(nick, config.encoding, 'minimal', mode=2) # attempt to decode
+				unick, uenc = utils.guess_encoding(nick, self.userEncoding, 'minimal', mode=2) # attempt to decode
 			except (UnicodeError, LookupError): # no
 				unick = nick.encode('utf-8', 'replace') # convert to utf-8
 			LogEvent(INFO, self.session.jabberID, "Found a nickname, lets update.")
