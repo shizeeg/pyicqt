@@ -1137,7 +1137,9 @@ class BOSConnection(SNACBased):
 	('user_activity_receiving', 1),
 	('user_tune_receiving', 1),
 	('autoanswer_enable', 0),
-	('autoanswer_hide_dialog', 0)
+	('autoanswer_hide_dialog', 0),
+	('userencoding_list', config.encoding),
+	('userencoding_other', '')
 	])
 	if 'user' in config.adhocDefaults: # administrator set own defaults:
 	  for key in dsettings:

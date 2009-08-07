@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Licensed for distribution under the GPL version 2, check COPYING for details
 
 import utils
@@ -436,6 +437,50 @@ class Settings:
 		
 		title = x.addElement('title')
 		title.addContent(lang.get('settings_category_message'))
+
+		userencoding_list = dict([
+			('userencoding_list_western_iso', 'iso-8859-1'),
+			('userencoding_list_western_win', 'cp1252'),
+			('userencoding_list_ceuropean_iso', 'iso-8859-2'),
+			('userencoding_list_ceuropean_win', 'cp1250'),
+			('userencoding_list_seuropean_iso', 'iso-8859-3'),
+			('userencoding_list_cyrillic_iso', 'iso-8859-5'),
+			('userencoding_list_cyrillic_win', 'cp1251'),
+			('userencoding_list_greek_iso', 'iso-8859-7'),
+			('userencoding_list_greek_win', 'cp1253'),
+			('userencoding_list_hebrew_iso', 'iso-8859-8'),
+			('userencoding_list_hebrew_win', 'cp1255'),
+			('userencoding_list_selected','selected')
+			])
+		field = x.addElement('field')
+		field.attributes = dict([
+			('var', 'userencoding_list'), 
+			('type', 'list-single'),
+			('label', lang.get('userencoding_list'))
+		])
+		for title in userencoding_list:
+			option = field.addElement('option')
+			option.attributes['label'] = lang.get(title)
+			option.addElement('value', None, str(userencoding_list[title]))
+		if str(settings['userencoding_list']) not in userencoding_list.values(): # encoding not from list
+			option = field.addElement('option')
+			option.attributes['label'] = '%s (%s)' % (lang.get('userencoding_list_other'), str(settings['userencoding_list']))
+			option.addElement('value', None, str(settings['userencoding_list']))
+		if config.encoding not in userencoding_list.values(): # encoding from config
+			option = field.addElement('option')
+			option.attributes['label'] = '%s (%s)' % (lang.get('userencoding_list_default'), config.encoding)
+			option.addElement('value', None, config.encoding)
+		field.addElement('value', None, str(settings['userencoding_list']))
+		field.addElement('desc', None, lang.get('userencoding_list_Desc'))
+
+		field = x.addElement('field')
+		field.attributes = dict([
+			('var', 'userencoding_other'), 
+			('type', 'text-single'),
+			('label', lang.get('userencoding_other'))
+		])
+		field.addElement('value', None, str(settings['userencoding_other']))
+		field.addElement('desc', None, lang.get('userencoding_other_Desc')) 
 		
 		utf8_messages_sendmode = dict([
 			('utf8_messages_sendmode_none',0),
