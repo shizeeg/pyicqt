@@ -97,74 +97,62 @@ class Settings:
 		to_jid = internJID(to)
 		ID = el.getAttribute('id')
 		ulang = utils.getLang(el)
-		
+
 		iq = Element((None, 'iq'))
-		iq.attributes['to'] = to
-		iq.attributes['from'] = config.jid
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
 			iq.attributes['id'] = ID
-		iq.attributes['type'] = 'result'
-		
 		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
 			command.attributes['sessionid'] = sessionid
 		else:
 			command.attributes['sessionid'] = self.pytrans.makeMessageID()
-		command.attributes['node'] = 'settings'
-		command.attributes['xmlns'] = globals.COMMANDS
-		command.attributes['status'] = 'executing'
 		
 		actions = command.addElement('actions')
 		actions.attributes['execute'] = 'next'
 		actions.addElement('next')
 
 		x = command.addElement('x')
-		x.attributes['xmlns'] = 'jabber:x:data'
-		x.attributes['type'] = 'form'
-		
-		title = x.addElement('title')
-		title.addContent(lang.get('command_Settings'))
-		
-		instructions = x.addElement('instructions')
-		instructions.addContent(lang.get('settings_instructions'))
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
+		x.addElement('title', None, lang.get('command_Settings'))
+		x.addElement('instructions', None, lang.get('settings_instructions'))
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'settings_page'
-		field.attributes['type'] = 'list-single'
-		field.attributes['label'] = lang.get('settings_category')
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('settings_instructions_Desc'))
+		field.attributes = {
+			'var': 'settings_page',
+			'type': 'list-single',
+			'label': lang.get('settings_category')
+		}
+		field.addElement('desc', None, lang.get('settings_instructions_Desc'))
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_clist')
-		value = option.addElement('value')
-		value.addContent('clist_settings')
+		option.addElement('value', None, 'clist_settings')
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_xstatus')
-		value = option.addElement('value')
-		value.addContent('xstatus_settings')
+		option.addElement('value', None, 'xstatus_settings')
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_message')
-		value = option.addElement('value')
-		value.addContent('message_settings')
+		option.addElement('value', None, 'message_settings')
 		
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_personal_events')
-		value = option.addElement('value')
-		value.addContent('personal_events_settings')
+		option.addElement('value', None, 'personal_events_settings')
 
 		option = field.addElement('option')
 		option.attributes['label'] = lang.get('settings_category_autoanswer')
-		value = option.addElement('value')
-		value.addContent('autoanswer_settings')
+		option.addElement('value', None, 'autoanswer_settings')
 		
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('1')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '1')
 
 		self.pytrans.send(iq)
 		
@@ -182,21 +170,20 @@ class Settings:
 		if config.xstatusessupport:
 			settings = bos.selfSettings
 
-		iq = Element((None, "iq"))
-		iq.attributes["to"] = to
-		iq.attributes["from"] = config.jid
+		iq = Element((None, 'iq'))
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
-			iq.attributes["id"] = ID
-		iq.attributes["type"] = "result"
-
-		command = iq.addElement("command")
+			iq.attributes['id'] = ID
+		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
-			command.attributes["sessionid"] = sessionid
+			command.attributes['sessionid'] = sessionid
 		else:
-			command.attributes["sessionid"] = self.pytrans.makeMessageID()
-		command.attributes["node"] = "settings"
-		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "executing"
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
@@ -204,127 +191,118 @@ class Settings:
 		actions.addElement("complete")
 
 		x = command.addElement("x")
-		x.attributes["xmlns"] = "jabber:x:data"
-		x.attributes["type"] = "form"
-		
-		title = x.addElement('title')
-		title.addContent(lang.get('settings_category_xstatus'))
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
+		x.addElement('title', None, lang.get('settings_category_xstatus'))
 		
 		if config.xstatusessupport:
 			field = x.addElement('field')
-			field.attributes['var'] = 'away_messages_sending'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('away_messages_sending')
-			value = field.addElement('value')
-			value.addContent(str(settings['away_messages_sending']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('away_messages_sending_Desc')) 
+			field.attributes = {
+				'var': 'away_messages_sending',
+				'type': 'boolean',
+				'label': lang.get('away_messages_sending')
+			}
+			field.addElement('value', None, str(settings['away_messages_sending']))
+			field.addElement('desc', None, lang.get('away_messages_sending_Desc')) 
 			
 			field = x.addElement('field')
-			field.attributes['var'] = 'away_messages_receiving'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('away_messages_receiving')
-			value = field.addElement('value')
-			value.addContent(str(settings['away_messages_receiving']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('away_messages_receiving_Desc')) 
+			field.attributes = {
+				'var': 'away_messages_receiving',
+				'type': 'boolean',
+				'label': lang.get('away_messages_receiving')
+			}
+			field.addElement('value', None, str(settings['away_messages_receiving']))
+			field.addElement('desc', None, lang.get('away_messages_receiving_Desc')) 
 			
-			xstatus_sending = dict([
-			('xstatus_sendmode_none',0),
-			('xstatus_sendmode_ICQ5',1),
-			('xstatus_sendmode_ICQ6',2),
-			('xstatus_sendmode_ICQ5_6',3)
-			])
+			xstatus_sending = {
+				'xstatus_sendmode_none': 0,
+				'xstatus_sendmode_ICQ5': 1,
+				'xstatus_sendmode_ICQ6': 2,
+				'xstatus_sendmode_ICQ5_6': 3
+			}
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_sending_mode'
-			field.attributes['type'] =  'list-single'
-			field.attributes['label'] = lang.get('xstatus_sendmode')
+			field.attributes = {
+				'var': 'xstatus_sending_mode',
+				'type': 'list-single',
+				'label': lang.get('xstatus_sendmode')
+			}
 			for title in xstatus_sending:
 				option = field.addElement('option')
 				option.attributes['label'] = lang.get(title)
-				value = option.addElement('value')
-				value.addContent(str(xstatus_sending[title]))
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_sending_mode']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_sendmode_Desc')) 
+				option.addElement('value', None, str(xstatus_sending[title]))
+			field.addElement('value', None, str(settings['xstatus_sending_mode']))
+			field.addElement('desc', None, lang.get('xstatus_sendmode_Desc')) 
 				
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_saving_enabled'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('xstatus_restore_after_disconnect')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_saving_enabled']))	
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_restore_after_disconnect_Desc')) 
+			field.attributes = {
+				'var': 'xstatus_saving_enabled',
+				'type': 'boolean',
+				'label': lang.get('xstatus_restore_after_disconnect')
+			}
+			field.addElement('value', None, str(settings['xstatus_saving_enabled']))	
+			field.addElement('desc', None, lang.get('xstatus_restore_after_disconnect_Desc')) 
 			
-			xstatus_receiving = dict([
-			('xstatus_recvmode_none',0),
-			('xstatus_recvmode_ICQ5',1),
-			('xstatus_recvmode_ICQ6',2),
-			('xstatus_recvmode_ICQ5_6',3)
-			])
+			xstatus_receiving = {
+				'xstatus_recvmode_none': 0,
+				'xstatus_recvmode_ICQ5': 1,
+				'xstatus_recvmode_ICQ6': 2,
+				'xstatus_recvmode_ICQ5_6': 3
+			}
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_receiving_mode'
-			field.attributes['type'] =  'list-single'
-			field.attributes['label'] = lang.get('xstatus_recvmode')
+			field.attributes = {
+				'var': 'xstatus_receiving_mode',
+				'type': 'list-single',
+				'label': lang.get('xstatus_recvmode')
+			}
 			for title in xstatus_receiving:
 				option = field.addElement('option')
 				option.attributes['label'] = lang.get(title)
-				value = option.addElement('value')
-				value.addContent(str(xstatus_receiving[title]))
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_receiving_mode']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_recvmode_Desc')) 
+				option.addElement('value', None, str(xstatus_receiving[title]))
+			field.addElement('value', None, str(settings['xstatus_receiving_mode']))
+			field.addElement('desc', None, lang.get('xstatus_recvmode_Desc')) 
 			
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_option_smooth'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('xstatus_option_smooth')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_option_smooth']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_option_smooth_Desc')) 
+			field.attributes = {
+				'var': 'xstatus_option_smooth',
+				'type': 'boolean',
+				'label': lang.get('xstatus_option_smooth')
+			}
+			field.addElement('value', None, str(settings['xstatus_option_smooth']))
+			field.addElement('desc', None, lang.get('xstatus_option_smooth_Desc')) 
 			
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_display_icon_as_PEP'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('xstatus_display_icon_as_PEP')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_display_icon_as_PEP']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_display_icon_as_PEP_Desc')) 
+			field.attributes = {
+				'var': 'xstatus_display_icon_as_PEP',
+				'type': 'boolean',
+				'label': lang.get('xstatus_display_icon_as_PEP')
+			}
+			field.addElement('value', None, str(settings['xstatus_display_icon_as_PEP']))
+			field.addElement('desc', None, lang.get('xstatus_display_icon_as_PEP_Desc')) 
 			
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_display_text_as_PEP'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('xstatus_display_text_as_PEP')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_display_text_as_PEP']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_display_text_as_PEP_Desc')) 
+			field.attributes = {
+				'var': 'xstatus_display_text_as_PEP',
+				'type': 'boolean',
+				'label': lang.get('xstatus_display_text_as_PEP')
+			}
+			field.addElement('value', None, str(settings['xstatus_display_text_as_PEP']))
+			field.addElement('desc', None, lang.get('xstatus_display_text_as_PEP_Desc')) 
 			
 			field = x.addElement('field')
-			field.attributes['var'] = 'xstatus_icon_for_transport'
-			field.attributes['type'] = 'boolean'
-			field.attributes['label'] = lang.get('xstatus_icon_for_transport')
-			value = field.addElement('value')
-			value.addContent(str(settings['xstatus_icon_for_transport']))
-			desc = field.addElement('desc')
-			desc.addContent(lang.get('xstatus_icon_for_transport_Desc')) 
+			field.attributes = {
+				'var': 'xstatus_icon_for_transport',
+				'type': 'boolean',
+				'label': lang.get('xstatus_icon_for_transport')
+			}
+			field.addElement('value', None, str(settings['xstatus_icon_for_transport']))
+			field.addElement('desc', None, lang.get('xstatus_icon_for_transport_Desc')) 
 			
 		field = x.addElement('field')
-		field.attributes['type'] = 'hidden'
-		field.attributes['var'] = 'settings_page'
-		value = field.addElement('value')
-		value.addContent('xstatus_settings')
+		field.attributes = {'type': 'hidden', 'var': 'settings_page'}
+		field.addElement('value', None, 'xstatus_settings')
 		
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('2')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '2')
 		
 		self.pytrans.send(iq)
 		
@@ -339,63 +317,57 @@ class Settings:
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		settings = bos.selfSettings
 		
-		iq = Element((None, "iq"))
-		iq.attributes["to"] = to
-		iq.attributes["from"] = config.jid
+		iq = Element((None, 'iq'))
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
-			iq.attributes["id"] = ID
-		iq.attributes["type"] = "result"
-
-		command = iq.addElement("command")
+			iq.attributes['id'] = ID
+		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
-			command.attributes["sessionid"] = sessionid
+			command.attributes['sessionid'] = sessionid
 		else:
-			command.attributes["sessionid"] = self.pytrans.makeMessageID()
-		command.attributes["node"] = "settings"
-		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "executing"
-
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()
+	
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
 		actions.addElement('prev')
 		actions.addElement("complete")
 
 		x = command.addElement("x")
-		x.attributes["xmlns"] = "jabber:x:data"
-		x.attributes["type"] = "form"
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
 		
 		title = x.addElement('title')
 		title.addContent(lang.get('settings_category_clist'))
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'clist_show_phantombuddies'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
-		value = field.addElement('value')
-		value.addContent(str(settings['clist_show_phantombuddies']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('settings_clist_show_phantombuddies_Desc')) 
+		field.attributes = {
+			'var': 'clist_show_phantombuddies',
+			'type': 'boolean',
+			'label': lang.get('settings_clist_show_phantombuddies') % bos.ssistats['phantombuddies']
+		}
+		field.addElement('value', None, str(settings['clist_show_phantombuddies']))
+		field.addElement('desc', None, lang.get('settings_clist_show_phantombuddies_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'clist_deny_all_auth_requests'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('settings_clist_deny_all_auth_requests')
-		value = field.addElement('value')
-		value.addContent(str(settings['clist_deny_all_auth_requests']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('settings_clist_deny_all_auth_requests_Desc')) 
+		field.attributes = {
+			'var': 'clist_deny_all_auth_requests',
+			'type': 'boolean',
+			'label': lang.get('settings_clist_deny_all_auth_requests')
+		}
+		field.addElement('value', None, str(settings['clist_deny_all_auth_requests']))
+		field.addElement('desc', None, lang.get('settings_clist_deny_all_auth_requests_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['type'] = 'hidden'
-		field.attributes['var'] = 'settings_page'
-		value = field.addElement('value')
-		value.addContent('clist_settings')
+		field.attributes = {'type': 'hidden', 'var': 'settings_page'}
+		field.addElement('value', None, 'clist_settings')
 		
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('2')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '2')
 		
 		self.pytrans.send(iq)
 		
@@ -409,55 +381,51 @@ class Settings:
 		
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		settings = bos.selfSettings
-		
-		iq = Element((None, "iq"))
-		iq.attributes["to"] = to
-		iq.attributes["from"] = config.jid
+
+		iq = Element((None, 'iq'))
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
-			iq.attributes["id"] = ID
-		iq.attributes["type"] = "result"
-
-		command = iq.addElement("command")
+			iq.attributes['id'] = ID
+		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
-			command.attributes["sessionid"] = sessionid
+			command.attributes['sessionid'] = sessionid
 		else:
-			command.attributes["sessionid"] = self.pytrans.makeMessageID()
-		command.attributes["node"] = "settings"
-		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "executing"
-
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()
+		
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
 		actions.addElement('prev')
 		actions.addElement("complete")
 
-		x = command.addElement("x")
-		x.attributes["xmlns"] = "jabber:x:data"
-		x.attributes["type"] = "form"
-		
-		title = x.addElement('title')
-		title.addContent(lang.get('settings_category_message'))
+		x = command.addElement('x')
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
+		x.addElement('title', None, lang.get('settings_category_message'))
 
-		userencoding_list = dict([
-			('userencoding_list_western_iso', 'iso-8859-1'),
-			('userencoding_list_western_win', 'cp1252'),
-			('userencoding_list_ceuropean_iso', 'iso-8859-2'),
-			('userencoding_list_ceuropean_win', 'cp1250'),
-			('userencoding_list_seuropean_iso', 'iso-8859-3'),
-			('userencoding_list_cyrillic_iso', 'iso-8859-5'),
-			('userencoding_list_cyrillic_win', 'cp1251'),
-			('userencoding_list_greek_iso', 'iso-8859-7'),
-			('userencoding_list_greek_win', 'cp1253'),
-			('userencoding_list_hebrew_iso', 'iso-8859-8'),
-			('userencoding_list_hebrew_win', 'cp1255'),
-			('userencoding_list_selected','selected')
-			])
+		userencoding_list = {
+			'userencoding_list_western_iso': 'iso-8859-1',
+			'userencoding_list_western_win': 'cp1252',
+			'userencoding_list_ceuropean_iso': 'iso-8859-2',
+			'userencoding_list_ceuropean_win': 'cp1250',
+			'userencoding_list_seuropean_iso': 'iso-8859-3',
+			'userencoding_list_cyrillic_iso': 'iso-8859-5',
+			'userencoding_list_cyrillic_win': 'cp1251',
+			'userencoding_list_greek_iso': 'iso-8859-7',
+			'userencoding_list_greek_win': 'cp1253',
+			'userencoding_list_hebrew_iso': 'iso-8859-8',
+			'userencoding_list_hebrew_win': 'cp1255',
+			'userencoding_list_selected': 'selected'
+		}
 		field = x.addElement('field')
-		field.attributes = dict([
-			('var', 'userencoding_list'), 
-			('type', 'list-single'),
-			('label', lang.get('userencoding_list'))
-		])
+		field.attributes = {
+			'var': 'userencoding_list', 
+			'type': 'list-single',
+			'label': lang.get('userencoding_list')
+		}
 		for title in userencoding_list:
 			option = field.addElement('option')
 			option.attributes['label'] = lang.get(title)
@@ -474,94 +442,84 @@ class Settings:
 		field.addElement('desc', None, lang.get('userencoding_list_Desc'))
 
 		field = x.addElement('field')
-		field.attributes = dict([
-			('var', 'userencoding_other'), 
-			('type', 'text-single'),
-			('label', lang.get('userencoding_other'))
-		])
+		field.attributes = {
+			'var': 'userencoding_other', 
+			'type': 'text-single',
+			'label': lang.get('userencoding_other')
+		}
 		field.addElement('value', None, str(settings['userencoding_other']))
 		field.addElement('desc', None, lang.get('userencoding_other_Desc')) 
 		
-		utf8_messages_sendmode = dict([
-			('utf8_messages_sendmode_none',0),
-			('utf8_messages_sendmode_as_reply',1),
-			('utf8_messages_sendmode_always',2)
-			])
+		utf8_messages_sendmode = {
+			'utf8_messages_sendmode_none': 0,
+			'utf8_messages_sendmode_as_reply': 1,
+			'utf8_messages_sendmode_always': 2
+		}
 		field = x.addElement('field')
-		field.attributes['var'] = 'utf8_messages_sendmode'
-		field.attributes['type'] =  'list-single'
-		field.attributes['label'] = lang.get('utf8_messages_sendmode')
+		field.attributes = {
+			'var': 'utf8_messages_sendmode',
+			'type': 'list-single',
+			'label': lang.get('utf8_messages_sendmode')
+		}
 		for title in utf8_messages_sendmode:
 			option = field.addElement('option')
 			option.attributes['label'] = lang.get(title)
-			value = option.addElement('value')
-			value.addContent(str(utf8_messages_sendmode[title]))
-		value = field.addElement('value')
-		value.addContent(str(settings['utf8_messages_sendmode']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('utf8_messages_sendmode_Desc')) 
+			option.addElement('value', None, str(utf8_messages_sendmode[title]))
+		field.addElement('value', None, str(settings['utf8_messages_sendmode']))
+		field.addElement('desc', None, lang.get('utf8_messages_sendmode_Desc')) 
 		
-		msgconfirm_sendmode = dict([
-			('msgconfirm_sendmode_none',0),
-			('msgconfirm_sendmode_for_utf8',1),
-			('msgconfirm_sendmode_always',2)
-			])
+		msgconfirm_sendmode = {
+			'msgconfirm_sendmode_none': 0,
+			'msgconfirm_sendmode_for_utf8': 1,
+			'msgconfirm_sendmode_always': 2
+		}
 		field = x.addElement('field')
-		field.attributes['var'] = 'msgconfirm_sendmode'
-		field.attributes['type'] =  'list-single'
-		field.attributes['label'] = lang.get('msgconfirm_sendmode')
+		field.attributes = {
+			'var': 'msgconfirm_sendmode',
+			'type': 'list-single',
+			'label': lang.get('msgconfirm_sendmode')
+		}
 		for title in msgconfirm_sendmode:
 			option = field.addElement('option')
 			option.attributes['label'] = lang.get(title)
-			value = option.addElement('value')
-			value.addContent(str(msgconfirm_sendmode[title]))
-		value = field.addElement('value')
-		value.addContent(str(settings['msgconfirm_sendmode']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('msgconfirm_sendmode_Desc')) 
+			option.addElement('value', None, str(msgconfirm_sendmode[title]))
+		field.addElement('value', None, str(settings['msgconfirm_sendmode']))
+		field.addElement('desc', None, lang.get('msgconfirm_sendmode_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'msgconfirm_recvmode'
-		field.attributes['type'] =  'boolean'
-		field.attributes['label'] = lang.get('msgconfirm_recvmode')
-		value = field.addElement('value')
-		value.addContent(str(settings['msgconfirm_recvmode']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('msgconfirm_recvmode_Desc')) 
+		field.attributes = {
+			'var': 'msgconfirm_recvmode',
+			'type': 'boolean',
+			'label': lang.get('msgconfirm_recvmode')
+		}
+		field.addElement('value', None, str(settings['msgconfirm_recvmode']))
+		field.addElement('desc', None, lang.get('msgconfirm_recvmode_Desc')) 
 		
-		offline_messages_sendenc = dict([
-			('offline_messages_sendenc_unicode',0),
-			('offline_messages_sendenc_local',1),
-			('offline_messages_sendenc_auto',2)
-			])
+		offline_messages_sendenc = {
+			'offline_messages_sendenc_unicode': 0,
+			'offline_messages_sendenc_local': 1,
+			'offline_messages_sendenc_auto': 2
+		}
 		field = x.addElement('field')
-		field.attributes['var'] = 'offline_messages_sendenc'
-		field.attributes['type'] =  'list-single'
-		field.attributes['label'] = lang.get('offline_messages_sendenc')
+		field.attributes = {
+			'var': 'offline_messages_sendenc',
+			'type': 'list-single',
+			'label': lang.get('offline_messages_sendenc')
+		}
 		for title in offline_messages_sendenc:
 			option = field.addElement('option')
-			if title == 'offline_messages_sendenc_local':
-			    option.attributes['label'] = lang.get(title)
-			else:
-			    option.attributes['label'] = lang.get(title)
-			value = option.addElement('value')
-			value.addContent(str(offline_messages_sendenc[title]))
-		value = field.addElement('value')
-		value.addContent(str(settings['offline_messages_sendenc']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('offline_messages_sendenc_Desc')) 
+			option.attributes['label'] = lang.get(title)
+			option.addElement('value', None, str(offline_messages_sendenc[title]))
+		field.addElement('value', None, str(settings['offline_messages_sendenc']))
+		field.addElement('desc', None, lang.get('offline_messages_sendenc_Desc')) 
 
 		field = x.addElement('field')
-		field.attributes['type'] = 'hidden'
-		field.attributes['var'] = 'settings_page'
-		value = field.addElement('value')
-		value.addContent('message_settings')
+		field.attributes = {'type': 'hidden', 'var': 'settings_page'}
+		field.addElement('value', None, 'message_settings')
 		
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('2')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '2')
 		
 		self.pytrans.send(iq)
 		
@@ -576,21 +534,20 @@ class Settings:
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		settings = bos.selfSettings
 		
-		iq = Element((None, "iq"))
-		iq.attributes["to"] = to
-		iq.attributes["from"] = config.jid
+		iq = Element((None, 'iq'))
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
-			iq.attributes["id"] = ID
-		iq.attributes["type"] = "result"
-
-		command = iq.addElement("command")
+			iq.attributes['id'] = ID
+		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
-			command.attributes["sessionid"] = sessionid
+			command.attributes['sessionid'] = sessionid
 		else:
-			command.attributes["sessionid"] = self.pytrans.makeMessageID()
-		command.attributes["node"] = "settings"
-		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "executing"
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()	
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
@@ -598,50 +555,43 @@ class Settings:
 		actions.addElement("complete")
 
 		x = command.addElement("x")
-		x.attributes["xmlns"] = "jabber:x:data"
-		x.attributes["type"] = "form"
-		
-		title = x.addElement('title')
-		title.addContent(lang.get('settings_category_personal_events'))
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
+		x.addElement('title', None, lang.get('settings_category_personal_events'))
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'user_mood_receiving'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('user_mood_receiving')
-		value = field.addElement('value')
-		value.addContent(str(settings['user_mood_receiving']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('user_mood_receiving_Desc')) 
+		field.attributes = {
+			'var': 'user_mood_receiving',
+			'type': 'boolean',
+			'label': lang.get('user_mood_receiving')
+		}
+		field.addElement('value', None, str(settings['user_mood_receiving']))
+		field.addElement('desc', None, lang.get('user_mood_receiving_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'user_activity_receiving'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('user_activity_receiving')
-		value = field.addElement('value')
-		value.addContent(str(settings['user_activity_receiving']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('user_activity_receiving_Desc')) 
+		field.attributes = {
+			'var': 'user_activity_receiving',
+			'type': 'boolean',
+			'label': lang.get('user_activity_receiving')
+		}
+		field.addElement('value', None, str(settings['user_activity_receiving']))
+		field.addElement('desc', None, lang.get('user_activity_receiving_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['var'] = 'user_tune_receiving'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('user_tune_receiving')
-		value = field.addElement('value')
-		value.addContent(str(settings['user_tune_receiving']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('user_tune_receiving_Desc')) 
+		field.attributes = {
+			'var': 'user_tune_receiving',
+			'type': 'boolean',
+			'label': lang.get('user_tune_receiving')
+		}
+		field.addElement('value', None, settings['user_tune_receiving'])
+		field.addElement('desc', None, lang.get('user_tune_receiving_Desc')) 
 		
 		field = x.addElement('field')
-		field.attributes['type'] = 'hidden'
-		field.attributes['var'] = 'settings_page'
-		value = field.addElement('value')
-		value.addContent('personal_events_settings')
+		field.attributes = {'type': 'hidden', 'var': 'settings_page'}
+		field.addElement('value', None, 'personal_events_settings')
 		
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('2')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '2')
 		
 		self.pytrans.send(iq)
 
@@ -656,21 +606,21 @@ class Settings:
 		bos = self.pytrans.sessions[jid].legacycon.bos
 		settings = bos.selfSettings
 		
-		iq = Element((None, "iq"))
-		iq.attributes["to"] = to
-		iq.attributes["from"] = config.jid
+		
+		iq = Element((None, 'iq'))
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
-			iq.attributes["id"] = ID
-		iq.attributes["type"] = "result"
-
-		command = iq.addElement("command")
+			iq.attributes['id'] = ID
+		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'executing'
+		}
 		if sessionid:
-			command.attributes["sessionid"] = sessionid
+			command.attributes['sessionid'] = sessionid
 		else:
-			command.attributes["sessionid"] = self.pytrans.makeMessageID()
-		command.attributes["node"] = "settings"
-		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "executing"
+			command.attributes['sessionid'] = self.pytrans.makeMessageID()
 
 		actions = command.addElement("actions")
 		actions.attributes["execute"] = "complete"
@@ -678,53 +628,49 @@ class Settings:
 		actions.addElement("complete")
 
 		x = command.addElement("x")
-		x.attributes["xmlns"] = "jabber:x:data"
-		x.attributes["type"] = "form"
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
 		
 		title = x.addElement('title')
 		title.addContent(lang.get('settings_category_autoanswer'))
 
 		field = x.addElement('field')
-		field.attributes['var'] = 'autoanswer_text'
-		field.attributes['type'] = 'text-multi'
-		field.attributes['label'] = lang.get('autoanswer_text')
+		field.attributes = {
+			'var': 'autoanswer_text',
+			'type': 'text-multi',
+			'label': lang.get('autoanswer_text')
+		}
 		value = field.addElement('value')
 		if 'autoanswer_text' in settings:
 			value.addContent(str(settings['autoanswer_text']))
 		else:
 			value.addContent(lang.get('autoanswer_text_content'))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('autoanswer_text_Desc')) 
+		field.addElement('desc', None, lang.get('autoanswer_text_Desc')) 
 
 		field = x.addElement('field')
-		field.attributes['var'] = 'autoanswer_enable'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('autoanswer_enable')
-		value = field.addElement('value')
-		value.addContent(str(settings['autoanswer_enable']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('autoanswer_enable_Desc')) 
+		field.attributes = {
+			'var': 'autoanswer_enable',
+			'type': 'boolean',
+			'label': lang.get('autoanswer_enable')
+		}
+		field.addElement('value', None, str(settings['autoanswer_enable']))
+		field.addElement('desc', None, lang.get('autoanswer_enable_Desc')) 
 
 		field = x.addElement('field')
-		field.attributes['var'] = 'autoanswer_hide_dialog'
-		field.attributes['type'] = 'boolean'
-		field.attributes['label'] = lang.get('autoanswer_hide_dialog')
-		value = field.addElement('value')
-		value.addContent(str(settings['autoanswer_hide_dialog']))
-		desc = field.addElement('desc')
-		desc.addContent(lang.get('autoanswer_hide_dialog_Desc')) 
+		field.attributes = {
+			'var': 'autoanswer_hide_dialog',
+			'type': 'boolean',
+			'label': lang.get('autoanswer_hide_dialog')
+		}
+		field.addElement('value', None, str(settings['autoanswer_hide_dialog']))
+		field.addElement('desc', None, lang.get('autoanswer_hide_dialog_Desc')) 
 
 		field = x.addElement('field')
-		field.attributes['type'] = 'hidden'
-		field.attributes['var'] = 'settings_page'
-		value = field.addElement('value')
-		value.addContent('autoanswer_settings')
+		field.attributes = {'type': 'hidden', 'var': 'settings_page'}
+		field.addElement('value', None, 'autoanswer_settings')
 
 		stage = x.addElement('field')
-		stage.attributes['type'] = 'hidden'
-		stage.attributes['var'] = 'stage'
-		value = stage.addElement('value')
-		value.addContent('2')
+		stage.attributes = {'type': 'hidden', 'var': 'stage'}
+		stage.addElement('value', None, '2')
 
 		self.pytrans.send(iq)
 		
@@ -734,34 +680,27 @@ class Settings:
 		ulang = utils.getLang(el)
 		
 		iq = Element((None, 'iq'))
-		iq.attributes['to'] = to
-		iq.attributes['from'] = config.jid
+		iq.attributes = {'to': to, 'from': config.jid, 'type': 'result'}
 		if ID:
 			iq.attributes['id'] = ID
-		iq.attributes['type'] = 'result'
-		
 		command = iq.addElement('command')
+		command.attributes = {
+			'node': 'settings', 
+			'xmlns': globals.COMMANDS, 
+			'status': 'completed'
+		}
 		if sessionid:
 			command.attributes['sessionid'] = sessionid
 		else:
 			command.attributes['sessionid'] = self.pytrans.makeMessageID()
-		command.attributes['node'] = 'settings'
-		command.attributes['xmlns'] = globals.COMMANDS
-		command.attributes['status'] = 'completed'
-		
-		note = command.addElement('note')
+
+		note = command.addElement('note', None, lang.get('settings_changed'))
 		note.attributes['type'] = 'info'
-		note.addContent(lang.get('settings_changed'))
 		
 		x = command.addElement('x')
-		x.attributes['xmlns'] = 'jabber:x:data'
-		x.attributes['type'] = 'form'
-
-		title = x.addElement('title')
-		title.addContent(lang.get('command_Settings'))
-		
-		instructions = x.addElement('instructions')
-		instructions.addContent(lang.get('settings_changed'))
+		x.attributes = {'xmlns': 'jabber:x:data', 'type': 'form'}
+		x.addElement('title', None, lang.get('command_Settings'))
+		x.addElement('instructions', None, lang.get('settings_changed'))
 		
 		self.pytrans.send(iq)
 		
