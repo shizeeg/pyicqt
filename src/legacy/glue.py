@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2004-2006 Daniel Henninger <jadestorm@nc.rr.com>
 # Licensed for distribution under the GPL version 2, check COPYING for details
 
@@ -26,7 +27,7 @@ from twisted.python import log
 name = "ICQ Transport"
 
 # The transport's version
-version = "0.8.1.3"
+version = "0.8.1.4"
 
 # URL of the transport's web site
 url = "http://pyicqt.googlecode.com/"
