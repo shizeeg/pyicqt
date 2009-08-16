@@ -441,7 +441,7 @@ def doSpoolPrepCheck():
 	print "Checking spool files and stringprepping any if necessary...",
 
 	for file in os.listdir(pre):
-		if os.path.isfile(pre + file) and file.find(".xml"):
+		if os.path.isfile(pre + file) and file.find(".xml") != -1:
 			file = utils.unmangle(file).decode("utf-8", "replace")
 			try:
 				filej = internJID(file).full()
