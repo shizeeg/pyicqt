@@ -685,9 +685,19 @@ class OscarConnection(protocol.Protocol):
         send the disconnect flap, and sever the connection
         """
         self.sendFLAP('', 0x04)
-        def f(reason): pass
-        self.connectionLost = f
+        self.connectionLost = self.dummyConnectionLost
         self.transport.loseConnection()
+
+    def dummyConnectionLost(self, reason):
+        # this is really ugly (scheduler), but this is to avoid the mess introduced by the scheduler  
+        try: 
+            self.scheduler.stop()
+        except: 
+            pass
+        try: 
+            self.stopKeepAlive()
+        except: 
+            pass
 
 
 class SNACBased(OscarConnection):
@@ -699,6 +709,9 @@ class SNACBased(OscarConnection):
         self.lastID=0
         self.supportedFamilies = {}
         self.requestCallbacks={} # request id:Deferred
+
+    def connectionMade(self):
+        OscarConnection.connectionMade(self)
         self.scheduler=Scheduler(self.sendFLAP)
 
     def sendSNAC(self,fam,sub,data,flags=[0,0]):
@@ -3506,6 +3519,7 @@ class OSCARService(SNACBased):
         self.d = d
 
     def connectionLost(self, reason):
+        SNACBased.connectionLost(self, reason)
         for k,v in self.bos.services.items():
             if v == self:
                 del self.bos.services[k]

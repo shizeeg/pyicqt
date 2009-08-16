@@ -12,7 +12,7 @@ import time
 import Queue
 import sys
 
-class Scheduler:
+class Scheduler(object):
     def __init__(self,handler):
         self.freezer={}
         self.handler=handler
@@ -31,6 +31,12 @@ class Scheduler:
         if (not self.threads.has_key(classid) or not self.threads[classid].isAlive()):
             self.threads[classid]=self.QueueThread(classid,self.handler,self.freezer)
         self.threads[classid].enqueue(snac)
+        self.bigLock.release()
+  
+    def stop(self):
+        self.bigLock.acquire()
+        for q in self.threads.values():
+            q.running = False
         self.bigLock.release()
         
     def bindIntoClass(self,fam,sub,classid):
@@ -58,6 +64,7 @@ class Scheduler:
             
         def __init__(self,name,handler,freezer):
             threading.Thread.__init__(self)
+            self.running = True
             self.name=name
             self.handler=handler
             self.freezer=freezer
@@ -71,7 +78,7 @@ class Scheduler:
             self.start()
     
         def run(self):
-            while True:
+            while self.running:
                try:
                     snac=self.q.get(True,self.rm.waithint)
                     delay=self.rm.getDelay()
