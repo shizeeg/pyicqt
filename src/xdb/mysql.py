@@ -7,7 +7,7 @@
 #
 
 import config
-import os
+import sys
 import MySQLdb
 import re
 
@@ -26,7 +26,7 @@ class XDB:
 		)
 		if not self.db:
 			print "Unable to connect to MySQL database."
-			os.exit(1)
+			sys.exit(1)
 
 	def db_ping(self):
 		""" 

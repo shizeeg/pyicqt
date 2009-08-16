@@ -488,7 +488,7 @@ def doHashDirUpgrade():
 
 				if os.path.exists(pre2 + file):
 					print "Need to move", file, "to", pre2 + file, "but the latter exists!\nAborting!"
-					os.exit(1)
+					sys.exit(1)
 				else:
 					shutil.move(pre + file, pre2 + file)
 
