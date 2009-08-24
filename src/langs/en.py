@@ -19,6 +19,7 @@ class en: # English - James Bunton <mailto:james@delx.cjb.net>/Daniel Henninger 
 	searchnodataform = u"Use the enclosed form to search.  If your Jabber client does not support Data Forms, you will not be able to use this functionality."
 	searchtitle = u"ICQ Directory Search"
 	searchinstructions = u"Fill in either the e-mail address field or any number of the other fields to search the ICQ directory for matching users.  If the e-mail address is filled in, all other fields are ignored."
+	sessionslimit = u"Sorry. You can't be connected to ICQ because too many sessions active in this time. Try later or choose other gateway from list http://www.jabberes.org/servers/servers_by_gateway_icq.html"
 	command_CommandList = u"PyICQt Commands"
 	command_Statistics = u"Statistics for PyICQt"
 	command_RosterRetrieval = u"Retrieve Roster Contents"

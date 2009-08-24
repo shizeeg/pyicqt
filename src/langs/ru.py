@@ -18,6 +18,7 @@ class ru: # Russian - evadim <evadim@evadim.ru>, Night Nord <NightNord@gmail.com
 	searchnodataform = u"Используйте вложенную форму для поиска.  Если ваш XMPP-клиент не поддерживает Data Forms, использовать поиск будет невозможно."
 	searchtitle = u"Поиск пользователей"
 	searchinstructions = u"Укажите e-mail адресс, или любую другую информацию в соответствующих полях, для поиска подходящих пользователей в базе ICQ.  Если заполнено поле e-mail, все другие поля игнорируются."
+	sessionslimit = u"Извините, вы не можете быть подключены к ICQ из-за того что слишком много сессий активно в данный момент. Попробуйте позже или выберите другой шлюз из списка http://www.jabberes.org/servers/servers_by_gateway_icq.html"
 	command_CommandList = u"Команды PyICQt"
 	command_Statistics = u"Статистика PyICQt"
 	command_RosterRetrieval = u"Получить содержимое контакт-листа"

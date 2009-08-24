@@ -351,16 +351,20 @@ class PyTransport(component.Service):
 			if to.find('@') < 0:
 				# If the presence packet is to the transport (not a user) and there isn't already a session
 				if not ptype: # Don't create a session unless they're sending available presence
-					LogEvent(INFO, msg="Attempting to create a new session")
-					s = session.makeSession(self, froj.userhost(), ulang, toj)
-					if s:
-						self.sessions[froj.userhost()] = s
-						LogEvent(INFO, msg="New session created")
-						# Send the first presence
-						s.onPresence(el)
+					if self.serviceplugins['Statistics'].stats["OnlineSessions"] < 1000:
+						LogEvent(INFO, msg="Attempting to create a new session")
+						s = session.makeSession(self, froj.userhost(), ulang, toj)
+						if s:
+							self.sessions[froj.userhost()] = s
+							LogEvent(INFO, msg="New session created")
+							# Send the first presence
+							s.onPresence(el)
+						else:
+							LogEvent(INFO, msg="Failed to create session")
+							jabw.sendMessage(self, to=froj.userhost(), fro=config.jid, body=lang.get("notregistered", ulang))
 					else:
-						LogEvent(INFO, msg="Failed to create session")
-						jabw.sendMessage(self, to=froj.userhost(), fro=config.jid, body=lang.get("notregistered", ulang))
+						LogEvent(INFO, msg="Max sessions limit reached")
+						jabw.sendMessage(self, to=froj.userhost(), fro=config.jid, body=lang.get("sessionslimit", ulang))
 				
 				elif ptype != "error":
 					LogEvent(INFO, msg="Sending unavailable presence to non-logged in user")
