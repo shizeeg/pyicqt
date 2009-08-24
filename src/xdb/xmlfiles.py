@@ -50,7 +50,7 @@ class XDB:
 	def files(self):
 		""" Returns a list containing the files in the current XDB database """
 		files = []
-		for dir in os.listdir(self.name):
+		for dir in os.listdir(unicode(self.name, sys.getfilesystemencoding())):
 			if len(dir) != 2: continue
 			if os.path.isdir(self.name + X + dir):
 				files.extend(os.listdir(self.name + X + dir))
