@@ -4,11 +4,10 @@
 #
 # Requirements:
 # proc filesystem support
-# Py-transport, running under separate user
 # munin <http://munin.projects.linpro.no> 
 #
 # Usage: Link or copy into /etc/munin/plugins/
-# Example: status_pyicqt for PyICQt monitoring
+# Example: memory_pyicqt for PyICQt monitoring
 #
 # Magic markers (optional - only used by munin-config and some
 # installation scripts):
@@ -32,6 +31,8 @@ if [ "$1" = "config" ]; then
 	echo 'graph_period minute'
 	echo 'memory.label memory'
 	echo 'memory.info Virtual memory size'
+	echo 'peak.label peak'
+	echo 'peak.info Peak virtual memory size'
 	echo 'data.label data'
 	echo 'data.info Size of data segment'
 	echo 'code.label code'
@@ -40,6 +41,9 @@ if [ "$1" = "config" ]; then
 	echo 'stack.info Size of stack segment'
 	echo 'shared.label shared'
 	echo 'shared.info Size of shared libraries'
+	echo 'rss.label rss'
+	echo 'rss.info Size of resident memory'
+
 	exit 0
 fi
 
@@ -54,6 +58,11 @@ vmsize=`cat /proc/$pid/status | grep VmSize`
 vmsize_kb=`echo $vmsize | cut -f2 -d ' '`
 echo -n 'memory.value '
 echo `expr $vmsize_kb '*' 1024` # virtual memory size
+
+vmpeak=`cat /proc/$pid/status | grep VmPeak`
+vmpeak_kb=`echo $vmpeak | cut -f2 -d ' '`
+echo -n 'peak.value '
+echo `expr $vmpeak_kb '*' 1024` # peak virtual memory size
 
 vmdata=`cat /proc/$pid/status | grep VmData`
 vmdata_kb=`echo $vmdata | cut -f2 -d ' '`
@@ -74,3 +83,9 @@ vmlib=`cat /proc/$pid/status | grep VmLib`
 vmlib_kb=`echo $vmlib | cut -f2 -d ' '`
 echo -n 'shared.value '
 echo `expr $vmlib_kb '*' 1024` # size of shared libraries
+
+rss=`cat /proc/$pid/status | grep VmRSS`
+rss_kb=`echo $rss | cut -f2 -d ' '`
+echo -n 'rss.value '
+echo `expr $rss_kb '*' 1024` # resident memory size
+
