@@ -3,7 +3,7 @@
 # Plugin to monitor the Py-transport threads count
 #
 # Requirements:
-# Py-transport, running under separate user
+# proc filesystem support
 # munin <http://munin.projects.linpro.no> 
 #
 # Usage: Link or copy into /etc/munin/plugins/
