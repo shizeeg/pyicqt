@@ -48,10 +48,27 @@ class Statistics:
 			iq.attributes["id"] = ID
 		iq.attributes["type"] = "result"
 
+		sessionid = None
+		refresh = False
+		if el.firstChildElement():
+			sessionid = el.firstChildElement().getAttribute('sessionid')
+			if el.firstChildElement().getAttribute('action') == 'next':
+				refresh = True
+
 		command = iq.addElement("command")
-		command.attributes["sessionid"] = self.pytrans.makeMessageID()
+		if not refresh and sessionid:
+			command.attributes["status"] = 'completed'
+		else:
+			command.attributes["status"] = 'executing'
+			actions = command.addElement('actions')
+			actions.attributes['execute'] = 'complete'
+			actions.addElement('next')
+			actions.addElement('complete')
+		if not sessionid:
+			sessionid = self.pytrans.makeMessageID()
+		command.attributes["sessionid"] = sessionid
 		command.attributes["xmlns"] = globals.COMMANDS
-		command.attributes["status"] = "completed"
+		command.attributes['node'] = 'stats'
 
 		x = command.addElement("x")
 		x.attributes["xmlns"] = globals.XDATA
