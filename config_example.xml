@@ -144,9 +144,19 @@
 	<!-- xmlfiles: single xml files in the spool directory in hashed dirs (default)-->
 	<!-- legacyaimtransport: compatible with c-based aim transport, less functionality -->
 	<!-- legacyjittransport: compatible with JIT transport, less functionality -->
-	<!-- mysql: registration information stored in a MySQL database -->
 	<!--<xdbDriver>xmlfiles</xdbDriver>-->
 
+	<!-- For PostgreSQL -->
+	<!--<xdbDriver>pgsql</xdbDriver>-->
+	<!--<xdbDriver_pgsql>-->
+	<!--<username>pyicqt</username>-->
+	<!--<password>pyicqt</password>-->
+	<!--<database>pyicqt</database>-->
+	<!--<server>localhost</server>-->
+	<!--<format>encrypted</format>-->
+	<!--</xdbDriver_pgsql>-->
+
+	<!-- mysql: registration information stored in a MySQL database -->
 	<!-- For MySQL -->
 	<!--<xdbDriver>mysql</xdbDriver>-->
 	<!--<xdbDriver_mysql>-->

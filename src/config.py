@@ -46,6 +46,7 @@ socksProxyPort = 0
 admins = []
 xdbDriver = "xmlfiles"
 xdbDriver_mysql = {}
+xdbDriver_pgsql = {}
 xdbDriver_xmlfiles = {}
 useXCP = bool(False)
 useComponentBinding = bool(False)
